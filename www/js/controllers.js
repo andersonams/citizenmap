@@ -8,7 +8,7 @@ angular.module('app.controllers', [])
 
 })
    
-.controller('configuraEsCtrl', function($scope) {
+.controller('configuracoesCtrl', function($scope) {
 
 })
       
@@ -23,4 +23,3 @@ angular.module('app.controllers', [])
 .controller('principalCtrl', function($scope) {
 
 })
- 
