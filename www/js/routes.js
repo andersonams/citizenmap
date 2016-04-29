@@ -1,6 +1,6 @@
 angular.module('app.routes', [])
 
-  .config(function ($stateProvider, $urlRouterProvider) {
+.config(function ($stateProvider, $urlRouterProvider) {
 
     // Ionic uses AngularUI Router which uses the concept of states
     // Learn more here: https://github.com/angular-ui/ui-router
@@ -13,23 +13,27 @@ angular.module('app.routes', [])
         templateUrl: 'templates/menu.html',
         abstract: false
       })
-
-      .state('menu.citizenMap', {
-        url: '/citizenMap',
-        views: {
-          'side-menu21': {
-            templateUrl: 'templates/citizenMap.html',
-            controller: 'citizenMapCtrl'
-          }
-        }
+      
+      .state('entrada', {
+        url: '/entrada',
+        templateUrl: 'templates/entrada.html'
+      })
+      
+      .state('login', {
+        url: '/login',
+        templateUrl: 'templates/login.html'
+      })
+      
+      .state('cadastro', {
+        url: '/cadastro',
+        templateUrl: 'templates/cadastro.html'
       })
 
       .state('menu.mapa', {
         url: '/mapa',
         views: {
           'menuview': {
-            templateUrl: 'templates/mapa.html',
-            // controller: 'mapaCtrl'
+            templateUrl: 'templates/mapa.html'
           }
         }
       })
@@ -44,33 +48,11 @@ angular.module('app.routes', [])
         }
       })
 
-      .state('menu.login', {
-        url: '/login',
-        /*templateUrl: 'templates/menu.html',*/
-        views: {
-          'side-menu21': {
-            templateUrl: 'templates/login.html',
-            controller: 'loginCtrl'
-          }
-        }
-      })
-
-      .state('menu.cadastro', {
-        url: '/cadastro',
-        views: {
-          'side-menu21': {
-            templateUrl: 'templates/cadastro.html',
-            controller: 'cadastroCtrl'
-          }
-        }
-      })
-
       .state('menu.principal', {
         url: '/principal',
         views: {
           'menuview': {
-            templateUrl: 'templates/principal.html',
-            /*controller: 'principalCtrl'*/
+            templateUrl: 'templates/principal.html'
           }
         }
       })
@@ -79,12 +61,11 @@ angular.module('app.routes', [])
         url: '/avaliacao',
         views: {
           'menuview': {
-            templateUrl: 'templates/avaliacao.html',
-            /*controller: 'principalCtrl'*/
+            templateUrl: 'templates/avaliacao.html'
           }
         }
       })
 
-    $urlRouterProvider.otherwise('menu/principal')
+    $urlRouterProvider.otherwise('entrada')
 
   });
