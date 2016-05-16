@@ -19,30 +19,12 @@ angular.module('app.controllers', [])
     // Iniciar com um objeto de usuário nulo:
     $scope.user = null;
     
-    // Chama $authWithOAuthPopup da $firebaseAuth;
-    // Processado pelo InAppBrowser plugin na emulação;
-    // Pode-se adiocionar o usuário em $scope aqui ou em $onAuth;
-    $scope.loginFacebook = function scopeLogin(provider) {
-      Auth.loginFacebook(provider).then(function(authData){
-        console.log('Usuário Logado!', authData);
-      })
-      .catch(function(error) {
-        if (error.code === "TRANSPORT_UNAVAILABLE") {
-            Auth.$authWithOAuthPopup(provider).then(function(authData) {
-            console.log('Usuário Logado!', authData);
-            });
-        } 
-        else {
-        console.log(error);
-        }
-      });
-    };
-    
-    $scope.loginComum = function (usuario) {
+    // Login Comum:
+    $scope.login = function(usuario) {
         console.log("Formulário enviado!");
         if(angular.isDefined(usuario)){
             Utils.show();
-            Auth.loginComum(usuario).then(function(authData) {
+            Auth.login(usuario).then(function(authData) {
                console.log("ID do Usuário:" + JSON.stringify(authData));
                Utils.hide();
                $state.go('menu.principal');
@@ -74,8 +56,27 @@ angular.module('app.controllers', [])
         }
     };
     
-    //Deslogar:
-    $scope.logOut = function () {
+    // Método para login através de alguma rede social:
+    $scope.loginProvider = function(provider) {
+      Auth.loginProvider(provider).then(function(authData){
+        console.log('Usuário Logado!', authData);
+        $state.go('menu.principal');
+      })
+      .catch(function(error) {
+        if (error.code === "TRANSPORT_UNAVAILABLE") {
+            Auth.$authWithOAuthPopup(provider).then(function(authData) {
+            console.log('Usuário Logado!', authData);
+            $state.go('menu.principal');
+            });
+        } 
+        else {
+        console.log(error);
+        }
+      });
+    };
+    
+    // Deslogar:
+    $scope.logOut = function() {
         Auth.logout();
         console.log("Usuário deslogado!");
         $location.path("/login");
@@ -87,8 +88,22 @@ angular.module('app.controllers', [])
     });
 })
 
-.controller('cadastroCtrl', function($scope) {
-
+.controller("cadastroCtrl", function($scope, Auth, FBURL, Utils, $location, $state) {
+    $scope.cadastro = function (usuario) {
+        if (angular.isDefined(usuario)) {
+            Utils.show();
+            Auth.cadastro(usuario).then(function() {
+                Utils.hide();
+                console.log("Antes do Acesso:" + JSON.stringify(usuario));
+                Utils.alertshow("Sucesso", "Usuário criado com sucesso!");
+                $location.path('/');
+            }, 
+            function(err) {
+                Utils.hide();
+                Utils.errMessage(err);
+            });
+        }
+    };
 })
    
 .controller('principalCtrl', function($scope) {

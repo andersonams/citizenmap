@@ -27,7 +27,8 @@ angular.module('app.routes', [])
       
       .state('cadastro', {
         url: '/cadastro',
-        templateUrl: 'templates/cadastro.html'
+        templateUrl: 'templates/cadastro.html',
+        controller: 'cadastroCtrl'
       })
 
       .state('menu.mapa', {

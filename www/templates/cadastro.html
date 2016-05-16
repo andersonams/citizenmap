@@ -1,20 +1,30 @@
 <ion-view title="Cadastro" id="cadastro">
     <ion-content padding="true" class="has-header">
-        <form class="list">
+        <form novalidate class="list" name="cadastroForm" ng-submit="cadastroForm.$valid && cadastro(user)" ng-class="{ 'has-error' : cadastroForm.txtemail.$invalid && cadastroForm.$submitted }">
             <h5 id="cadastro-heading4" style="color:#000000;text-align:center;">Dados Pessoais</h5>
             <ion-list>
-                <label class="item item-input" name="nome">
-                    <span class="input-label">Name</span>
-                    <input type="text" placeholder="">
+                <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtNome.$invalid && cadastroForm.$submitted }">
+                    <input name="txtNome" type="text" ng-model="user.nome" placeholder="Nome" ng-minlength="5" ng-maxlength="30" required>
                 </label>
-                <label class="item item-input" name="sobrenome">
-                    <span class="input-label">Sobrenome</span>
-                    <input type="text" placeholder="">
+                <div class="form-errors" ng-messages="cadastroForm.txtNome.$error" ng-if="registerForm.$submitted">
+                  <div class="form-error" ng-message="required">Campo obrigatório.</div>
+                  <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
+                </div>
+                <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtSobrenome.$invalid && cadastroForm.$submitted }">
+                    <input name="txtSobrenome" type="text" ng-model="user.sobrenome" placeholder="Sobrenome" ng-minlength="5" ng-maxlength="30" required>
                 </label>
-                <label class="item item-input" name="email">
-                    <span class="input-label">E-mail</span>
-                    <input type="email" placeholder="">
+                <div class="form-errors" ng-messages="cadastroForm.txtSobrenome.$error" ng-if="registerForm.$submitted">
+                  <div class="form-error" ng-message="required">Campo obrigatório.</div>
+                  <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
+                </div>
+                <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtEmail.$invalid && cadastroForm.$submitted }">
+                    <input name="txtEmail" type="email" ng-model="user.email" placeholder="E-Mail" ng-minlength="5" ng-maxlength="30" required>
                 </label>
+                <div class="form-errors" ng-messages="cadastroForm.txtEmail.$error" ng-if="registerForm.$submitted">
+                    <div class="form-error" ng-message="required">Campo obrigatório.</div>
+                    <div class="form-error" ng-message="email">Este campo deve ser um e-mail.</div>
+                    <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
+                </div>
             </ion-list>
             <h5 id="cadastro-heading5" style="color:#000000;text-align:center;">Dados de Acesso</h5>
             <label class="item item-input" name="senha">
@@ -23,7 +33,7 @@
             </label>
             <h5 id="cadastro-heading6" style="color:#000000;text-align:center;">Configurações</h5>
             <ion-checkbox name="alertaemail">Enviar Alertas de E-Mail</ion-checkbox>
-            <button id="cadastro-button5" class="button button-positive  button-block">Finalizar Cadastro</button>
+            <button type="submit" id="cadastro-button" class="button button-positive  button-block">Finalizar Cadastro</button>
         </form>
     </ion-content>
 </ion-view>

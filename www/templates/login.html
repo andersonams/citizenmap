@@ -1,31 +1,29 @@
 <ion-view title="Login" id="login">
     <ion-content padding="true" class="has-header">
-        <form novalidate name="loginForm" class="list" ng-submit="loginForm.$valid && loginComum(usuario)">
+        <form novalidate class="list" name="loginForm" ng-submit="loginForm.$valid && login(usuario)">
             <h5 id="login-heading3" style="color:#000000;text-align:center;">Dados de Acesso</h5>
-            <label class="item item-input item-floating-label" ng-class="{ 'has-error' : loginForm.txtemail.$invalid && loginForm.$submitted }">
-                <input name="txtemail" type="email" ng-model="usuario.email" placeholder="E-mail" ng-maxlength="30" required>
+            <label class="item item-input item-floating-label" ng-class="{ 'has-error' : loginForm.txtEmail.$invalid && loginForm.$submitted }">
+                <input name="txtEmail" type="email" ng-model="usuario.email" placeholder="E-mail" ng-maxlength="30" required>
             </label>
-            <!-- Edit this messages if you want -->
-            <div class="form-errors" ng-messages="loginForm.txtemail.$error" ng-if="loginForm.$submitted">
+            <div class="form-errors" ng-messages="loginForm.txtEmail.$error" ng-if="loginForm.$submitted">
                 <div class="form-error" ng-message="required">Campo obrigatório.</div>
                 <div class="form-error" ng-message="email">Este campo deve ser um e-mail.</div>
                 <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
             </div>
             <label class="item item-input item-floating-label" ng-class="{ 'has-error-lr' : loginForm.txtPassword.$invalid && loginForm.$submitted }">
-                <input name="txtPassword" type="password" ng-model="usuario.password" placeholder="Usuário" ng-minlength="8" ng-maxlength="12" required>
+                <input name="txtPassword" type="password" ng-model="usuario.password" placeholder="Usuário" ng-minlength="6" ng-maxlength="12" required>
             </label>
-            <!-- Edit this messages if you want -->
             <div class="form-errors" ng-messages="loginForm.txtPassword.$error" ng-if="loginForm.$submitted">
                 <div class="form-error" ng-message="required">Campo obrigatório.</div>
-                <div class="form-error" ng-message="minlength">Campo com no mínimo 8 dígitos.</div>
+                <div class="form-error" ng-message="minlength">Campo com no mínimo 6 dígitos.</div>
                 <div class="form-error" ng-message="maxlength">Campo com no máximo 12 caracteres.</div>
             </div>
             <div class="spacer" style="height: 40px;"></div>
-            <button type="submit"id="login-button3" class="button button-positive  button-block">Entrar</button>
-            <a ui-sref="login" id="entrda-button1" class="button button-positive  button-block" ng-click="loginFacebook()"><i class="fa fa-facebook-official" aria-hidden="true"></i> Entrar via Facebook</a>
+            <button type="submit" id="login-button" class="button button-positive  button-block">Entrar</button>
+            <a ui-sref="login" id="facebook-button" class="button button-positive  button-block" ng-click="loginProvider('facebook')"><i class="fa fa-facebook-official" aria-hidden="true"></i> Entrar via Facebook</a>
             <p class="text-center padding-top">
                 <a href="#/forgot" class="button button-clear button-positive">Esqueceu a Senha?</a>
-                <a href="#/register" class="button button-clear button-positive">Efetuar Cadastro</a>
+                <a href="#/cadastro" class="button button-clear button-positive">Efetuar Cadastro</a>
                 <a href="#" onclick="window.open('/signup', '_system', 'location=yes'); return false;" id="login-button4" class="button button-stable  button-block button-clear">Ajuda</a>
         </form>
     </ion-content>
