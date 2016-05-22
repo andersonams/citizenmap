@@ -1,4 +1,4 @@
-angular.module('app.controllers', [])
+angular.module('citizenmap.controllers', [])
   
 .controller('citizenMapCtrl', function($scope) {
 

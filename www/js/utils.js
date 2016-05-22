@@ -1,4 +1,4 @@
-angular.module('app.utils', [])
+angular.module('citizenmap.utils', [])
 
 .factory('Utils', function($ionicLoading, $ionicPopup) {
     

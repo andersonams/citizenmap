@@ -1,4 +1,4 @@
-angular.module('app.directives', [])
+angular.module('citizenmap.directives', [])
 
 .directive('blankDirective', [function(){
 

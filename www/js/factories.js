@@ -1,4 +1,4 @@
-angular.module('app.factories', [])
+angular.module('citizenmap.factories', [])
 
 .factory('Auth', function(FBURL, $firebaseAuth, $firebaseArray, $timeout){
     var ref = new Firebase(FBURL);
