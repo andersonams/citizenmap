@@ -21,7 +21,7 @@ angular.module('app.controllers', [])
     
     // Login Comum:
     $scope.login = function(usuario) {
-        console.log("Formulário enviado!");
+        console.log("Formulário Enviado!");
         if(angular.isDefined(usuario)){
             Utils.show();
             Auth.login(usuario).then(function(authData) {
@@ -88,14 +88,13 @@ angular.module('app.controllers', [])
     });
 })
 
-.controller("cadastroCtrl", function($scope, Auth, FBURL, Utils, $location, $state) {
-    $scope.cadastro = function (usuario) {
+.controller("cadastroCtrl", function($scope, Auth, Utils, $location, $state) {
+    $scope.cadastrar = function (usuario) {
         if (angular.isDefined(usuario)) {
             Utils.show();
-            Auth.cadastro(usuario).then(function() {
+            Auth.cadastrar(usuario).then(function() {
                 Utils.hide();
-                console.log("Antes do Acesso:" + JSON.stringify(usuario));
-                Utils.alertshow("Sucesso", "Usuário criado com sucesso!");
+                Utils.alertshow("Sucesso", "Seu usuário foi criado com sucesso!");
                 $location.path('/');
             }, 
             function(err) {
@@ -108,4 +107,4 @@ angular.module('app.controllers', [])
    
 .controller('principalCtrl', function($scope) {
 
-})
+});

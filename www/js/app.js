@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('app', ['ionic', 'firebase', 'ngMessages', 'app.controllers', 'app.routes', 'app.services', 'app.directives'])
+angular.module('app', ['firebase', 'ionic', 'ngMessages', 'app.controllers', 'app.directives', 'app.factories', 'app.routes', 'app.services', 'app.utils'])
 
 .constant('FBURL', 'https://luminous-torch-2885.firebaseio.com/')
 .run(function($ionicPlatform) {
