@@ -1,0 +1,42 @@
+<ion-view title="Testes Firebase" id="avaliacao">
+    <ion-content padding="true" class="has-header">
+        <h3 class="title">Estáticos</h3>
+        <!-- Butões que não precisam de formulário! -->
+        <button class="button button-dark" ng-click="child_added()"> child_added</button>
+        <button class="button button-dark" ng-click="value()"> value</button>
+        <button class="button button-dark" ng-click="range()"> range</button>
+        <hr>
+        <h3 class="title">Formulário</h3>
+        <form name="avlForm" ng-submit="form(avl)">
+            <label class="item item-input item-select">
+                <div class="input-label">
+                    Tipo
+                </div>
+                <select ng-model="avl.tipo" >
+                    <option>child_added</option>
+                    <option>value</option>
+                    <option>range</option>
+                </select>
+            </label>
+            <label class="item item-input">
+                <input type="text" name="servico" ng-model="avl.servico" placeholder="Serviço">
+            </label>
+            <label class="item item-input">
+                <input type="text" name="servico" ng-model="avl.tipoLocal" placeholder="Tipo Local">
+            </label>
+            <label class="item item-input">
+                <input type="text" name="servico" ng-model="avl.local" placeholder="Local">
+            </label>
+            <button type="submit" class="button button-dark button-block"> Pesquisar</button>
+        </form>
+        <hr>
+        <!-- Iteração somente com objetos do tipo $firebaseArray! -->
+        <h3 class="title">Lista</h3>
+        <ion-list>
+            <ion-item ng-repeat="avl in avlsIterator">
+                {{avl.nota}}
+                {{avl.perfil}}
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

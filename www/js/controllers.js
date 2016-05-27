@@ -88,7 +88,7 @@ angular.module('citizenmap.controllers', [])
     });
 })
 
-.controller("cadastroCtrl", function($scope, Auth, Utils, $location, $state) {
+.controller("cadastroCtrl", function(Auth, Utils, $location, $scope, $state) {
     $scope.cadastrar = function (usuario) {
         if (angular.isDefined(usuario)) {
             Utils.show();
@@ -107,4 +107,66 @@ angular.module('citizenmap.controllers', [])
    
 .controller('principalCtrl', function($scope) {
 
+})
+
+.controller('firebaseCtrl', function(FBURL, $firebaseArray, $scope) {
+    var firebaseRef = new Firebase(FBURL);
+    
+    //Iterador:
+    $scope.avlsIterator = $firebaseArray(firebaseRef.child('Avaliação').child('Saúde').child('Bairro').child('Parque Beira Mar'));
+    
+    // Estáticos:
+    $scope.avls = firebaseRef.child('Avaliação').child('Saúde').child('Bairro').child('Parque Beira Mar');
+
+    $scope.child_added = function () {
+        $scope.avls.on("child_added", function (snapshot) {
+            console.log(snapshot.val());
+        }, function (errorObject) {
+            console.log("The read failed: " + errorObject.code);
+        });
+    }
+    
+    $scope.value = function () {
+        $scope.avls.on("value", function (snapshot) {
+            console.log(snapshot.val());
+        }, function (errorObject) {
+            console.log("The read failed: " + errorObject.code);
+        });
+    }
+    
+    $scope.range = function () {
+         $scope.avls.orderByChild("perfil").startAt('Anderson').endAt('Anderson').on("child_added", function (snapshot) {
+            console.log(snapshot.key())
+            console.log(snapshot.val())
+        });
+    }
+    
+    // Formulário:
+    $scope.form = function (avl) {
+        if (avl.tipo == 'child_added') {
+            $scope.avls = firebaseRef.child('avl').child(avl.servico).child(avl.tipoLocal).child(avl.local);
+            $scope.avls.on("child_added", function (snapshot) {
+                console.log(snapshot.val());
+            }, function (errorObject) {
+                console.log("The read failed: " + errorObject.code);
+            });
+        }
+
+        if (avl.tipo == 'value') {
+            $scope.avls = firebaseRef.child('avl').child(avl.servico).child(avl.tipoLocal).child(avl.local);
+            $scope.avls.on("value", function (snapshot) {
+                console.log(snapshot.val());
+            }, function (errorObject) {
+                console.log("The read failed: " + errorObject.code);
+            });
+        }
+
+        if (avl.tipo == 'range') {
+            $scope.avls = firebaseRef.child('avl').child(avl.servico).child(avl.tipoLocal).child(avl.local);
+             $scope.avls.orderByChild("perfil").startAt('Anderson').endAt('Anderson').on("child_added", function (snapshot) {
+                console.log(snapshot.key())
+                console.log(snapshot.val())
+            });
+        }
+    }
 });

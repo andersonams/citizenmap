@@ -3,7 +3,7 @@
         <form novalidate class="list" name="loginForm" ng-submit="loginForm.$valid && login(usuario)">
             <h5 id="login-heading3" style="color:#000000;text-align:center;">Dados de Acesso</h5>
             <label class="item item-input item-floating-label" ng-class="{ 'has-error' : loginForm.txtEmail.$invalid && loginForm.$submitted }">
-                <input name="txtEmail" type="email" ng-model="usuario.email" placeholder="E-mail" ng-maxlength="30" required>
+                <input name="txtEmail" type="email" ng-model="usuario.email" placeholder="E-Mail" ng-maxlength="30" required>
             </label>
             <div class="form-errors" ng-messages="loginForm.txtEmail.$error" ng-if="loginForm.$submitted">
                 <div class="form-error" ng-message="required">Campo obrigatório.</div>
@@ -11,7 +11,7 @@
                 <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
             </div>
             <label class="item item-input item-floating-label" ng-class="{ 'has-error-lr' : loginForm.txtPassword.$invalid && loginForm.$submitted }">
-                <input name="txtPassword" type="password" ng-model="usuario.password" placeholder="Usuário" ng-minlength="6" ng-maxlength="12" required>
+                <input name="txtPassword" type="password" ng-model="usuario.password" placeholder="Senha" ng-minlength="6" ng-maxlength="12" required>
             </label>
             <div class="form-errors" ng-messages="loginForm.txtPassword.$error" ng-if="loginForm.$submitted">
                 <div class="form-error" ng-message="required">Campo obrigatório.</div>

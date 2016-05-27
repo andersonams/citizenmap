@@ -1,7 +1,7 @@
 <ion-view title="Cadastro" id="cadastro">
     <ion-content padding="true" class="has-header">
         <form novalidate class="list" name="cadastroForm" ng-submit="cadastroForm.$valid && cadastrar(usuario)" ng-class="{ 'has-error' : cadastroForm.txtemail.$invalid && cadastroForm.$submitted }">
-            <h5 id="cadastro-heading4" style="color:#000000;text-align:center;">Dados Pessoais</h5>
+            <h5 id="cadastro-heading4" style="color:#000000;text-align:center;"><i class="icon ion-android-person"></i> Dados Pessoais</h5>
             <ion-list>
                 <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtNome.$invalid && cadastroForm.$submitted }">
                     <input name="txtNome" type="text" ng-model="usuario.nome" placeholder="Nome" ng-minlength="1" ng-maxlength="30" required>
@@ -28,7 +28,7 @@
                     <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
                 </div>
             </ion-list>
-            <h5 id="cadastro-heading5" style="color:#000000;text-align:center;">Dados de Acesso</h5>
+            <h5 id="cadastro-heading5" style="color:#000000;text-align:center;"><i class="icon ion-android-lock"></i> Dados de Acesso</h5>
             <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtPassword.$invalid && cadastroForm.$submitted }">
                 <input name="txtPassword" type="password" ng-model="usuario.password" placeholder="Senha" ng-minlength="6" ng-maxlength="12" required>
             </label>
@@ -37,9 +37,30 @@
                 <div class="form-error" ng-message="minlength">Campo com no mínimo 6 dígitos.</div>
                 <div class="form-error" ng-message="maxlength">Campo com no máximo 12 caracteres.</div>
             </div>
-            <h5 id="cadastro-heading6" style="color:#000000;text-align:center;">Configurações</h5>
+            <h5 id="cadastro-headin7" style="color:#000000;text-align:center;"><i class="icon ion-android-locate"></i> Dados de Localização</h5>
+            <label class="item item-input item-select">
+                <div class="input-label">
+                    Bairro
+                </div>
+                <select>
+                    <option>Parque Beira Mar</option>
+                    <option>Parque Duque</option>
+                    <option>Santa Marta</option>
+                </select>
+            </label>
+            <label class="item item-input item-select">
+                <div class="input-label">
+                    Cidade
+                </div>
+                <select>
+                    <option>Duque de Caixas</option>
+                    <option>Rio de Janeiro</option>
+                    <option>Morro Carioca</option>
+                </select>
+            </label>
+            <h5 id="cadastro-heading6" style="color:#000000;text-align:center;"> <i class="icon ion-android-settings"></i> Configurações</h5>
             <ion-checkbox name="alertaemail">Enviar Alertas de E-Mail</ion-checkbox>
-            <button type="submit" id="cadastro-button" class="button button-positive  button-block">Finalizar Cadastro</button>
+            <button type="submit" id="cadastro-button" class="button button-positive button-block">Finalizar Cadastro</button>
         </form>
     </ion-content>
 </ion-view>

@@ -30,6 +30,12 @@ angular.module('citizenmap.routes', [])
         templateUrl: 'templates/cadastro.html',
         controller: 'cadastroCtrl'
       })
+      
+      .state('firebase', {
+        url: '/firebase',
+        templateUrl: 'templates/firebase.html',
+        controller: 'firebaseCtrl'
+      })
 
       .state('menu.mapa', {
         url: '/mapa',
@@ -63,7 +69,8 @@ angular.module('citizenmap.routes', [])
         url: '/avaliacao',
         views: {
           'menuview': {
-            templateUrl: 'templates/avaliacao.html'
+            templateUrl: 'templates/avaliacao.html',
+            controller: 'avaliacaoCtrl'
           }
         }
       })

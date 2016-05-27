@@ -1,8 +1,8 @@
 angular.module('citizenmap.factories', [])
 
 .factory('Auth', function(FBURL, $firebaseAuth, $firebaseArray, $timeout){
-    var ref = new Firebase(FBURL);
-    var auth = $firebaseAuth(ref);
+    var rootRef = new Firebase(FBURL);
+    var auth = $firebaseAuth(rootRef);
     
     //return {
     var Auth = {
@@ -22,10 +22,11 @@ angular.module('citizenmap.factories', [])
         // Criação do Perfil:
         cadastrarPerfil: function(uid, usuario) {
             var perfil = {id: uid, nome: usuario.nome, sobrenome: usuario.sobrenome, email: usuario.email, gravatar: gravatar(usuario.email, 40), registro: Date()};
-            var perfilRef = $firebaseArray(ref.child('perfil'));
+            // Acessar o nó para fazer a inserção, similar à tabela:
+            var perfilRef = $firebaseArray(rootRef.child('perfil'));
             
-            return perfilRef.$add(perfil).then(function(ref) {
-                var id = ref.key();
+            return perfilRef.$add(perfil).then(function(rootRef) {
+                var id = rootRef.key();
                 console.log("Perfil Criado: " + id);
                 // Localização no Array:
                 perfilRef.$indexFor(id); 
@@ -283,4 +284,3 @@ angular.module('citizenmap.factories', [])
     
     return Auth;
 });
-
