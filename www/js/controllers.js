@@ -112,13 +112,70 @@ angular.module('citizenmap.controllers', [])
 .controller('firebaseCtrl', function(FBURL, $firebaseArray, $scope) {
     var firebaseRef = new Firebase(FBURL);
     
-    //Iterador:
-    $scope.avlsIterator = $firebaseArray(firebaseRef.child('Avaliação').child('Saúde').child('Bairro').child('Parque Beira Mar'));
+    //Iterador, devendo ser usado com o $firebaseArray:
+    $scope.avlsIterator = $firebaseArray(firebaseRef.child('avaliacoes').child('saude').child('Duque de Caxias').child('Beira Mar'));
     
-    // Estáticos:
-    $scope.avls = firebaseRef.child('Avaliação').child('Saúde').child('Bairro').child('Parque Beira Mar');
-
+    // Metódos dos Objetos de Query do Firebase:
+    // on() Fica escutando qualquer alteração daquele nó, chamando a si mesmo toda vez que o nó é alterado.
+    // once() Lê o nó somente no momento da excução da função.
+    
+    // Para cada um dos métodos acima, são passados Tipos de Eventos:
+    // child_added
+    // child_changed
+    // child_removed
+    // child_moved
+    // value
+    
+    $scope.forEach = function () {
+        // Pesquisando todas as avaliações:
+        $scope.avls = firebaseRef.child('avaliacoes');
+        $scope.avls.once("value", function (avls) {
+            avls.forEach(function (servicos) {        
+                servicos.forEach(function (cidades) {
+                    cidades.forEach(function (bairros) {
+                        bairros.forEach(function (avl) {  
+                        // Usando o hasChildren() para mostrar somente as avaliações, pois neste nó, bairros, há atributos que não são chaves contendo as avaliações:
+                        if (avl.hasChildren()){
+                            console.log(avl.key());
+                        }
+                        });
+                    });
+                });
+            });
+        }, function (errorObject) {
+            console.log("The read failed: " + errorObject.code);
+        });
+    }
+    
+    $scope.forEachPersonalizado = function () {
+        $scope.avls = firebaseRef.child('avaliacoes');
+        $scope.avls.once("value", function (avls) {
+            avls.forEach(function (servicos) {
+                // Pesquisando uma cidade Especifica:
+                if (servicos.hasChild("Duque de Caxias")){
+                    var duqueDeCaxias = servicos.child("Duque de Caxias");
+                    console.log(duqueDeCaxias.val());
+                }
+                servicos.forEach(function (cidades) {
+                    cidades.forEach(function (bairros) {
+                        bairros.forEach(function (avl) {
+                            // Pesquisando um perfil específico:
+                            if(avl.val().perfil == 'Anderson'){
+                                console.log(avl.key());
+                                // console.log(avl.val());
+                                // console.log(avl.numChildren());
+                            }
+                        });
+                    });
+                });
+            });
+        }, function (errorObject) {
+            console.log("The read failed: " + errorObject.code);
+        });
+    }
+    
     $scope.child_added = function () {
+        $scope.avls = firebaseRef.child('avaliacoes').child('saude').child('Duque de Caxias').child('Beira Mar');
         $scope.avls.on("child_added", function (snapshot) {
             console.log(snapshot.val());
         }, function (errorObject) {
@@ -127,6 +184,7 @@ angular.module('citizenmap.controllers', [])
     }
     
     $scope.value = function () {
+        $scope.avls = firebaseRef.child('avaliacoes').child('saude').child('Duque de Caxias').child('Beira Mar');
         $scope.avls.on("value", function (snapshot) {
             console.log(snapshot.val());
         }, function (errorObject) {
@@ -135,7 +193,8 @@ angular.module('citizenmap.controllers', [])
     }
     
     $scope.range = function () {
-         $scope.avls.orderByChild("perfil").startAt('Anderson').endAt('Anderson').on("child_added", function (snapshot) {
+        $scope.avls = firebaseRef.child('avaliacoes').child('saude').child('Duque de Caxias').child('Parque Beira Mar');
+        $scope.avls.orderByChild("perfil").startAt('Anderson').endAt('Anderson').on("child_added", function (snapshot) {
             console.log(snapshot.key())
             console.log(snapshot.val())
         });
