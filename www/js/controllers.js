@@ -11,12 +11,17 @@ angular.module('citizenmap.controllers', [])
 .controller('configuracoesCtrl', function($scope) {
 
 })
+
+.controller('menuCtrl', function($localStorage, $scope) {
+    // $scope.email = function(){ return  $localStorage.email; }
+    $scope.nome = $localStorage.nome;
+    $scope.email = $localStorage.email;
+    $scope.gravatar = $localStorage.gravatar;
+})
       
-.controller("loginCtrl", function($scope, Auth, FBURL, Utils, $location, $state) {
-    var ref = new Firebase(FBURL);
-    var userkey = "";
+.controller("loginCtrl", function(Auth, FBURL, Utils, $firebaseObject, $localStorage, $location, $scope, $state) {
+    var rootRef = new Firebase(FBURL);
     
-    // Iniciar com um objeto de usuário nulo:
     $scope.user = null;
     
     // Login Comum:
@@ -25,29 +30,26 @@ angular.module('citizenmap.controllers', [])
         if(angular.isDefined(usuario)){
             Utils.show();
             Auth.login(usuario).then(function(authData) {
-               console.log("ID do Usuário:" + JSON.stringify(authData));
-               Utils.hide();
-               $state.go('menu.principal');
-//                ref.child('profile').orderByChild("id").equalTo(authData.uid).on("child_added", function(snapshot) {
-//                    console.log(snapshot.key());
-//                    userkey = snapshot.key();
-//                    var obj = $firebaseObject(ref.child('profile').child(userkey));
-//
-//                    obj.$loaded().then(function(data) {
-//                        //console.log(data === obj);
-//                        //console.log(obj.email);
-//                        $localStorage.email = obj.email;
-//                        $localStorage.userkey = userkey;
-//                        Utils.hide();
-//                        //$state.go('home');
-//                        //console.log("Starter page","Home");
-//
-//                      })
-//                      .catch(function(error) {
-//                        console.error("Error:", error);
-//                      });
-//              });
+                console.log("Authenticated successfully with payload:", authData);
+                rootRef.child('usuarios').orderByChild("id_firebase").equalTo(authData.uid).on("child_added", function(snapshot) {                    
+                    var userkey = snapshot.key();
+                    var objUsuario = $firebaseObject(rootRef.child('usuarios').child(userkey));
 
+                    objUsuario.$loaded().then(function(data) {
+                        // console.log(data === objUsuario);
+                        // console.log(objUsuario);
+                        $localStorage.userkey = userkey;
+                        $localStorage.nome = objUsuario.nome;
+                        $localStorage.email = objUsuario.email;
+                        $localStorage.gravatar = objUsuario.gravatar;
+                        
+                        Utils.hide();
+                        $state.go('menu.principal');
+                      })
+                      .catch(function(error) {
+                        console.error("Erro:", error);
+                      });
+              });
             }, 
             function(err) {
               Utils.hide();
@@ -75,7 +77,7 @@ angular.module('citizenmap.controllers', [])
       });
     };
     
-    // Deslogar:
+    // Sair:
     $scope.logOut = function() {
         Auth.logout();
         console.log("Usuário deslogado!");
@@ -106,7 +108,7 @@ angular.module('citizenmap.controllers', [])
 })
    
 .controller('principalCtrl', function($scope) {
-
+    //$scope.teste = 'ANDERSON MOURA';
 })
 
 .controller('firebaseCtrl', function(FBURL, $firebaseArray, $scope) {

@@ -20,8 +20,10 @@ angular.module('citizenmap.factories', [])
             });
         },
         // Criação do Usuário:
-        cadastrarUsuario: function(uid, usuario, endereco, configuracao) {   
+        cadastrarUsuario: function(uid, usuario, endereco, configuracao) {
             usuario['id_firebase'] = uid;
+            usuario['gravatar'] = gravatar(usuario.email, 40);
+            usuario['data_registro'] = Date();
             
             var usuariosRef = $firebaseArray(rootRef.child('usuarios'));
             var enderecosRef = $firebaseArray(rootRef.child('enderecos'));
