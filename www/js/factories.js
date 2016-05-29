@@ -8,28 +8,41 @@ angular.module('citizenmap.factories', [])
     var Auth = {
         user: {},
         // Cadastro:
-        cadastrar: function(usuario) {
+        cadastrar: function(usuario, endereco, configuracao) {
             return auth.$createUser({email: usuario.email, password: usuario.password}).then(function() {
-                console.log("Usuário Criado: " + usuario.email);
+                console.log("Conta Firebase Criada: " + usuario.email);
                 // Login para depois ter permissão de criar o perfil:
                 return Auth.login(usuario);
             })
             .then(function(userData) {
-                console.log("Dados de Acesso:" + JSON.stringify(userData));
-                return Auth.cadastrarPerfil(userData.uid, usuario);
+                //console.log("Dados de Acesso:" + JSON.stringify(userData));
+                return Auth.cadastrarUsuario(userData.uid, usuario, endereco, configuracao);
             });
         },
-        // Criação do Perfil:
-        cadastrarPerfil: function(uid, usuario) {
-            var perfil = {id: uid, nome: usuario.nome, sobrenome: usuario.sobrenome, email: usuario.email, gravatar: gravatar(usuario.email, 40), registro: Date()};
-            // Acessar o nó para fazer a inserção, similar à tabela:
-            var perfilRef = $firebaseArray(rootRef.child('perfil'));
+        // Criação do Usuário:
+        cadastrarUsuario: function(uid, usuario, endereco, configuracao) {   
+            usuario['id_firebase'] = uid;
             
-            return perfilRef.$add(perfil).then(function(rootRef) {
-                var id = rootRef.key();
-                console.log("Perfil Criado: " + id);
-                // Localização no Array:
-                perfilRef.$indexFor(id); 
+            var usuariosRef = $firebaseArray(rootRef.child('usuarios'));
+            var enderecosRef = $firebaseArray(rootRef.child('enderecos'));
+            var configuracaoRef = $firebaseArray(rootRef.child('configuracoes'));
+            
+            // Usuário:
+            return usuariosRef.$add(usuario).then(function(rootRef) {
+                console.log("Usuário Criado: " + rootRef.key());
+                
+                endereco['usuario'] = rootRef.key();
+                configuracao['usuario'] = rootRef.key();
+                
+                // Endereço:
+                enderecosRef.$add(endereco).then(function(rootRef) {
+                    console.log("Endereço Criado: " + rootRef.key());
+                    
+                    // Configuração
+                    configuracaoRef.$add(configuracao).then(function(rootRef) {
+                        console.log("Configuração Criada: " + rootRef.key());
+                    });
+                });
             });
         },
         // Login Comum:

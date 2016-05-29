@@ -89,10 +89,10 @@ angular.module('citizenmap.controllers', [])
 })
 
 .controller("cadastroCtrl", function(Auth, Utils, $location, $scope, $state) {
-    $scope.cadastrar = function (usuario) {
-        if (angular.isDefined(usuario)) {
+    $scope.cadastrar = function (usuario, endereco, configuracao) {
+        if (angular.isDefined(usuario, endereco, configuracao)) {
             Utils.show();
-            Auth.cadastrar(usuario).then(function() {
+            Auth.cadastrar(usuario, endereco, configuracao).then(function() {
                 Utils.hide();
                 Utils.alertshow("Sucesso", "Seu usuário foi criado com sucesso!");
                 $location.path('/');
@@ -112,7 +112,8 @@ angular.module('citizenmap.controllers', [])
 .controller('firebaseCtrl', function(FBURL, $firebaseArray, $scope) {
     var firebaseRef = new Firebase(FBURL);
     
-    //Iterador, devendo ser usado com o $firebaseArray:
+    // Acessar o nó para fazer a inserção, similar à tabela:
+    // Iterador, devendo ser usado com o $firebaseArray:
     $scope.avlsIterator = $firebaseArray(firebaseRef.child('avaliacoes').child('saude').child('Duque de Caxias').child('Beira Mar'));
     
     // Metódos dos Objetos de Query do Firebase:

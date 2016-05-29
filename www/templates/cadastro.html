@@ -1,6 +1,6 @@
 <ion-view title="Cadastro" id="cadastro">
     <ion-content padding="true" class="has-header">
-        <form novalidate class="list" name="cadastroForm" ng-submit="cadastroForm.$valid && cadastrar(usuario)" ng-class="{ 'has-error' : cadastroForm.txtemail.$invalid && cadastroForm.$submitted }">
+        <form novalidate class="list" name="cadastroForm" ng-submit="cadastroForm.$valid && cadastrar(usuario, endereco, configuracao)" ng-class="{ 'has-error' : cadastroForm.txtemail.$invalid && cadastroForm.$submitted }">
             <h5 id="cadastro-heading4" style="color:#000000;text-align:center;"><i class="icon ion-android-person"></i> Dados Pessoais</h5>
             <ion-list>
                 <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtNome.$invalid && cadastroForm.$submitted }">
@@ -42,7 +42,7 @@
                 <div class="input-label">
                     Bairro
                 </div>
-                <select>
+                <select ng-model="endereco.bairro">
                     <option>Parque Beira Mar</option>
                     <option>Parque Duque</option>
                     <option>Santa Marta</option>
@@ -52,14 +52,14 @@
                 <div class="input-label">
                     Cidade
                 </div>
-                <select>
+                <select ng-model="endereco.cidade">
                     <option>Duque de Caixas</option>
                     <option>Rio de Janeiro</option>
                     <option>Morro Carioca</option>
                 </select>
             </label>
             <h5 id="cadastro-heading6" style="color:#000000;text-align:center;"> <i class="icon ion-android-settings"></i> Configurações</h5>
-            <ion-checkbox name="alertaemail">Enviar Alertas de E-Mail</ion-checkbox>
+            <ion-checkbox name="alertaemail" ng-model="configuracao.email">Enviar Alertas de E-Mail</ion-checkbox>
             <button type="submit" id="cadastro-button" class="button button-positive button-block">Finalizar Cadastro</button>
         </form>
     </ion-content>
