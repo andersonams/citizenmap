@@ -47,12 +47,12 @@ angular.module('citizenmap.routes', [])
         }
       })
 
-      .state('menu.configuracoes', {
-        url: '/configuracoes',
+      .state('menu.perfil', {
+        url: '/perfil',
         views: {
           'menuview': {
-            templateUrl: 'templates/configuracoes.html',
-            controller: 'configuracoesCtrl'
+            templateUrl: 'templates/perfil.html',
+            controller: 'perfilCtrl'
           }
         }
       })

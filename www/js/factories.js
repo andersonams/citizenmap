@@ -1,14 +1,14 @@
 angular.module('citizenmap.factories', [])
 
-.factory('Auth', function(FBURL, $firebaseAuth, $firebaseArray, $timeout){
+.factory('Auth', function(FBURL, $firebaseAuth, $firebaseArray, $firebaseObject, $timeout){
     var rootRef = new Firebase(FBURL);
     var auth = $firebaseAuth(rootRef);
     
     //return {
     var Auth = {
-        user: {},
+        usuario: {},
         // Cadastro:
-        cadastrar: function(usuario, endereco, configuracao) {
+        cadastrar: function(usuario, perfil, endereco, configuracao) {
             return auth.$createUser({email: usuario.email, password: usuario.password}).then(function() {
                 console.log("Conta Firebase Criada: " + usuario.email);
                 // Login para depois ter permissão de criar o perfil:
@@ -16,25 +16,26 @@ angular.module('citizenmap.factories', [])
             })
             .then(function(userData) {
                 //console.log("Dados de Acesso:" + JSON.stringify(userData));
-                return Auth.cadastrarUsuario(userData.uid, usuario, endereco, configuracao);
+                return Auth.cadastrarUsuario(userData.uid, usuario.email, perfil, endereco, configuracao);
             });
         },
         // Criação do Usuário:
-        cadastrarUsuario: function(uid, usuario, endereco, configuracao) {
-            usuario['id_firebase'] = uid;
-            usuario['gravatar'] = gravatar(usuario.email, 40);
-            usuario['data_registro'] = Date();
+        cadastrarUsuario: function(uid, email, perfil, endereco, configuracao) {    
+            perfil.id_firebase = uid;
+            perfil.email = email;
+            perfil.gravatar = gravatar(email, 40);
+            perfil.data_registro = Date();
             
-            var usuariosRef = $firebaseArray(rootRef.child('usuarios'));
+            var perfilRef = $firebaseArray(rootRef.child('perfil'));
             var enderecosRef = $firebaseArray(rootRef.child('enderecos'));
             var configuracaoRef = $firebaseArray(rootRef.child('configuracoes'));
             
             // Usuário:
-            return usuariosRef.$add(usuario).then(function(rootRef) {
+            return perfilRef.$add(perfil).then(function(rootRef) {
                 console.log("Usuário Criado: " + rootRef.key());
                 
-                endereco['usuario'] = rootRef.key();
-                configuracao['usuario'] = rootRef.key();
+                endereco['perfil'] = rootRef.key();
+                configuracao['perfil'] = rootRef.key();
                 
                 // Endereço:
                 enderecosRef.$add(endereco).then(function(rootRef) {
@@ -68,6 +69,18 @@ angular.module('citizenmap.factories', [])
           });
         }
     };
+    
+    auth.$onAuth(function (authData) {
+        if (authData) {
+            angular.copy(authData, Auth.usuario);
+            Auth.usuario.perfil = $firebaseObject(rootRef.child('usuarios').orderByChild("id_firebase").equalTo(authData.uid));
+        } else {
+            if (Auth.usuario && Auth.usuario.perfil) {
+                Auth.usuario.perfil.$destroy();
+            }
+            angular.copy({}, Auth.usuario);
+        }
+    });
     
     function gravatar(email, size) {
 

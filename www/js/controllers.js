@@ -1,3 +1,4 @@
+'Use Strict';
 angular.module('citizenmap.controllers', [])
   
 .controller('citizenMapCtrl', function($scope) {
@@ -8,8 +9,37 @@ angular.module('citizenmap.controllers', [])
 
 })
    
-.controller('configuracoesCtrl', function($scope) {
+.controller('perfilCtrl', function($scope, $ionicModal) {
+    $ionicModal.fromTemplateUrl('modalexclusaoperfil.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function (modal) {
+        $scope.modal = modal;
+    });
 
+    $scope.openModal = function () {
+        console.log("");
+        $scope.modal.show();
+    };
+
+    $scope.closeModal = function () {
+        $scope.modal.hide();
+    };
+
+    //Cleanup the modal when we're done with it!
+    $scope.$on('$destroy', function () {
+        $scope.modal.remove();
+    });
+
+    // Execute action on hide modal
+    $scope.$on('modal.hidden', function () {
+        // Execute action
+    });
+
+    // Execute action on remove modal
+    $scope.$on('modal.removed', function () {
+        // Execute action
+    });
 })
 
 .controller('menuCtrl', function($localStorage, $scope) {
@@ -22,8 +52,6 @@ angular.module('citizenmap.controllers', [])
 .controller("loginCtrl", function(Auth, FBURL, Utils, $firebaseObject, $localStorage, $location, $scope, $state) {
     var rootRef = new Firebase(FBURL);
     
-    $scope.user = null;
-    
     // Login Comum:
     $scope.login = function(usuario) {
         console.log("Formulário Enviado!");
@@ -31,9 +59,9 @@ angular.module('citizenmap.controllers', [])
             Utils.show();
             Auth.login(usuario).then(function(authData) {
                 console.log("Authenticated successfully with payload:", authData);
-                rootRef.child('usuarios').orderByChild("id_firebase").equalTo(authData.uid).on("child_added", function(snapshot) {                    
+                rootRef.child('perfil').orderByChild("id_firebase").equalTo(authData.uid).on("child_added", function(snapshot) {
                     var userkey = snapshot.key();
-                    var objUsuario = $firebaseObject(rootRef.child('usuarios').child(userkey));
+                    var objUsuario = $firebaseObject(rootRef.child('perfil').child(userkey));
 
                     objUsuario.$loaded().then(function(data) {
                         // console.log(data === objUsuario);
@@ -83,18 +111,13 @@ angular.module('citizenmap.controllers', [])
         console.log("Usuário deslogado!");
         $location.path("/login");
     }
-    
-    // Mudança no estado de login, quando um outro usuário logar, carregar em $escope:
-    Auth.onAuth(function(authData) {
-      $scope.user = authData;
-    });
 })
 
-.controller("cadastroCtrl", function(Auth, Utils, $location, $scope, $state) {
-    $scope.cadastrar = function (usuario, endereco, configuracao) {
-        if (angular.isDefined(usuario, endereco, configuracao)) {
+.controller("cadastroCtrl", function(Auth, Utils, $location, $scope) {
+    $scope.cadastrar = function (usuario, perfil, endereco, configuracao) {
+        if (angular.isDefined(usuario, perfil, endereco, configuracao)) {
             Utils.show();
-            Auth.cadastrar(usuario, endereco, configuracao).then(function() {
+            Auth.cadastrar(usuario, perfil, endereco, configuracao).then(function() {
                 Utils.hide();
                 Utils.alertshow("Sucesso", "Seu usuário foi criado com sucesso!");
                 $location.path('/');
@@ -108,7 +131,7 @@ angular.module('citizenmap.controllers', [])
 })
    
 .controller('principalCtrl', function($scope) {
-    //$scope.teste = 'ANDERSON MOURA';
+    
 })
 
 .controller('firebaseCtrl', function(FBURL, $firebaseArray, $scope) {
