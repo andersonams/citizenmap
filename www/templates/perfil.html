@@ -1,70 +1,85 @@
 <ion-view title="Perfil" id="perfil">
     <ion-content padding="true" class="has-header">
-        <h5 id="principal-heading7" style="color:#000000;text-align:center;">Altere abaixo dados do seu perfil:</h5>
-        <div class="list">
-            <div class="item item-divider" style="text-align: center;">
-                <i class="icon ion-android-person"></i> Perfil
-            </div>
-            <ion-list>
-                <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtNome.$invalid && cadastroForm.$submitted }">
-                    <input name="txtNome" type="text" ng-model="perfil.nome" placeholder="Nome" ng-minlength="1" ng-maxlength="30" required>
-                </label>
-                <div class="form-errors" ng-messages="cadastroForm.txtNome.$error" ng-if="cadastroForm.$submitted">
-                    <div class="form-error" ng-message="required">Campo obrigatório.</div>
-                    <div class="form-error" ng-message="minlength">Campo com no mínimo 1 dígito.</div>
-                    <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
+        <form novalidate class="list" name="perfilForm" ng-submit="perfilForm.$valid && salvar(usuario, perfil, endereco, configuracao)" ng-class="{ 'has-error' : perfilForm.txtemail.$invalid && perfilForm.$submitted }">
+            <h5 id="principal-heading7" style="color:#000000;text-align:center;">Altere abaixo dados do seu perfil:</h5>
+            <div class="list">
+                <div class="item item-divider" style="text-align: center;">
+                    <i class="icon ion-android-person"></i> Perfil
                 </div>
-                <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtSobrenome.$invalid && cadastroForm.$submitted }">
-                    <input name="txtSobrenome" type="text" ng-model="perfil.sobrenome" placeholder="Sobrenome" ng-minlength="1" ng-maxlength="30" required>
-                </label>
-                <div class="form-errors" ng-messages="cadastroForm.txtSobrenome.$error" ng-if="cadastroForm.$submitted">
-                    <div class="form-error" ng-message="required">Campo obrigatório.</div>
-                    <div class="form-error" ng-message="minlength">Campo com no mínimo 1 dígito.</div>
-                    <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
+                <ion-list>
+                    <label class="item item-input" ng-class="{ 'has-error' : perfilForm.txtNome.$invalid && perfilForm.$submitted }">
+                        <input name="txtNome" type="text" ng-model="perfil.nome" placeholder="Nome" ng-minlength="1" ng-maxlength="30" required>
+                    </label>
+                    <div class="form-errors" ng-messages="perfilForm.txtNome.$error" ng-if="perfilForm.$submitted">
+                        <div class="form-error" ng-message="required">Campo obrigatório.</div>
+                        <div class="form-error" ng-message="minlength">Campo com no mínimo 1 dígito.</div>
+                        <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
+                    </div>
+                    <label class="item item-input" ng-class="{ 'has-error' : perfilForm.txtSobrenome.$invalid && perfilForm.$submitted }">
+                        <input name="txtSobrenome" type="text" ng-model="perfil.sobrenome" placeholder="Sobrenome" ng-minlength="1" ng-maxlength="30" required>
+                    </label>
+                    <div class="form-errors" ng-messages="perfilForm.txtSobrenome.$error" ng-if="perfilForm.$submitted">
+                        <div class="form-error" ng-message="required">Campo obrigatório.</div>
+                        <div class="form-error" ng-message="minlength">Campo com no mínimo 1 dígito.</div>
+                        <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
+                    </div>
+                </ion-list>
+            </div>
+            <div class="list">
+                <div class="item item-divider" style="text-align: center;">
+                    <i class="icon ion-android-lock"></i> Dados de Acesso
                 </div>
                 <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtEmail.$invalid && cadastroForm.$submitted }">
-                    <input name="txtEmail" type="email" ng-model="perfil.email" placeholder="E-Mail" ng-minlength="5" ng-maxlength="30" required>
+                    <input name="txtEmail" type="email" ng-model="usuario.email" placeholder="E-Mail" ng-minlength="5" ng-maxlength="30" required readonly>
                 </label>
                 <div class="form-errors" ng-messages="cadastroForm.txtEmail.$error" ng-if="cadastroForm.$submitted">
                     <div class="form-error" ng-message="required">Campo obrigatório.</div>
                     <div class="form-error" ng-message="email">Este campo deve ser um e-mail.</div>
                     <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
                 </div>
-            </ion-list>
-        </div>
-        <div class="list">
-            <div class="item item-divider" style="text-align: center;">
-                <i class="icon ion-android-locate"></i> Endereço
+                <!--                <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtPassword.$invalid && cadastroForm.$submitted }">
+                                    <input name="txtPassword" type="password" ng-model="usuario.password" placeholder="Senha" ng-minlength="6" ng-maxlength="12" required>
+                                </label>
+                                <div class="form-errors" ng-messages="cadastroForm.txtPassword.$error" ng-if="cadastroForm.$submitted">
+                                    <div class="form-error" ng-message="required">Campo obrigatório.</div>
+                                    <div class="form-error" ng-message="minlength">Campo com no mínimo 6 dígitos.</div>
+                                    <div class="form-error" ng-message="maxlength">Campo com no máximo 12 caracteres.</div>
+                                </div>-->
             </div>
-            <label class="item item-input item-select">
-                <div class="input-label">
-                    Bairro
+            <div class="list">
+                <div class="item item-divider" style="text-align: center;">
+                    <i class="icon ion-android-locate"></i> Endereço
                 </div>
-                <select ng-model="endereco.bairro">
-                    <option>Parque Beira Mar</option>
-                    <option>Parque Duque</option>
-                    <option>Santa Marta</option>
-                </select>
-            </label>
-            <label class="item item-input item-select">
-                <div class="input-label">
-                    Cidade
-                </div>
-                <select ng-model="endereco.cidade">
-                    <option>Duque de Caixas</option>
-                    <option>Rio de Janeiro</option>
-                    <option>Morro Carioca</option>
-                </select>
-            </label>
-        </div>
-        <div class="list">
-            <div class="item item-divider" style="text-align: center;">
-                <i class="icon ion-android-settings"></i> Configurações
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Bairro
+                    </div>
+                    <select ng-model="endereco.bairro">
+                        <option>Parque Beira Mar</option>
+                        <option>Parque Duque</option>
+                        <option>Santa Marta</option>
+                    </select>
+                </label>
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Cidade
+                    </div>
+                    <select ng-model="endereco.cidade">
+                        <option>Duque de Caixas</option>
+                        <option>Rio de Janeiro</option>
+                        <option>Morro Carioca</option>
+                    </select>
+                </label>
             </div>
-            <ion-checkbox name="alertaemail" ng-model="configuracao.email" ng-init="configuracao.email = true">Enviar Alertas de E-Mail</ion-checkbox>
-            <button type="submit" id="salvar-button" class="button button-positive button-block">Salvar Alterações</button>
-            <button type="submit" id="excluir-perfil-button" class="button button-assertive button-block" ng-click="modal.show()">Excluir Perfil</button>
-        </div>
+            <div class="list">
+                <div class="item item-divider" style="text-align: center;">
+                    <i class="icon ion-android-settings"></i> Configurações
+                </div>
+                <ion-checkbox name="alertaemail" ng-model="configuracao.email" ng-init="configuracao.email = true">Enviar Alertas de E-Mail</ion-checkbox>
+                <button type="submit" id="salvar-button" class="button button-positive button-block">Salvar Alterações</button>
+                <button type="submit" id="excluir-perfil-button" class="button button-assertive button-block" ng-click="modal.show()">Excluir Perfil</button>
+            </div>
+        </form>
     </ion-content>
 </ion-view>
 <script id="modalexclusaoperfil.html" type="text/ng-template">

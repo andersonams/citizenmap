@@ -1,6 +1,6 @@
 <ion-view title="Cadastro" id="cadastro">
     <ion-content padding="true" class="has-header">
-        <form novalidate class="list" name="cadastroForm" ng-controller="cadastroCtrl" ng-submit="cadastroForm.$valid && cadastrar(usuario, perfil, endereco, configuracao)" ng-class="{ 'has-error' : cadastroForm.txtemail.$invalid && cadastroForm.$submitted }">
+        <form novalidate class="list" name="cadastroForm" ng-submit="cadastroForm.$valid && cadastrar(usuario, perfil, endereco, configuracao)" ng-class="{ 'has-error' : cadastroForm.txtemail.$invalid && cadastroForm.$submitted }">
             <h5 id="cadastro-heading4" style="color:#000000;text-align:center;"><i class="icon ion-android-person"></i> Perfil</h5>
             <ion-list>
                 <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtNome.$invalid && cadastroForm.$submitted }">

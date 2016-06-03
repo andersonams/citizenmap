@@ -61,7 +61,8 @@ angular.module('citizenmap.routes', [])
         url: '/principal',
         views: {
           'menuview': {
-            templateUrl: 'templates/principal.html'
+            templateUrl: 'templates/principal.html',
+            controller: 'principalCtrl'
           }
         }
       })

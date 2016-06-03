@@ -26,24 +26,27 @@ angular.module('citizenmap.factories', [])
             perfil.gravatar = gravatar(email, 40);
             perfil.data_registro = Date();
             
-            var perfilRef = $firebaseArray(rootRef.child('perfil'));
+            var perfisRef = $firebaseArray(rootRef.child('perfis'));
             var enderecosRef = $firebaseArray(rootRef.child('enderecos'));
-            var configuracaoRef = $firebaseArray(rootRef.child('configuracoes'));
+            var configuracoesRef = $firebaseArray(rootRef.child('configuracoes'));
             
             // Usuário:
-            return perfilRef.$add(perfil).then(function(rootRef) {
-                console.log("Usuário Criado: " + rootRef.key());
+            return perfisRef.$add(perfil).then(function(perfilRef) {
+                console.log("Usuário Criado: " + perfilRef.key());
                 
-                endereco['perfil'] = rootRef.key();
-                configuracao['perfil'] = rootRef.key();
+                perfilRef = rootRef.child('perfis').child(perfilRef.key());
+                endereco['perfil'] = perfilRef.key();
+                configuracao['perfil'] = perfilRef.key();
                 
                 // Endereço:
-                enderecosRef.$add(endereco).then(function(rootRef) {
-                    console.log("Endereço Criado: " + rootRef.key());
+                enderecosRef.$add(endereco).then(function(enderecoRef) {
+                   perfilRef.child('endereco').set(enderecoRef.key());
+                   console.log("Endereço Criado: " + enderecoRef.key());
                     
                     // Configuração
-                    configuracaoRef.$add(configuracao).then(function(rootRef) {
-                        console.log("Configuração Criada: " + rootRef.key());
+                    configuracoesRef.$add(configuracao).then(function(configuracaoRef) {
+                        perfilRef.child('configuracao').set(configuracaoRef.key());
+                        console.log("Configuração Criada: " + configuracaoRef.key());
                     });
                 });
             });
@@ -73,7 +76,7 @@ angular.module('citizenmap.factories', [])
     auth.$onAuth(function (authData) {
         if (authData) {
             angular.copy(authData, Auth.usuario);
-            Auth.usuario.perfil = $firebaseObject(rootRef.child('usuarios').orderByChild("id_firebase").equalTo(authData.uid));
+            Auth.usuario.perfil = $firebaseObject(rootRef.child('perfis').orderByChild("id_firebase").equalTo(authData.uid));
         } else {
             if (Auth.usuario && Auth.usuario.perfil) {
                 Auth.usuario.perfil.$destroy();

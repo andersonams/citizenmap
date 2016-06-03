@@ -9,7 +9,55 @@ angular.module('citizenmap.controllers', [])
 
 })
    
-.controller('perfilCtrl', function($scope, $ionicModal) {
+.controller('perfilCtrl', function(FBURL, Utils, $ionicModal, $localStorage, $scope) {
+    var rootRef = new Firebase(FBURL);
+    var chaveUsuario = $localStorage.chaveUsuario;
+    
+    $scope.perfil = {};
+    $scope.usuario = {};
+    $scope.endereco = {};
+    $scope.configuracao = {};
+
+    rootRef.child('perfis').child(chaveUsuario).on("value", function(snapshot) {
+        $scope.perfil.nome = snapshot.val().nome;
+        $scope.perfil.sobrenome = snapshot.val().sobrenome;
+        $scope.usuario.email = snapshot.val().email;       
+        chaveEndereco = snapshot.val().endereco;
+        chaveConfiguracao = snapshot.val().configuracao;
+        
+        rootRef.child('enderecos').child(chaveEndereco).on("value", function(snapshot) {
+            $scope.endereco.bairro = snapshot.val().bairro;
+            $scope.endereco.cidade = snapshot.val().cidade;
+            
+            rootRef.child('configuracoes').child(chaveConfiguracao).on("value", function(snapshot) {
+            $scope.configuracao.email = snapshot.val().email;
+            });
+        });
+    });
+    
+    $scope.salvar = function (usuario, perfil, endereco, configuracao) {
+        Utils.show();
+        
+        if (angular.isDefined(perfil)) {    
+            console.log(chaveUsuario);
+            var perfilRef = rootRef.child('perfis').child(chaveUsuario);
+            perfilRef.update({nome: perfil.nome, sobrenome: perfil.sobrenome});
+        }
+        if (angular.isDefined(endereco)) {
+            console.log(chaveEndereco);
+            var enderecoRef = rootRef.child('enderecos').child(chaveEndereco);
+            enderecoRef.update({bairro: endereco.bairro, cidade: endereco.cidade});
+        }
+        if (angular.isDefined(configuracao)) {
+            console.log(chaveConfiguracao);
+            var configuracaoRef = rootRef.child('configuracoes').child(chaveConfiguracao);
+            configuracaoRef.update({email: configuracao.email});
+        }
+        
+        Utils.hide();
+        Utils.alertshow("Sucesso", "Seu perfil foi alterado com sucesso!"); 
+    };
+    
     $ionicModal.fromTemplateUrl('modalexclusaoperfil.html', {
         scope: $scope,
         animation: 'slide-in-up'
@@ -18,7 +66,6 @@ angular.module('citizenmap.controllers', [])
     });
 
     $scope.openModal = function () {
-        console.log("");
         $scope.modal.show();
     };
 
@@ -26,27 +73,34 @@ angular.module('citizenmap.controllers', [])
         $scope.modal.hide();
     };
 
-    //Cleanup the modal when we're done with it!
+    // Cleanup the modal when we're done with it!
     $scope.$on('$destroy', function () {
         $scope.modal.remove();
     });
 
-    // Execute action on hide modal
+    // Execute action on hide modal:
     $scope.$on('modal.hidden', function () {
-        // Execute action
     });
 
-    // Execute action on remove modal
+    // Execute action on remove modal:
     $scope.$on('modal.removed', function () {
-        // Execute action
     });
 })
 
-.controller('menuCtrl', function($localStorage, $scope) {
+.controller('menuCtrl', function(Auth, $localStorage, $location, $scope) {
     // $scope.email = function(){ return  $localStorage.email; }
-    $scope.nome = $localStorage.nome;
-    $scope.email = $localStorage.email;
-    $scope.gravatar = $localStorage.gravatar;
+    $scope.$on('$ionicView.beforeEnter', function(){
+        $scope.nome = $localStorage.nome;
+        $scope.email = $localStorage.email;
+        $scope.gravatar = $localStorage.gravatar;
+    });
+    
+    // Sair:
+    $scope.sair = function() {
+        Auth.logout();
+        console.log("Usuário deslogado!");
+        $location.path("/login");
+    }
 })
       
 .controller("loginCtrl", function(Auth, FBURL, Utils, $firebaseObject, $localStorage, $location, $scope, $state) {
@@ -54,19 +108,18 @@ angular.module('citizenmap.controllers', [])
     
     // Login Comum:
     $scope.login = function(usuario) {
-        console.log("Formulário Enviado!");
         if(angular.isDefined(usuario)){
             Utils.show();
             Auth.login(usuario).then(function(authData) {
                 console.log("Authenticated successfully with payload:", authData);
-                rootRef.child('perfil').orderByChild("id_firebase").equalTo(authData.uid).on("child_added", function(snapshot) {
-                    var userkey = snapshot.key();
-                    var objUsuario = $firebaseObject(rootRef.child('perfil').child(userkey));
+                rootRef.child('perfis').orderByChild("id_firebase").equalTo(authData.uid).on("child_added", function(snapshot) {
+                    var chaveUsuario = snapshot.key();
+                    var objUsuario = $firebaseObject(rootRef.child('perfis').child(chaveUsuario));
 
                     objUsuario.$loaded().then(function(data) {
                         // console.log(data === objUsuario);
                         // console.log(objUsuario);
-                        $localStorage.userkey = userkey;
+                        $localStorage.chaveUsuario = chaveUsuario;
                         $localStorage.nome = objUsuario.nome;
                         $localStorage.email = objUsuario.email;
                         $localStorage.gravatar = objUsuario.gravatar;
@@ -104,13 +157,6 @@ angular.module('citizenmap.controllers', [])
         }
       });
     };
-    
-    // Sair:
-    $scope.logOut = function() {
-        Auth.logout();
-        console.log("Usuário deslogado!");
-        $location.path("/login");
-    }
 })
 
 .controller("cadastroCtrl", function(Auth, Utils, $location, $scope) {
@@ -119,7 +165,7 @@ angular.module('citizenmap.controllers', [])
             Utils.show();
             Auth.cadastrar(usuario, perfil, endereco, configuracao).then(function() {
                 Utils.hide();
-                Utils.alertshow("Sucesso", "Seu usuário foi criado com sucesso!");
+                Utils.alertshow("Sucesso", "Seu perfil foi criado com sucesso!");
                 $location.path('/');
             }, 
             function(err) {
