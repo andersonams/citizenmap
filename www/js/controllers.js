@@ -10,33 +10,39 @@ angular.module('citizenmap.controllers', [])
 })
    
 .controller('perfilCtrl', function(FBURL, Utils, $ionicModal, $localStorage, $scope) {
-    var rootRef = new Firebase(FBURL);
-    var chaveUsuario = $localStorage.chaveUsuario;
-    
-    $scope.perfil = {};
-    $scope.usuario = {};
-    $scope.endereco = {};
-    $scope.configuracao = {};
+   $scope.$on('$ionicView.beforeEnter', function(){
+        var rootRef = new Firebase(FBURL);
+        var chaveUsuario = $localStorage.chaveUsuario;
+        var chaveEndereco = $localStorage.chaveEndereco;
+        var chaveConfiguracao = $localStorage.chaveConfiguracao;
+       
+        $scope.perfil = {};
+        $scope.usuario = {};
+        $scope.endereco = {};
+        $scope.configuracao = {};
 
-    rootRef.child('perfis').child(chaveUsuario).on("value", function(snapshot) {
-        $scope.perfil.nome = snapshot.val().nome;
-        $scope.perfil.sobrenome = snapshot.val().sobrenome;
-        $scope.usuario.email = snapshot.val().email;       
-        chaveEndereco = snapshot.val().endereco;
-        chaveConfiguracao = snapshot.val().configuracao;
-        
+        rootRef.child('perfis').child(chaveUsuario).on("value", function(snapshot) {
+            $scope.perfil.nome = snapshot.val().nome;
+            $scope.perfil.sobrenome = snapshot.val().sobrenome;
+            $scope.usuario.email = snapshot.val().email;       
+        });
+                     
         rootRef.child('enderecos').child(chaveEndereco).on("value", function(snapshot) {
             $scope.endereco.bairro = snapshot.val().bairro;
             $scope.endereco.cidade = snapshot.val().cidade;
-            
-            rootRef.child('configuracoes').child(chaveConfiguracao).on("value", function(snapshot) {
+        });
+
+        rootRef.child('configuracoes').child(chaveConfiguracao).on("value", function(snapshot) {
             $scope.configuracao.email = snapshot.val().email;
-            });
         });
     });
     
     $scope.salvar = function (usuario, perfil, endereco, configuracao) {
         Utils.show();
+        var rootRef = new Firebase(FBURL);
+        var chaveUsuario = $localStorage.chaveUsuario;
+        var chaveEndereco = $localStorage.chaveEndereco;
+        var chaveConfiguracao = $localStorage.chaveConfiguracao;
         
         if (angular.isDefined(perfil)) {    
             console.log(chaveUsuario);
@@ -120,6 +126,8 @@ angular.module('citizenmap.controllers', [])
                         // console.log(data === objUsuario);
                         // console.log(objUsuario);
                         $localStorage.chaveUsuario = chaveUsuario;
+                        $localStorage.chaveEndereco = objUsuario.endereco;
+                        $localStorage.chaveConfiguracao = objUsuario.configuracao;
                         $localStorage.nome = objUsuario.nome;
                         $localStorage.email = objUsuario.email;
                         $localStorage.gravatar = objUsuario.gravatar;
