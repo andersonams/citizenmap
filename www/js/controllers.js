@@ -4,9 +4,58 @@ angular.module('citizenmap.controllers', [])
 .controller('citizenMapCtrl', function($scope) {
 
 })
-   
-.controller('mapaCtrl', function($scope) {
 
+.controller('mapaCtrl', function($ionicLoading, $scope, $state, $cordovaGeolocation) {
+    var options = {timeout: 10000, enableHighAccuracy: true};
+    $scope.map = new google.maps.Map(document.getElementById('map'), {center: {lat: -34.397, lng: 150.644}, zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP});
+    $scope.infoWindow = new google.maps.InfoWindow({map: $scope.map});
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            console.log("Geolozalização por HTML5: " + latLng.toString());
+            
+            $scope.infoWindow .setPosition(latLng);
+            $scope.infoWindow .setContent('Localização encontrada.');
+            $scope.map.setCenter(latLng);
+        }, function () {
+            handleLocationError(true, $scope.infoWindow , $scope.map.getCenter());
+        });
+    } else {
+        $cordovaGeolocation.getCurrentPosition(options).then(function (position) {
+            var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            console.log("Geolozalização por Cordova Geolocation: " + latLng.toString());
+            
+            $scope.infoWindow .setPosition(latLng);
+            $scope.infoWindow .setContent('Localização encontrada.');
+            $scope.map.setCenter(latLng);
+        }, function (error) {
+            console.log("Não foi possível obter a localização." + error.message);
+        });
+    }
+    
+    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ? 'Erro: O serviço de geolocalização falhou.' : 'Erro: Seu navegador não suporta geolozalização.');
+    }
+    
+    $scope.ondeEstou = function () {
+        if (!$scope.map) {
+            return;
+        }
+
+        $scope.loading = $ionicLoading.show({
+            content: 'Getting current location...',
+            showBackdrop: false
+        });
+        
+        navigator.geolocation.getCurrentPosition(function (position) {
+            $scope.map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+            $ionicLoading.hide();
+        }, function (error) {
+            alert('Unable to get location: ' + error.message);
+        });
+    };
 })
    
 .controller('perfilCtrl', function(FBURL, Utils, $ionicModal, $localStorage, $scope) {

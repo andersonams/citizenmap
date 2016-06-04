@@ -42,7 +42,8 @@ angular.module('citizenmap.routes', [])
         url: '/mapa',
         views: {
           'menuview': {
-            templateUrl: 'templates/mapa.html'
+            templateUrl: 'templates/mapa.html',
+            controller: 'mapaCtrl'
           }
         }
       })

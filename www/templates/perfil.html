@@ -75,20 +75,20 @@
     </ion-content>
 </ion-view>
 <script id="modalexclusaoperfil.html" type="text/ng-template">-->
-<ion-modal-view>
-    <ion-header-bar class="bar-assertive">
-        <h1 class="title">Excluir Perfil</h1>
-        <button class="button button-clear button-primary" ng-click="modal.hide()">Cancelar</button>
-    </ion-header-bar>
-    <ion-content>
-        <div id="exclusao" style="color:#000000;text-align:center;">
-            <h3>Tem certeza que deseja excluir?</h3>
-            <p>Digite <b>EXCLUIR</b> para confirmar a exclusão:</p>
-            <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtEmail.$invalid && cadastroForm.$submitted }">
-                <input name="txtEmail" type="email" placeholder="EXCLUIR" ng-minlength="5" ng-maxlength="30" required >
-            </label>
-            <button id="excluir-perfil-button" class="button button-assertive button-block" ng-click="modal.show()">Excluir Perfil</button>
-        </div>
-    </ion-content>
-</ion-modal-view>
+    <ion-modal-view>
+        <ion-header-bar class="bar-assertive">
+            <h1 class="title">Excluir Perfil</h1>
+            <button class="button button-clear button-primary" ng-click="modal.hide()">Cancelar</button>
+        </ion-header-bar>
+        <ion-content>
+            <div id="exclusao" style="color:#000000;text-align:center;">
+                <h3>Tem certeza que deseja excluir?</h3>
+                <p>Digite <b>EXCLUIR</b> para confirmar a exclusão:</p>
+                <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtEmail.$invalid && cadastroForm.$submitted }">
+                    <input name="txtEmail" type="email" placeholder="EXCLUIR" ng-minlength="5" ng-maxlength="30" required >
+                </label>
+                <button id="excluir-perfil-button" class="button button-assertive button-block" ng-click="modal.show()">Excluir Perfil</button>
+            </div>
+        </ion-content>
+    </ion-modal-view>
 </script>

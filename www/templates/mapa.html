@@ -1,5 +1,8 @@
 <ion-view title="Mapa" id="mapa">
-  <ion-content padding="true" class="has-header">
-    Mapa
-  </ion-content>
+    <ion-content>
+        <div id="map" data-tap-disabled="true"></div>
+    </ion-content>
+    <ion-footer-bar class="bar-dark">
+        <a ng-click="ondeEstou()" class="button button-icon icon ion-navigate">Onde Estou?</a>
+    </ion-footer-bar>
 </ion-view>
