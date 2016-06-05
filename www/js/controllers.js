@@ -16,7 +16,7 @@ angular.module('citizenmap.controllers', [])
             console.log("Geolozalização por HTML5: " + latLng.toString());
             
             $scope.infoWindow .setPosition(latLng);
-            $scope.infoWindow .setContent('Localização encontrada.');
+            $scope.infoWindow .setContent('Geolocalização HTML5');
             $scope.map.setCenter(latLng);
         }, function () {
             handleLocationError(true, $scope.infoWindow , $scope.map.getCenter());
@@ -27,7 +27,7 @@ angular.module('citizenmap.controllers', [])
             console.log("Geolozalização por Cordova Geolocation: " + latLng.toString());
             
             $scope.infoWindow .setPosition(latLng);
-            $scope.infoWindow .setContent('Localização encontrada.');
+            $scope.infoWindow .setContent('Geolocalização Cordova');
             $scope.map.setCenter(latLng);
         }, function (error) {
             console.log("Não foi possível obter a localização." + error.message);
@@ -36,7 +36,7 @@ angular.module('citizenmap.controllers', [])
     
     function handleLocationError(browserHasGeolocation, infoWindow, pos) {
         infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ? 'Erro: O serviço de geolocalização falhou.' : 'Erro: Seu navegador não suporta geolozalização.');
+        infoWindow.setContent(browserHasGeolocation ? 'Erro: O serviço de geolocalização falhou.' : 'Erro: Seu navegador não suporta geolocalização.');
     }
     
     $scope.ondeEstou = function () {
@@ -60,52 +60,48 @@ angular.module('citizenmap.controllers', [])
    
 .controller('perfilCtrl', function(FBURL, Utils, $ionicModal, $localStorage, $scope) {
    $scope.$on('$ionicView.beforeEnter', function(){
-        var rootRef = new Firebase(FBURL);
-        var chaveUsuario = $localStorage.chaveUsuario;
-        var chaveEndereco = $localStorage.chaveEndereco;
-        var chaveConfiguracao = $localStorage.chaveConfiguracao;
+        $scope.rootRef = new Firebase(FBURL);
+        $scope.chaveUsuario = $localStorage.chaveUsuario;
+        $scope.chaveEndereco = $localStorage.chaveEndereco;
+        $scope.chaveConfiguracao = $localStorage.chaveConfiguracao;
        
         $scope.perfil = {};
         $scope.usuario = {};
         $scope.endereco = {};
         $scope.configuracao = {};
 
-        rootRef.child('perfis').child(chaveUsuario).on("value", function(snapshot) {
+        $scope.rootRef.child('perfis').child($scope.chaveUsuario).on("value", function(snapshot) {
             $scope.perfil.nome = snapshot.val().nome;
             $scope.perfil.sobrenome = snapshot.val().sobrenome;
             $scope.usuario.email = snapshot.val().email;       
         });
                      
-        rootRef.child('enderecos').child(chaveEndereco).on("value", function(snapshot) {
+        $scope.rootRef.child('enderecos').child($scope.chaveEndereco).on("value", function(snapshot) {
             $scope.endereco.bairro = snapshot.val().bairro;
             $scope.endereco.cidade = snapshot.val().cidade;
         });
 
-        rootRef.child('configuracoes').child(chaveConfiguracao).on("value", function(snapshot) {
+        $scope.rootRef.child('configuracoes').child($scope.chaveConfiguracao).on("value", function(snapshot) {
             $scope.configuracao.email = snapshot.val().email;
         });
     });
     
     $scope.salvar = function (usuario, perfil, endereco, configuracao) {
         Utils.show();
-        var rootRef = new Firebase(FBURL);
-        var chaveUsuario = $localStorage.chaveUsuario;
-        var chaveEndereco = $localStorage.chaveEndereco;
-        var chaveConfiguracao = $localStorage.chaveConfiguracao;
         
-        if (angular.isDefined(perfil)) {    
-            console.log(chaveUsuario);
-            var perfilRef = rootRef.child('perfis').child(chaveUsuario);
+        if (angular.isDefined(perfil)) {
+            console.log($scope.chaveUsuario);
+            var perfilRef = $scope.rootRef.child('perfis').child($scope.chaveUsuario);
             perfilRef.update({nome: perfil.nome, sobrenome: perfil.sobrenome});
         }
         if (angular.isDefined(endereco)) {
-            console.log(chaveEndereco);
-            var enderecoRef = rootRef.child('enderecos').child(chaveEndereco);
+            console.log($scope.chaveEndereco);
+            var enderecoRef = $scope.rootRef.child('enderecos').child($scope.chaveEndereco);
             enderecoRef.update({bairro: endereco.bairro, cidade: endereco.cidade});
         }
         if (angular.isDefined(configuracao)) {
-            console.log(chaveConfiguracao);
-            var configuracaoRef = rootRef.child('configuracoes').child(chaveConfiguracao);
+            console.log($scope.chaveConfiguracao);
+            var configuracaoRef = $scope.rootRef.child('configuracoes').child($scope.chaveConfiguracao);
             configuracaoRef.update({email: configuracao.email});
         }
         
@@ -113,7 +109,7 @@ angular.module('citizenmap.controllers', [])
         Utils.alertshow("Sucesso", "Seu perfil foi alterado com sucesso!"); 
     };
     
-    $ionicModal.fromTemplateUrl('modalexclusaoperfil.html', {
+    $ionicModal.fromTemplateUrl('modalalteracaosenha.html', {
         scope: $scope,
         animation: 'slide-in-up'
     }).then(function (modal) {
@@ -235,6 +231,36 @@ angular.module('citizenmap.controllers', [])
    
 .controller('principalCtrl', function($scope) {
     
+})
+
+.controller('administracaoCtrl', function($ionicModal, $scope) {
+    $ionicModal.fromTemplateUrl('modalexclusaoperfil.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function (modal) {
+        $scope.modal = modal;
+    });
+
+    $scope.openModal = function () {
+        $scope.modal.show();
+    };
+
+    $scope.closeModal = function () {
+        $scope.modal.hide();
+    };
+
+    // Cleanup the modal when we're done with it!
+    $scope.$on('$destroy', function () {
+        $scope.modal.remove();
+    });
+
+    // Execute action on hide modal:
+    $scope.$on('modal.hidden', function () {
+    });
+
+    // Execute action on remove modal:
+    $scope.$on('modal.removed', function () {
+    });
 })
 
 .controller('firebaseCtrl', function(FBURL, $firebaseArray, $scope) {

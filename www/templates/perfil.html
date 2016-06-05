@@ -1,40 +1,28 @@
 <ion-view cache-view="false" title="Perfil" id="perfil">
     <ion-content padding="true" class="has-header">
-        <form novalidate class="list" name="perfilForm" ng-submit="perfilForm.$valid && salvar(usuario, perfil, endereco, configuracao)" ng-class="{ 'has-error' : perfilForm.txtemail.$invalid && perfilForm.$submitted }">
+        <form novalidate class="list" name="perfilForm" ng-submit="perfilForm.$valid && salvar(usuario, perfil, endereco, configuracao)" ng-class="{ 'has-error' : perfilForm.txtemail.$invalid && perfilForm.$submitted }" style="margin-bottom: 0; padding: 0;">
             <h5 id="principal-heading7" style="color:#000000;text-align:center;">Altere abaixo dados do seu perfil:</h5>
+            <h4 style="color:gray; text-align:center;">{{usuario.email}}</h4>
             <div class="list">
                 <div class="item item-divider" style="text-align: center;">
-                    <i class="icon ion-android-person"></i> Perfil
+                    <i class="icon ion-android-person"></i> Dados Pessoais
                 </div>
-                <ion-list>
-                    <label class="item item-input" ng-class="{ 'has-error' : perfilForm.txtNome.$invalid && perfilForm.$submitted }">
-                        <input name="txtNome" type="text" ng-model="perfil.nome" placeholder="Nome" ng-minlength="1" ng-maxlength="30" required>
-                    </label>
-                    <div class="form-errors" ng-messages="perfilForm.txtNome.$error" ng-if="perfilForm.$submitted">
-                        <div class="form-error" ng-message="required">Campo obrigatório.</div>
-                        <div class="form-error" ng-message="minlength">Campo com no mínimo 1 dígito.</div>
-                        <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
-                    </div>
-                    <label class="item item-input" ng-class="{ 'has-error' : perfilForm.txtSobrenome.$invalid && perfilForm.$submitted }">
-                        <input name="txtSobrenome" type="text" ng-model="perfil.sobrenome" placeholder="Sobrenome" ng-minlength="1" ng-maxlength="30" required>
-                    </label>
-                    <div class="form-errors" ng-messages="perfilForm.txtSobrenome.$error" ng-if="perfilForm.$submitted">
-                        <div class="form-error" ng-message="required">Campo obrigatório.</div>
-                        <div class="form-error" ng-message="minlength">Campo com no mínimo 1 dígito.</div>
-                        <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
-                    </div>
-                </ion-list>
-            </div>
-            <div class="list">
-                <div class="item item-divider" style="text-align: center;">
-                    <i class="icon ion-android-lock"></i> Dados de Acesso
-                </div>
-                <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtEmail.$invalid && cadastroForm.$submitted }">
-                    <input name="txtEmail" type="email" ng-model="usuario.email" placeholder="E-Mail" ng-minlength="5" ng-maxlength="30" required readonly>
+                <label class="item item-input item-stacked-label" ng-class="{ 'has-error' : perfilForm.txtNome.$invalid && perfilForm.$submitted }">
+                    <span class="input-label" style="color: gray; font-size: smaller;">Nome</span>
+                    <input name="txtNome" type="text" ng-model="perfil.nome" placeholder="Nome" ng-minlength="1" ng-maxlength="30" required>
                 </label>
-                <div class="form-errors" ng-messages="cadastroForm.txtEmail.$error" ng-if="cadastroForm.$submitted">
+                <div class="form-errors" ng-messages="perfilForm.txtNome.$error" ng-if="perfilForm.$submitted">
                     <div class="form-error" ng-message="required">Campo obrigatório.</div>
-                    <div class="form-error" ng-message="email">Este campo deve ser um e-mail.</div>
+                    <div class="form-error" ng-message="minlength">Campo com no mínimo 1 dígito.</div>
+                    <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
+                </div>
+                <label class="item item-input item-stacked-label" ng-class="{ 'has-error' : perfilForm.txtSobrenome.$invalid && perfilForm.$submitted }">
+                    <span class="input-label" style="color: gray; font-size: smaller;">Sobrenome</span>
+                    <input name="txtSobrenome" type="text" ng-model="perfil.sobrenome" placeholder="Sobrenome" ng-minlength="1" ng-maxlength="30" required>
+                </label>
+                <div class="form-errors" ng-messages="perfilForm.txtSobrenome.$error" ng-if="perfilForm.$submitted">
+                    <div class="form-error" ng-message="required">Campo obrigatório.</div>
+                    <div class="form-error" ng-message="minlength">Campo com no mínimo 1 dígito.</div>
                     <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
                 </div>
             </div>
@@ -68,26 +56,34 @@
                     <i class="icon ion-android-settings"></i> Configurações
                 </div>
                 <ion-checkbox name="alertaemail" ng-model="configuracao.email" ng-init="configuracao.email = true">Enviar Alertas de E-Mail</ion-checkbox>
-                <button type="submit" id="salvar-button" class="button button-positive button-block">Salvar Alterações</button>
             </div>
+            <button type="submit" id="salvar-button" class="button button-positive button-block">Salvar Alterações</button>   
         </form>
-        <button id="excluir-perfil-button" class="button button-assertive button-block" ng-click="modal.show()">Excluir Perfil</button>
+        <button id="excluir-perfil-button" class="button button-energized button-block" ng-click="modal.show()">Alterar Senha</button>
     </ion-content>
 </ion-view>
-<script id="modalexclusaoperfil.html" type="text/ng-template">-->
+<script id="modalalteracaosenha.html" type="text/ng-template">
     <ion-modal-view>
-        <ion-header-bar class="bar-assertive">
-            <h1 class="title">Excluir Perfil</h1>
+        <ion-header-bar class="bar-energized">
+            <h1 class="title">Alterar Senha</h1>
             <button class="button button-clear button-primary" ng-click="modal.hide()">Cancelar</button>
         </ion-header-bar>
         <ion-content>
-            <div id="exclusao" style="color:#000000;text-align:center;">
-                <h3>Tem certeza que deseja excluir?</h3>
-                <p>Digite <b>EXCLUIR</b> para confirmar a exclusão:</p>
-                <label class="item item-input" ng-class="{ 'has-error' : cadastroForm.txtEmail.$invalid && cadastroForm.$submitted }">
-                    <input name="txtEmail" type="email" placeholder="EXCLUIR" ng-minlength="5" ng-maxlength="30" required >
+            <div style="text-align: center;">
+                <h3>Tem certeza que deseja prosseguir?</h3>
+                <p>Informe a atual e a nova senha para prosseguir com a alteração:</p>
+            </div>
+
+            <div class="list">
+                <label class="item item-input item-floating-label">
+                    <span class="input-label">Senha Atual</span>
+                    <input type="password" placeholder="Senha Atual">
                 </label>
-                <button id="excluir-perfil-button" class="button button-assertive button-block" ng-click="modal.show()">Excluir Perfil</button>
+                <label class="item item-input item-floating-label">
+                    <span class="input-label">Senha Nova</span>
+                    <input type="password" placeholder="Senha Nova">
+                </label>
+                <button id="excluir-perfil-button" class="button button-energized button-block" ng-click="modal.show()">Alterar</button>
             </div>
         </ion-content>
     </ion-modal-view>

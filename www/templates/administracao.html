@@ -1,0 +1,25 @@
+<ion-view cache-view="false" title="Administração" id="perfil">
+    <ion-content padding="true" class="has-header">
+        <p style="text-align: center;">Segue abaixo opções relacionadas a administração de sua conta:</p>
+        <h4 style="text-align: center;">Exclusão da Conta</h4>
+        <button id="excluir-perfil-button" class="button button-assertive button-block" ng-click="modal.show()">Excluir Conta</button>
+    </ion-content>
+</ion-view>
+<script id="modalexclusaoperfil.html" type="text/ng-template">
+    <ion-modal-view>
+        <ion-header-bar class="bar-assertive">
+            <h1 class="title">Excluir Perfil</h1>
+            <button class="button button-clear button-primary" ng-click="modal.hide()">Cancelar</button>
+        </ion-header-bar>
+        <ion-content>
+            <div class="list list-inset" id="exclusao" style="color:#000000;text-align:center;">
+                <h3>Tem certeza que deseja excluir?</h3>
+                <p>Digite <b>EXCLUIR</b> para confirmar a exclusão:</p>
+                <label class="item item-input">
+                    <input style="text-align: center;" type="text" placeholder="EXCLUIR">
+                </label>
+                <button id="excluir-perfil-button" class="button button-assertive button-block" ng-click="modal.show()">Excluir</button>
+            </div>
+        </ion-content>
+    </ion-modal-view>
+</script>

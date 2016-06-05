@@ -77,7 +77,25 @@ angular.module('citizenmap.routes', [])
           }
         }
       })
+      
+      .state('menu.administracao', {
+        url: '/administracao',
+        views: {
+          'menuview': {
+            templateUrl: 'templates/administracao.html',
+            controller: 'administracaoCtrl'
+          }
+        }
+      })
+      
+      .state('menu.ajuda', {
+        url: '/ajuda',
+        views: {
+          'menuview': {
+            templateUrl: 'templates/ajuda.html'
+          }
+        }
+      })
 
     $urlRouterProvider.otherwise('entrada')
-
   });
