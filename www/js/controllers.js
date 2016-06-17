@@ -9,12 +9,45 @@ angular.module('citizenmap.controllers', [])
     var options = {timeout: 10000, enableHighAccuracy: true};
     $scope.map = new google.maps.Map(document.getElementById('map'), {center: {lat: -34.397, lng: 150.644}, zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP});
     $scope.infoWindow = new google.maps.InfoWindow({map: $scope.map});
+    
+    var radiusMaximo = 500;
+    var citymap = {
+        beiramar: {
+            center: {lat: -22.7923143, lng: -43.2914273},
+            media: 5
+        },
+        vinteecinco: {
+            center: {lat: -22.7871459, lng: -43.3094991},
+            media: 3
+        },
+        parqueduque: {
+            center: {lat: -22.7951183, lng: -43.2884071},
+            media: 3.5
+        },
+        vilaoperaria: {
+            center: {lat: -22.7878983, lng: -43.2974671},
+            media: 0.5
+        }
+    };
+    
+    for (var city in citymap) {
+        var cityCircle = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: $scope.map,
+            center: citymap[city].center,
+            radius: radiusMaximo / Math.sqrt(citymap[city].media)
+        });
+    }
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {
             var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             console.log("Geolozalização por HTML5: " + latLng.toString());
-            
+    
             $scope.infoWindow .setPosition(latLng);
             $scope.infoWindow .setContent('Geolocalização HTML5');
             $scope.map.setCenter(latLng);
