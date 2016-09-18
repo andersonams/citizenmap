@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('citizenmap', ['firebase', 'ionic', 'ngCordova', 'ngMessages', 'ngStorage', 'citizenmap.controllers', 'citizenmap.directives', 'citizenmap.factories', 'citizenmap.routes', 'citizenmap.services', 'citizenmap.utils'])
+angular.module('citizenmap', ['firebase', 'ionic', 'ionic-ratings', 'ngCordova', 'ngMessages', 'ngStorage', 'citizenmap.controllers', 'citizenmap.directives', 'citizenmap.factories', 'citizenmap.routes', 'citizenmap.services', 'citizenmap.utils'])
 
 .constant('FBURL', 'https://luminous-torch-2885.firebaseio.com/')
 .run(function($ionicPlatform) {

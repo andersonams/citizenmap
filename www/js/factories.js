@@ -15,12 +15,11 @@ angular.module('citizenmap.factories', [])
                 return Auth.login(usuario);
             })
             .then(function(userData) {
-                //console.log("Dados de Acesso:" + JSON.stringify(userData));
                 return Auth.cadastrarUsuario(userData.uid, usuario.email, perfil, endereco, configuracao);
             });
         },
         // Criação do Usuário:
-        cadastrarUsuario: function(uid, email, perfil, endereco, configuracao) {    
+        cadastrarUsuario: function(uid, email, perfil, endereco, configuracao) {
             perfil.id_firebase = uid;
             perfil.email = email;
             perfil.gravatar = gravatar(email, 40);
@@ -314,4 +313,96 @@ angular.module('citizenmap.factories', [])
     }
     
     return Auth;
+})
+
+.factory('Localizacao', function ($cordovaGeolocation, $q)  {
+    return {
+        obterLocalizacao: function () {
+            var defer = $q.defer();
+            var options = {timeout: 10000, enableHighAccuracy: true};
+
+            $cordovaGeolocation.getCurrentPosition(options).then(function (position) {
+                var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+
+                defer.resolve(latLng);
+            }, function (error) {
+                console.log("Não foi possível obter a localização: " + error.message);
+            });   
+            return defer.promise;
+        },
+        
+        obterRegiao: function (latLng) {
+            var latLngStr;
+            var defer = $q.defer();
+            var geocoder = new google.maps.Geocoder;
+            var input;
+            
+            input = latLng.toString().slice(1, -1);
+            latLngStr = input.split(',', 2);
+            latLng = {lat: parseFloat(latLngStr[0]), lng: parseFloat(latLngStr[1])};
+
+            geocoder.geocode({'location': latLng}, function (results, status) {
+                if (status === google.maps.GeocoderStatus.OK) {                 
+                    if (results) {
+                        var data = [];
+
+                        angular.forEach(results, function (componente) {
+                            //Juntar o as chaves de uma posição em uma unica chave:
+                            data[componente.types.join(' ')] = componente
+                        });
+
+                        data["bairro"] = data['political sublocality sublocality_level_1']['address_components'][0].long_name;
+                        data["cidade"] = data['locality political']['address_components'][0].long_name;
+                        data["latLngUsuario"] = data['street_address'].geometry.location;
+                        data["latLngBairro"] = data['political sublocality sublocality_level_1'].geometry.location;
+                        data["latLngCidade"] = data['locality political'].geometry.location;
+
+                        defer.resolve(data);
+                    
+//                        angular.forEach(results[0].address_components, function (componente) {         
+//                            if (jQuery.inArray("street_number", componente.types) == 0) {
+//                                data["numero_rua"] = componente['long_name'];
+//                            }
+//                            if (jQuery.inArray("route", componente.types) == 0) {
+//                                data["nome_rua"] = componente['long_name'];
+//                            }
+//                            if (jQuery.inArray("political", componente.types) == 0) {
+//                                data["bairro"] = componente['long_name'];
+//                            }
+//                            if (jQuery.inArray("sublocality", componente.types) == 0) {
+//                                data["sublocality"] = componente['long_name'];
+//                            }
+//                            if (jQuery.inArray("locality", componente.types) == 0) {
+//                                data["cidade"] = componente['long_name'];
+//                            }
+//                            if (jQuery.inArray("country", componente.types) == 0) {
+//                                data["pais"] = componente['long_name'];
+//                            }
+//                        });                   
+                    } else {
+                        Utils.alertshow("Não há resultados com as coordenadas atuais.");
+                    }
+                } else {
+                    Utils.alertshow('Falha no Geocoder: ' + status);
+                }
+            });
+            return defer.promise;
+        },
+        
+        obterLocalizacaoHTML5: function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+
+                }, function () {
+                    handleLocationError(true, $scope.infoWindow, $scope.map.getCenter());
+                });
+            }
+            
+            function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+                infoWindow.setPosition(pos);
+                infoWindow.setContent(browserHasGeolocation ? 'Erro: O serviço de geolocalização falhou.' : 'Erro: Seu navegador não suporta geolocalização.');
+            }
+        }
+    }
 });

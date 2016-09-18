@@ -1,52 +1,19 @@
 <ion-view title="Principal" hide-back-button="true" id="principal">
-    <ion-content padding="true" class="has-header">
+    <ion-content padding="true" class="has-header" ng-controller="principalCtrl">
         <div class="button-bar"></div>
         <div>
-            <img src="img/yUjLofstQya8LtjenyYn_mendix developers-01.png" width="30%" height="auto"
-                 style="display: block; margin-left: auto; margin-right: auto;">
+            <img src="img/yUjLofstQya8LtjenyYn_mendix developers-01.png" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
         </div>
         <h5 id="principal-heading7" style="color:#000000;text-align:center;">Selecione o tipo de serviço a ser avaliado:</h5>
         <div id="principal-markdown4" style="color:#000000;text-align:center;">
             <p>Cada serviço pode ser avaliado <strong>uma</strong> vez por mês.</p>
         </div>
         <ion-list>
-            <a href="#/menu/avaliacao">
-                <ion-item class="item-thumbnail-left">
-                    <img src="img/K87cwN0hQW2joUe8hGyS_police.png">
-                    <h2>Segurança</h2>
-                    <p style="white-space:normal;">Serviços relacionados a segurança da região.</p>
-                </ion-item>
-            </a>
-            <ion-item class="item-thumbnail-left">
-                <img src="img/mN012c1CSS2t4VqMWyw0_Medicine Ambulance.png">
-                <h2>Saúde</h2>
-                <p style="white-space:normal;">Hospitais, Clínicas, Postos de Saúde, etc.</p>
+            <ion-item class="item-thumbnail-left" ng-click="definirServico(servico)" ng-repeat="servico in servicos">
+                <img ng-src="img/{{servico.img}}">
+                <h2>{{servico.nome}}</h2>
+                <p style="white-space:normal;">{{servico.descricao}}</p>
             </ion-item>
-            <ion-item class="item-thumbnail-left">
-                <img src="img/Af4hGGY7QESXcIjKcIPC_Bdc68ERT9.png">
-                <h2>Educação</h2>
-                <p style="white-space:normal;">Ensino, Bibliotecas, Escolas Públicas, etc.</p>
-            </ion-item>
-            <ion-item class="item-thumbnail-left">
-                <img src="img/5MqYBbYORHiu4sSOswiS_4400-200.png">
-                <h2>Infraestrutura</h2>
-                <p style="white-space:normal;">Ruas, Estradas, Rodovias, Sinalização, etc.</p>
-            </ion-item>
-            <ion-item class="item-thumbnail-left">
-                <img src="img/vOoM4eiRh6UQxeG7X1Xd_Street_Light-512.png">
-                <h2>Iluminação</h2>
-                <p style="white-space:normal;">Postes de Luz, Fornecimento de Energia, etc.</p>
-            </ion-item>
-            <ion-item class="item-thumbnail-left">
-                <img src="img/M1YWSjTkToaqLxucjYHs_Bus_stop_symbol.svg.png">
-                <h2>Transporte</h2>
-                <p style="white-space:normal;">Ônibus, Metrô, Serviços de Integração, etc.</p>
-            </ion-item>
-            <ion-item class="item-thumbnail-left">
-                <img src="img/5DYCI1UEQhGjRhvo2MT0_signal.png">
-                <h2>Internet</h2>
-                <p style="white-space:normal;">Qualidade da Rede, Opções Disponíveis, etc.</p>
-            </ion-item>
-        </ion-list>
+        </ion-list> 
     </ion-content>
 </ion-view>

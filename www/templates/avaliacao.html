@@ -1,5 +1,17 @@
-<ion-view title="Avaliação" id="avaliacao">
-  <ion-content padding="true" class="has-header">
-    Avaliação
-  </ion-content>
+<ion-view title="Avaliação" hide-back-button="true" id="avaliacao">
+    <ion-content padding="true" class="has-" ng-controller="avaliacaoCtrl">
+        <div>
+            <img ng-src="img/{{servico.img}}" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;" />
+        </div>
+        <div style="color:#000000;text-align:center;">
+            <h3><p>{{servico.nome}}</p></h3>
+            <h4>{{cidade}} <i class="icon ion-ios-information"></i></h4>
+            <h5>{{bairro}}</h5>
+            <p>Avalie abaixo o serviço selecionado:</p>
+        </div>
+        <div>
+            <ionic-ratings ratingsobj='ratingsObject' index='$index' ng-model="nota"></ionic-ratings>
+        </div>
+        <button type="button" id="salvar-button" class="button button-positive button-block" ng-click="salvarAvaliacao(servico)">Avaliar</button>
+    </ion-content>
 </ion-view>

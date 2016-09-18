@@ -5,73 +5,189 @@ angular.module('citizenmap.controllers', [])
 
 })
 
-.controller('mapaCtrl', function($ionicLoading, $scope, $state, $cordovaGeolocation) {
-    var options = {timeout: 10000, enableHighAccuracy: true};
-    $scope.map = new google.maps.Map(document.getElementById('map'), {center: {lat: -34.397, lng: 150.644}, zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP});
-    $scope.infoWindow = new google.maps.InfoWindow({map: $scope.map});
+.controller('principalCtrl', function(avaliacaoService, FBURL, $firebaseArray, $scope, $state) {
+    var servicosRef = new Firebase(FBURL).child('servicos');
+    $scope.servicos = $firebaseArray(servicosRef);
+
+    $scope.definirServico = function (servico) {
+        avaliacaoService.servicoSelecionado = servico;
+        $state.go('menu.avaliacao');
+    }
+})
+
+.controller('avaliacaoCtrl', function(Localizacao, avaliacaoService, FBURL, $firebaseArray, $localStorage, $scope, Utils) {
+    $scope.$on('$ionicView.beforeEnter', function () {
+        $scope.servico = avaliacaoService.servicoSelecionado;
+        $scope.bairro = $localStorage.bairro;
+        $scope.cidade = $localStorage.cidade;
+        
+                        Localizacao.obterLocalizacao().then(function (promise) {
+                    //console.log("Geolozalização Apache Cordova: " + promise.toString());
+                    $localStorage.latLng = promise;
+                    
+                    Localizacao.obterRegiao(promise).then(function (promise) {
+                        //console.log(promise.cidade + "/" + promise.bairro);
+                        $localStorage.latLngUsuario = promise.latLngUsuario;
+                        $localStorage.latLngBairro = promise.latLngBairro;
+                        $localStorage.latLngCidade = promise.latLngCidade;
+                        $localStorage.bairro = promise.bairro;
+                        $localStorage.cidade = promise.cidade;
+                        
+                    }, function (error) {
+                        console.log("Não foi possível obter a região: " + error.message);
+                    });
+
+                }, function (error) {
+                    console.log("Não foi possível obter a localização: " + error.message);
+                });
+    });
     
-    var radiusMaximo = 500;
-    var citymap = {
-        beiramar: {
-            center: {lat: -22.7923143, lng: -43.2914273},
-            media: 5
+    $scope.salvarAvaliacao = function (servico) {
+        var avaliacaoesRef = new Firebase(FBURL).child('avaliacoes').child(servico.nome).child($scope.cidade).child($scope.bairro);
+        var mediasBairroRef = new Firebase(FBURL).child('medias').child(servico.nome).child($scope.cidade).child($scope.bairro);
+        var mediasCidadeRef = new Firebase(FBURL).child('medias').child(servico.nome).child($scope.cidade);
+        var latLngUsuario = $localStorage.latLngUsuario.toString().replace('(', '').replace(')', '').split(',', 2);
+        var avaliacao = {};
+        
+        avaliacao.data = Date();
+        avaliacao.nota = $scope.nota;
+        avaliacao.perfil = $localStorage.chaveUsuario;
+        avaliacao.lat = parseFloat(latLngUsuario[0]);
+        avaliacao.lng = parseFloat(latLngUsuario[1]);
+
+        //Criar avaliação:
+        avaliacaoesRef = $firebaseArray(avaliacaoesRef);
+        avaliacaoesRef.$add(avaliacao).then(function (avaliacao) {
+            console.log("Avaliação criada: " + avaliacao.key());
+
+            //Obter a soma de todas as avaliações do servico do bairro:
+            avaliacaoesRef.$loaded().then(function () {
+                var mediaAvaliacoes = 0;
+                var soma = 0;
+                var totalAvaliacoesBairro = avaliacaoesRef.length;             
+
+                angular.forEach(avaliacaoesRef, function (avl) {
+                    soma += parseInt(avl.nota);
+                });
+                
+                //Calcular a média:
+                mediaAvaliacoes = parseInt(soma) / parseInt(totalAvaliacoesBairro);
+                
+                var latLngBairro = $localStorage.latLngBairro.toString().replace('(', '').replace(')', '').split(',', 2);
+                var mediaBairro = {};
+                
+                mediaBairro.lat = parseFloat(latLngBairro[0]);
+                mediaBairro.lng = parseFloat(latLngBairro[1]);
+                mediaBairro.media = mediaAvaliacoes.toFixed(2);
+                
+                var latLngCidade = $localStorage.latLngCidade.toString().replace('(', '').replace(')', '').split(',', 2);
+                var mediaCidade ={};
+                
+                mediaCidade.lat = parseFloat(latLngCidade[0]);
+                mediaCidade.lng = parseFloat(latLngCidade[1]);
+
+                var onComplete = function (error) {
+                    if (error) {
+                        console.log('Erro ao Sincronizar: ' + error.message);
+                    }
+                };
+                
+                //Atualizar a média no banco:
+                mediasBairroRef.update(mediaBairro, onComplete);
+                mediasCidadeRef.update(mediaCidade, onComplete);
+                
+            });
         },
-        vinteecinco: {
-            center: {lat: -22.7871459, lng: -43.3094991},
-            media: 3
-        },
-        parqueduque: {
-            center: {lat: -22.7951183, lng: -43.2884071},
-            media: 3.5
-        },
-        vilaoperaria: {
-            center: {lat: -22.7878983, lng: -43.2974671},
-            media: 0.5
-        }
+        function (error) {
+            Utils.alertshow("Não foi possível registrar a avaliação: " + error.message);
+            console.log("Não foi possível registrar a avaliação: " + error.message);
+        });
     };
     
-    for (var city in citymap) {
-        var cityCircle = new google.maps.Circle({
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.35,
-            map: $scope.map,
-            center: citymap[city].center,
-            radius: radiusMaximo / Math.sqrt(citymap[city].media)
-        });
-    }
+    $scope.ratingsObject = {
+        iconOn: 'ion-ios-star',
+        iconOff: 'ion-ios-star-outline',
+        iconOnColor: 'rgb(200, 200, 100)',
+        iconOffColor: 'rgb(200, 100, 100)',
+        rating: 1,
+        minRating: 0,
+        callback: function (rating) {
+            $scope.ratingsCallback(rating);
+        }
+    };
 
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-            console.log("Geolozalização por HTML5: " + latLng.toString());
+    $scope.ratingsCallback = function (rating) {
+        $scope.nota = rating;
+    };
+})
+
+.controller('mapaCtrl', function(FBURL, $localStorage, $ionicLoading, $scope) {
+    $scope.map = new google.maps.Map(document.getElementById('map'), {center: {lat: -34.397, lng: 150.644}, zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP});
+    $scope.map.setCenter($localStorage.latLng);
+    $scope.infoWindow = new google.maps.InfoWindow({map: $scope.map});
+    $scope.infoWindow.setPosition($localStorage.latLng);
+    $scope.infoWindow.setContent('Geolocalização Apache Cordova');
     
-            $scope.infoWindow .setPosition(latLng);
-            $scope.infoWindow .setContent('Geolocalização HTML5');
-            $scope.map.setCenter(latLng);
-        }, function () {
-            handleLocationError(true, $scope.infoWindow , $scope.map.getCenter());
+//    var mediasRef = new Firebase(FBURL).child('medias').child('Saúde');
+//    mediasRef = $firebaseArray(mediasRef);
+//
+//    mediasRef.$loaded().then(function () {
+//        angular.forEach(mediasRef, function (cidade) {
+//           angular.forEach(cidade, function (bairro) {
+//               console.log(bairro);
+//           });
+//        });
+//    });
+
+    //Adicionando Círculos:
+    var radiusMaximo = 500;
+    var citymapteste = [];
+    var mediasRef = new Firebase(FBURL);
+    var mediasRef = mediasRef.child('medias').child('Saúde');
+    mediasRef.once("value", function (cidade) {
+        cidade.forEach(function (bairro) {
+            bairro.forEach(function (snapshot) {
+                //console.log(snapshot.key());
+                var bairro = {
+                    center: {lat: snapshot.val().lat, lng: snapshot.val().lng},
+                    media: snapshot.val().media
+                };
+                citymapteste.push(bairro)
+            });
         });
-    } else {
-        $cordovaGeolocation.getCurrentPosition(options).then(function (position) {
-            var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-            console.log("Geolozalização por Cordova Geolocation: " + latLng.toString());
-            
-            $scope.infoWindow .setPosition(latLng);
-            $scope.infoWindow .setContent('Geolocalização Cordova');
-            $scope.map.setCenter(latLng);
-        }, function (error) {
-            console.log("Não foi possível obter a localização." + error.message);
+        
+        citymapteste.forEach(function (bairro) {
+            if(bairro.media <= 1.00){
+                var color = "#FF0000"
+            }
+            else if(bairro.media >= 1.00 && bairro.media <= 2.00) {
+                var color = "#FF4500"
+            }
+            else if(bairro.media >= 2.00 && bairro.media <= 3.00) {
+                var color = "#FFA500"
+            }
+            else if(bairro.media >= 3.00 && bairro.media <= 4.00) {
+                var color = "#FFFF00"
+            }
+            else if(bairro.media >= 4.00 && bairro.media <= 5.00) {
+                var color = "#008000"
+            }
+                  
+            var cityCircle = new google.maps.Circle({
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: color,
+                fillOpacity: 0.35,
+                map: $scope.map,
+                center: bairro.center,
+                radius: radiusMaximo / Math.sqrt(bairro.media)
+            });
         });
-    }
-    
-    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ? 'Erro: O serviço de geolocalização falhou.' : 'Erro: Seu navegador não suporta geolocalização.');
-    }
-    
+    }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+    });
+
     $scope.ondeEstou = function () {
         if (!$scope.map) {
             return;
@@ -187,20 +303,20 @@ angular.module('citizenmap.controllers', [])
     }
 })
       
-.controller("loginCtrl", function(Auth, FBURL, Utils, $firebaseObject, $localStorage, $location, $scope, $state) {
+.controller("loginCtrl", function(Auth, FBURL, Localizacao, Utils, $firebaseObject, $localStorage, $scope, $state) {
     var rootRef = new Firebase(FBURL);
     
     // Login Comum:
-    $scope.login = function(usuario) {
-        if(angular.isDefined(usuario)){
+    $scope.login = function (usuario) {
+        if (angular.isDefined(usuario)) {
             Utils.show();
-            Auth.login(usuario).then(function(authData) {
+            Auth.login(usuario).then(function (authData) {
                 console.log("Authenticated successfully with payload:", authData);
-                rootRef.child('perfis').orderByChild("id_firebase").equalTo(authData.uid).on("child_added", function(snapshot) {
+                rootRef.child('perfis').orderByChild("id_firebase").equalTo(authData.uid).on("child_added", function (snapshot) {
                     var chaveUsuario = snapshot.key();
                     var objUsuario = $firebaseObject(rootRef.child('perfis').child(chaveUsuario));
 
-                    objUsuario.$loaded().then(function(data) {
+                    objUsuario.$loaded().then(function (data) {
                         // console.log(data === objUsuario);
                         // console.log(objUsuario);
                         $localStorage.chaveUsuario = chaveUsuario;
@@ -209,18 +325,38 @@ angular.module('citizenmap.controllers', [])
                         $localStorage.nome = objUsuario.nome;
                         $localStorage.email = objUsuario.email;
                         $localStorage.gravatar = objUsuario.gravatar;
-                        
+
                         Utils.hide();
                         $state.go('menu.principal');
-                      })
-                      .catch(function(error) {
+                    })
+                    .catch(function(error) {
                         console.error("Erro:", error);
-                      });
-              });
-            }, 
-            function(err) {
-              Utils.hide();
-              Utils.errMessage(err);
+                    });
+                });
+
+                Localizacao.obterLocalizacao().then(function (promise) {
+                    console.log("Geolozalização Apache Cordova: " + promise.toString());
+                    $localStorage.latLng = promise;
+                    
+                    Localizacao.obterRegiao(promise).then(function (promise) {
+                        console.log(promise.cidade + "/" + promise.bairro);
+                        $localStorage.latLngUsuario = promise.latLngUsuario;
+                        $localStorage.latLngBairro = promise.latLngBairro;
+                        $localStorage.latLngCidade = promise.latLngCidade;
+                        $localStorage.bairro = promise.bairro;
+                        $localStorage.cidade = promise.cidade;
+                        
+                    }, function (error) {
+                        console.log("Não foi possível obter a região: " + error.message);
+                    });
+
+                }, function (error) {
+                    console.log("Não foi possível obter a localização: " + error.message);
+                });
+            },
+            function (error) {
+                Utils.hide();
+                Utils.errMessage(error);
             });
         }
     };
@@ -260,10 +396,6 @@ angular.module('citizenmap.controllers', [])
             });
         }
     };
-})
-   
-.controller('principalCtrl', function($scope) {
-    
 })
 
 .controller('administracaoCtrl', function($ionicModal, $scope) {
