@@ -77,7 +77,7 @@ angular.module('citizenmap.controllers', [])
                 
                 mediaBairro.lat = parseFloat(latLngBairro[0]);
                 mediaBairro.lng = parseFloat(latLngBairro[1]);
-                mediaBairro.media = mediaAvaliacoes.toFixed(2);
+                mediaBairro.media = parseFloat(mediaAvaliacoes.toFixed(2));
                 
                 var latLngCidade = $localStorage.latLngCidade.toString().replace('(', '').replace(')', '').split(',', 2);
                 var mediaCidade ={};
@@ -93,8 +93,7 @@ angular.module('citizenmap.controllers', [])
                 
                 //Atualizar a média no banco:
                 mediasBairroRef.update(mediaBairro, onComplete);
-                mediasCidadeRef.update(mediaCidade, onComplete);
-                
+                mediasCidadeRef.update(mediaCidade, onComplete);        
             });
         },
         function (error) {
