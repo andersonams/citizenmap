@@ -342,43 +342,28 @@ angular.module('citizenmap.factories', [])
             latLng = {lat: parseFloat(latLngStr[0]), lng: parseFloat(latLngStr[1])};
 
             geocoder.geocode({'location': latLng}, function (results, status) {
-                if (status === google.maps.GeocoderStatus.OK) {                 
+                if (status === google.maps.GeocoderStatus.OK) {
                     if (results) {
                         var data = [];
+                        var i = [];
 
                         angular.forEach(results, function (componente) {
-                            //Juntar o as chaves de uma posição em uma unica chave:
-                            data[componente.types.join(' ')] = componente
+                            if (i[componente.types.join(' ')]) {
+                                i[componente.types.join(' ')] += 1;
+                            } else {
+                                i[componente.types.join(' ')] = 1;
+                            }
+
+                            data[componente.types.join(' ') + " (" + i[componente.types.join(' ')] + ")"] = componente;
                         });
 
-                        data["bairro"] = data['political sublocality sublocality_level_1']['address_components'][0].long_name;
-                        data["cidade"] = data['locality political']['address_components'][0].long_name;
-                        data["latLngUsuario"] = data['street_address'].geometry.location;
-                        data["latLngBairro"] = data['political sublocality sublocality_level_1'].geometry.location;
-                        data["latLngCidade"] = data['locality political'].geometry.location;
+                        data["bairro"] = data['political sublocality sublocality_level_1 (1)']['address_components'][0].long_name;
+                        data["latLngBairro"] = data['political sublocality sublocality_level_1 (1)'].geometry.location;
+
+                        data["cidade"] = data['locality political (1)']['address_components'][0].long_name;
+                        data["latLngCidade"] = data['locality political (1)'].geometry.location;
 
                         defer.resolve(data);
-                    
-//                        angular.forEach(results[0].address_components, function (componente) {         
-//                            if (jQuery.inArray("street_number", componente.types) == 0) {
-//                                data["numero_rua"] = componente['long_name'];
-//                            }
-//                            if (jQuery.inArray("route", componente.types) == 0) {
-//                                data["nome_rua"] = componente['long_name'];
-//                            }
-//                            if (jQuery.inArray("political", componente.types) == 0) {
-//                                data["bairro"] = componente['long_name'];
-//                            }
-//                            if (jQuery.inArray("sublocality", componente.types) == 0) {
-//                                data["sublocality"] = componente['long_name'];
-//                            }
-//                            if (jQuery.inArray("locality", componente.types) == 0) {
-//                                data["cidade"] = componente['long_name'];
-//                            }
-//                            if (jQuery.inArray("country", componente.types) == 0) {
-//                                data["pais"] = componente['long_name'];
-//                            }
-//                        });                   
                     } else {
                         Utils.alertshow("Não há resultados com as coordenadas atuais.");
                     }

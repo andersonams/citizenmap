@@ -21,13 +21,12 @@ angular.module('citizenmap.controllers', [])
         $scope.bairro = $localStorage.bairro;
         $scope.cidade = $localStorage.cidade;
         
-                        Localizacao.obterLocalizacao().then(function (promise) {
+                Localizacao.obterLocalizacao().then(function (promise) {
                     //console.log("Geolozalização Apache Cordova: " + promise.toString());
                     $localStorage.latLng = promise;
-                    
+
                     Localizacao.obterRegiao(promise).then(function (promise) {
-                        //console.log(promise.cidade + "/" + promise.bairro);
-                        $localStorage.latLngUsuario = promise.latLngUsuario;
+                        console.log(promise.cidade + "/" + promise.bairro);
                         $localStorage.latLngBairro = promise.latLngBairro;
                         $localStorage.latLngCidade = promise.latLngCidade;
                         $localStorage.bairro = promise.bairro;
@@ -46,7 +45,7 @@ angular.module('citizenmap.controllers', [])
         var avaliacaoesRef = new Firebase(FBURL).child('avaliacoes').child(servico.nome).child($scope.cidade).child($scope.bairro);
         var mediasBairroRef = new Firebase(FBURL).child('medias').child(servico.nome).child($scope.cidade).child($scope.bairro);
         var mediasCidadeRef = new Firebase(FBURL).child('medias').child(servico.nome).child($scope.cidade);
-        var latLngUsuario = $localStorage.latLngUsuario.toString().replace('(', '').replace(')', '').split(',', 2);
+        var latLngUsuario = $localStorage.latLng.toString().replace("(", "").replace(")", "").split(',', 2);
         var avaliacao = {};
         
         avaliacao.data = Date();
@@ -124,9 +123,9 @@ angular.module('citizenmap.controllers', [])
 .controller('mapaCtrl', function(FBURL, $localStorage, $ionicLoading, $scope) {
     $scope.map = new google.maps.Map(document.getElementById('map'), {center: {lat: -34.397, lng: 150.644}, zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP});
     $scope.map.setCenter($localStorage.latLng);
-    $scope.infoWindow = new google.maps.InfoWindow({map: $scope.map});
-    $scope.infoWindow.setPosition($localStorage.latLng);
-    $scope.infoWindow.setContent('Geolocalização Apache Cordova');
+    //$scope.infoWindow = new google.maps.InfoWindow({map: $scope.map});
+    //$scope.infoWindow.setPosition($localStorage.latLng);
+    //$scope.infoWindow.setContent('Geolocalização Apache Cordova');
     
 //    var mediasRef = new Firebase(FBURL).child('medias').child('Saúde');
 //    mediasRef = $firebaseArray(mediasRef);
@@ -139,7 +138,7 @@ angular.module('citizenmap.controllers', [])
 //        });
 //    });
 
-    //Adicionando Círculos:
+    //Adicionando Círculos (Bairros):
     var radiusMaximo = 500;
     var citymapteste = [];
     var mediasRef = new Firebase(FBURL);
@@ -147,12 +146,13 @@ angular.module('citizenmap.controllers', [])
     mediasRef.once("value", function (cidade) {
         cidade.forEach(function (bairro) {
             bairro.forEach(function (snapshot) {
-                //console.log(snapshot.key());
-                var bairro = {
-                    center: {lat: snapshot.val().lat, lng: snapshot.val().lng},
-                    media: snapshot.val().media
-                };
-                citymapteste.push(bairro)
+                if (snapshot.hasChildren()) {
+                    var bairro = {
+                        center: {lat: snapshot.val().lat, lng: snapshot.val().lng},
+                        media: snapshot.val().media
+                    };
+                    citymapteste.push(bairro)
+                }
             });
         });
         
@@ -161,20 +161,20 @@ angular.module('citizenmap.controllers', [])
                 var color = "#FF0000"
             }
             else if(bairro.media >= 1.00 && bairro.media <= 2.00) {
-                var color = "#FF4500"
+                var color = "#FA8072"
             }
             else if(bairro.media >= 2.00 && bairro.media <= 3.00) {
-                var color = "#FFA500"
-            }
-            else if(bairro.media >= 3.00 && bairro.media <= 4.00) {
                 var color = "#FFFF00"
             }
+            else if(bairro.media >= 3.00 && bairro.media <= 4.00) {
+                var color = "#FFD700"
+            }
             else if(bairro.media >= 4.00 && bairro.media <= 5.00) {
-                var color = "#008000"
+                var color = "#90EE90"
             }
                   
             var cityCircle = new google.maps.Circle({
-                strokeColor: '#FF0000',
+                strokeColor: color,
                 strokeOpacity: 0.8,
                 strokeWeight: 2,
                 fillColor: color,
@@ -183,6 +183,17 @@ angular.module('citizenmap.controllers', [])
                 center: bairro.center,
                 radius: radiusMaximo / Math.sqrt(bairro.media)
             });
+            
+            var mapLabel = new MapLabel({
+                text: bairro.media,
+                position: new google.maps.LatLng(bairro.center.lat, bairro.center.lng),
+                map: $scope.map,
+                fontSize: 15,
+                align: 'center',
+                strokeColor: '#FFFFFF',
+                fontColor: '#000000',
+                minZoom: 15
+            });         
         });
     }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
@@ -340,7 +351,6 @@ angular.module('citizenmap.controllers', [])
                     
                     Localizacao.obterRegiao(promise).then(function (promise) {
                         console.log(promise.cidade + "/" + promise.bairro);
-                        $localStorage.latLngUsuario = promise.latLngUsuario;
                         $localStorage.latLngBairro = promise.latLngBairro;
                         $localStorage.latLngCidade = promise.latLngCidade;
                         $localStorage.bairro = promise.bairro;
