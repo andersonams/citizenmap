@@ -22,20 +22,31 @@ angular.module('citizenmap.controllers', [])
         $scope.cidade = $localStorage.cidade;
         
                 Localizacao.obterLocalizacao().then(function (promise) {
-                    //console.log("Geolozalização Apache Cordova: " + promise.toString());
+                    console.log("Geolozalização Apache Cordova: " + promise.toString());
                     $localStorage.latLng = promise;
 
-                    Localizacao.obterRegiao(promise).then(function (promise) {
-                        console.log(promise.cidade + "/" + promise.bairro);
-                        $localStorage.latLngBairro = promise.latLngBairro;
-                        $localStorage.latLngCidade = promise.latLngCidade;
-                        $localStorage.bairro = promise.bairro;
-                        $localStorage.cidade = promise.cidade;
-                        
+//                    Localizacao.obterRegiaoGoogle(promise).then(function (promise) {
+//                        $localStorage.latLngBairro = promise.bairro.latLng;
+//                        $localStorage.latLngCidade = promise.cidade.latLng;
+//                        $localStorage.bairro = promise.bairro.nome;
+//                        $localStorage.cidade = promise.cidade.nome;    
+//                        
+//                    }, function (error) {
+//                        console.log("Não foi possível obter a região: " + error.message);
+//                    });
+                    
+                    Localizacao.obterRegiaoWikiMapia($localStorage.latLng).then(function (promise) {
+                        $localStorage.latLngBairro = promise.bairro.latLng;
+                        $localStorage.latLngCidade = promise.cidade.latLng;
+                        $localStorage.bairro = promise.bairro.nome;
+                        $localStorage.cidade = promise.cidade.nome; 
+                        $localStorage.polygonsBairro = promise.bairro.polygons;
+                        $localStorage.polygonsCidade = promise.cidade.polygons;
+
                     }, function (error) {
                         console.log("Não foi possível obter a região: " + error.message);
-                    });
-
+                    });   
+                          
                 }, function (error) {
                     console.log("Não foi possível obter a localização: " + error.message);
                 });
@@ -45,6 +56,7 @@ angular.module('citizenmap.controllers', [])
         var avaliacaoesRef = new Firebase(FBURL).child('avaliacoes').child(servico.nome).child($scope.cidade).child($scope.bairro);
         var mediasBairroRef = new Firebase(FBURL).child('medias').child(servico.nome).child($scope.cidade).child($scope.bairro);
         var mediasCidadeRef = new Firebase(FBURL).child('medias').child(servico.nome).child($scope.cidade);
+        
         var latLngUsuario = $localStorage.latLng.toString().replace("(", "").replace(")", "").split(',', 2);
         var avaliacao = {};
         
@@ -72,18 +84,18 @@ angular.module('citizenmap.controllers', [])
                 //Calcular a média:
                 mediaAvaliacoes = parseInt(soma) / parseInt(totalAvaliacoesBairro);
                 
-                var latLngBairro = $localStorage.latLngBairro.toString().replace('(', '').replace(')', '').split(',', 2);
                 var mediaBairro = {};
                 
-                mediaBairro.lat = parseFloat(latLngBairro[0]);
-                mediaBairro.lng = parseFloat(latLngBairro[1]);
+                mediaBairro.lat = $localStorage.latLngBairro.lat;
+                mediaBairro.lng = $localStorage.latLngBairro.lng;
                 mediaBairro.media = parseFloat(mediaAvaliacoes.toFixed(2));
+                mediaBairro.polygon = $localStorage.polygonsBairro;
                 
-                var latLngCidade = $localStorage.latLngCidade.toString().replace('(', '').replace(')', '').split(',', 2);
                 var mediaCidade ={};
                 
-                mediaCidade.lat = parseFloat(latLngCidade[0]);
-                mediaCidade.lng = parseFloat(latLngCidade[1]);
+                mediaCidade.lat = $localStorage.latLngCidade.lat;
+                mediaCidade.lng = $localStorage.latLngCidade.lng;
+                mediaCidade.polygon = $localStorage.polygonsCidade;
 
                 var onComplete = function (error) {
                     if (error) {
@@ -148,7 +160,8 @@ angular.module('citizenmap.controllers', [])
                 if (snapshot.hasChildren()) {
                     var bairro = {
                         center: {lat: snapshot.val().lat, lng: snapshot.val().lng},
-                        media: snapshot.val().media
+                        media: snapshot.val().media,
+                        polygon: snapshot.val().polygon
                     };
                     citymapteste.push(bairro)
                 }
@@ -163,37 +176,58 @@ angular.module('citizenmap.controllers', [])
                 var color = "#FA8072"
             }
             else if(bairro.media >= 2.00 && bairro.media <= 3.00) {
-                var color = "#FFFF00"
+                var color = "#FFD700"
             }
             else if(bairro.media >= 3.00 && bairro.media <= 4.00) {
-                var color = "#FFD700"
+                var color = "#FFFF00"
             }
             else if(bairro.media >= 4.00 && bairro.media <= 5.00) {
                 var color = "#90EE90"
             }
                   
-            var cityCircle = new google.maps.Circle({
-                strokeColor: color,
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                fillColor: color,
-                fillOpacity: 0.35,
-                map: $scope.map,
-                center: bairro.center,
-                radius: radiusMaximo / Math.sqrt(bairro.media)
-            });
+//            var cityCircle = new google.maps.Circle({
+//                strokeColor: color,
+//                strokeOpacity: 0.8,
+//                strokeWeight: 2,
+//                fillColor: color,
+//                fillOpacity: 0.35,
+//                map: $scope.map,
+//                center: bairro.center,
+//                radius: radiusMaximo / Math.sqrt(bairro.media)
+//            });
+//            
+//            var mapLabel = new MapLabel({
+//                text: bairro.media,
+//                position: new google.maps.LatLng(bairro.center.lat, bairro.center.lng),
+//                map: $scope.map,
+//                fontSize: 15,
+//                align: 'center',
+//                strokeColor: '#FFFFFF',
+//                fontColor: '#000000',
+//                minZoom: 15
+//            });
             
-            var mapLabel = new MapLabel({
-                text: bairro.media,
-                position: new google.maps.LatLng(bairro.center.lat, bairro.center.lng),
-                map: $scope.map,
-                fontSize: 15,
-                align: 'center',
-                strokeColor: '#FFFFFF',
-                fontColor: '#000000',
-                minZoom: 15
-            });         
+            if (bairro.polygon) {
+                var triangleCoords = [];
+
+                bairro.polygon.forEach(function (polygon) {
+                    var ponto = {lat: polygon.y, lng: polygon.x};
+                    triangleCoords.push(ponto);
+                })
+
+                var bermudaTriangle = new google.maps.Polygon({
+                    paths: triangleCoords,
+                    strokeColor: '#6A5ACD',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 1,
+                    fillColor: color,
+                    fillOpacity: 0.35,
+                });
+
+                bermudaTriangle.setMap($scope.map);
+            }
         });
+        
     }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
     });
@@ -354,6 +388,7 @@ angular.module('citizenmap.controllers', [])
                         $localStorage.latLngCidade = promise.latLngCidade;
                         $localStorage.bairro = promise.bairro;
                         $localStorage.cidade = promise.cidade;
+                        $localStorage.polygonBairro = promise.polygonBairro;
                         
                     }, function (error) {
                         console.log("Não foi possível obter a região: " + error.message);

@@ -331,7 +331,7 @@ angular.module('citizenmap.factories', [])
             return defer.promise;
         },
         
-        obterRegiao: function (latLng) {
+        obterRegiaoGoogle: function (latLng) {
             var latLngStr;
             var defer = $q.defer();
             var geocoder = new google.maps.Geocoder;
@@ -344,6 +344,7 @@ angular.module('citizenmap.factories', [])
             geocoder.geocode({'location': latLng}, function (results, status) {
                 if (status === google.maps.GeocoderStatus.OK) {
                     if (results) {
+                        var response = [];
                         var data = [];
                         var i = [];
 
@@ -356,14 +357,21 @@ angular.module('citizenmap.factories', [])
 
                             data[componente.types.join(' ') + " (" + i[componente.types.join(' ')] + ")"] = componente;
                         });
-
-                        data["bairro"] = data['political sublocality sublocality_level_1 (1)']['address_components'][0].long_name;
-                        data["latLngBairro"] = data['political sublocality sublocality_level_1 (1)'].geometry.location;
-
-                        data["cidade"] = data['locality political (1)']['address_components'][0].long_name;
-                        data["latLngCidade"] = data['locality political (1)'].geometry.location;
-
-                        defer.resolve(data);
+                        
+                        var latLngBairro = data['political sublocality sublocality_level_1 (1)'].geometry.location.toString().replace("(", "").replace(")", "").split(',', 2);
+                        var latLngCidade = data['locality political (1)'].geometry.location.toString().replace("(", "").replace(")", "").split(',', 2);
+                        
+                        response["bairro"] = {
+                            nome: data['political sublocality sublocality_level_1 (1)']['address_components'][0].long_name,
+                            latLng: {lat: parseFloat(latLngBairro[0]), lng: parseFloat(latLngBairro[1])}
+                        };
+                        
+                        response["cidade"] = {
+                            nome: data['locality political (1)']['address_components'][0].long_name,
+                            latLng: {lat: parseFloat(latLngCidade[0]), lng: parseFloat(latLngCidade[1])}
+                        };
+                        
+                        defer.resolve(response);
                     } else {
                         Utils.alertshow("Não há resultados com as coordenadas atuais.");
                     }
@@ -372,6 +380,67 @@ angular.module('citizenmap.factories', [])
                 }
             });
             return defer.promise;
+        },
+        
+        obterRegiaoWikiMapia: function (latLng) {
+            latLng = latLng.toString().replace("(", "").replace(")", "").split(',', 2);
+            //latLng[0] = "-22.790584";
+            //latLng[1] = "-43.311603";
+
+            var categorias = {bairro: 4621, cidade: 88};
+            var apikey = "70F1CCA2-54898CF0-837A03C8-CED3AA09-FE7D605E-5D5E3474-DA76638B-471DF940";
+            var data = [];
+
+            return new Promise(function (resolve, reject) {
+                get("http://api.wikimapia.org/?key=" + apikey + "&function=place.search&q=&lat=" + latLng[0] + "&lon=" + latLng[1] + "&format=json&pack=&language=en&page=1&count=1&category=" + categorias.bairro + "&categories_or=&categories_and=&distance=").then(function (response) {
+                    angular.forEach(response.places, function (componente) {
+                        data["bairro"] = {
+                            nome: componente.title,
+                            latLng: {lat: componente.location.lat, lng: componente.location.lon},
+                            polygons: componente.polygon,
+                            cityId: componente.location.city_id
+                        };
+                    });
+
+                    get("http://api.wikimapia.org/?key=" + apikey + "&function=place.getbyid&id=" + data.bairro.cityId + "&format=json&pack=&language=en&data_blocks=main%2Cgeometry%2Clocation%2C").then(function (response) {
+                        data["cidade"] = {
+                            nome: response.title,
+                            latLng: {lat: response.location.lat, lng: response.location.lon},
+                            polygons: response.polygon
+                        };
+
+                        resolve(data);
+
+                    }, function (error) {
+                        reject(error);
+                        console.error("Failed!", error);
+                    });
+                }, function (error) {
+                    reject(error);
+                    console.error("Failed!", error);
+                });
+            });
+
+            function get(url) {
+                return new Promise(function (resolve, reject) {
+                    var req = new XMLHttpRequest();
+                    req.open('GET', url);
+
+                    req.onload = function () {
+                        if (req.status == 200) {
+                            resolve(JSON.parse(req.responseText));
+                        } else {
+                            reject(Error(req.statusText));
+                        }
+                    };
+
+                    req.onerror = function () {
+                        reject(Error("Network Error"));
+                    };
+
+                    req.send();
+                });
+            }
         },
         
         obterLocalizacaoHTML5: function () {
