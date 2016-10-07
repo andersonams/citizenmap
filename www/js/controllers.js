@@ -53,7 +53,10 @@ angular.module('citizenmap.controllers', [])
     });
     
     $scope.salvarAvaliacao = function (servico) {
-        var avaliacaoesRef = new Firebase(FBURL).child('avaliacoes').child(servico.nome).child($scope.cidade).child($scope.bairro);
+        Utils.show();
+        
+        var avaliacaoesCidadeRef = new Firebase(FBURL).child('avaliacoes').child(servico.nome).child($scope.cidade);
+        var avaliacaoesBairroRef = new Firebase(FBURL).child('avaliacoes').child(servico.nome).child($scope.cidade).child($scope.bairro);
         var mediasBairroRef = new Firebase(FBURL).child('medias').child(servico.nome).child($scope.cidade).child($scope.bairro);
         var mediasCidadeRef = new Firebase(FBURL).child('medias').child(servico.nome).child($scope.cidade);
         
@@ -65,55 +68,102 @@ angular.module('citizenmap.controllers', [])
         avaliacao.perfil = $localStorage.chaveUsuario;
         avaliacao.lat = parseFloat(latLngUsuario[0]);
         avaliacao.lng = parseFloat(latLngUsuario[1]);
-
-        //Criar avaliação:
-        avaliacaoesRef = $firebaseArray(avaliacaoesRef);
-        avaliacaoesRef.$add(avaliacao).then(function (avaliacao) {
-            console.log("Avaliação criada: " + avaliacao.key());
-
-            //Obter a soma de todas as avaliações do servico do bairro:
-            avaliacaoesRef.$loaded().then(function () {
-                var mediaAvaliacoes = 0;
-                var soma = 0;
-                var totalAvaliacoesBairro = avaliacaoesRef.length;             
-
-                angular.forEach(avaliacaoesRef, function (avl) {
-                    soma += parseInt(avl.nota);
+        
+        avaliacaoesBairroRef = $firebaseArray(avaliacaoesBairroRef);
+   
+        avaliacaoesBairroRef.$add(avaliacao).then(function (avaliacao) {
+            updateMediaCidade(avaliacaoesCidadeRef, mediasCidadeRef).then(function () {
+                updateMediaBairro(avaliacaoesBairroRef, mediasBairroRef).then(function () {
+                    Utils.hide();
+                    console.log("Avaliação criada: " + avaliacao.key());
+                }, function (error) {
+                    Utils.hide();
+                    console.log("Não foi possível obter a região: " + error.message);
                 });
-                
-                //Calcular a média:
-                mediaAvaliacoes = parseInt(soma) / parseInt(totalAvaliacoesBairro);
-                
-                var mediaBairro = {};
-                
-                mediaBairro.lat = $localStorage.latLngBairro.lat;
-                mediaBairro.lng = $localStorage.latLngBairro.lng;
-                mediaBairro.media = parseFloat(mediaAvaliacoes.toFixed(2));
-                mediaBairro.polygon = $localStorage.polygonsBairro;
-                
-                var mediaCidade ={};
-                
-                mediaCidade.lat = $localStorage.latLngCidade.lat;
-                mediaCidade.lng = $localStorage.latLngCidade.lng;
-                mediaCidade.polygon = $localStorage.polygonsCidade;
-
-                var onComplete = function (error) {
-                    if (error) {
-                        console.log('Erro ao Sincronizar: ' + error.message);
-                    }
-                };
-                
-                //Atualizar a média no banco:
-                mediasBairroRef.update(mediaBairro, onComplete);
-                mediasCidadeRef.update(mediaCidade, onComplete);        
+            }, function (error) {
+                Utils.hide();
+                console.log("Não foi possível obter a região: " + error.message);
             });
-        },
-        function (error) {
+        }, function (error) {
+            Utils.hide();
             Utils.alertshow("Não foi possível registrar a avaliação: " + error.message);
             console.log("Não foi possível registrar a avaliação: " + error.message);
         });
     };
     
+    function updateMediaBairro(avaliacaoesBairroRef, mediasBairroRef) {
+        return new Promise(function (resolve, reject) {
+
+            avaliacaoesBairroRef.$loaded().then(function () {
+                var mediaAvaliacoes = 0;
+                var soma = 0;
+                var totalAvaliacoesBairro = avaliacaoesBairroRef.length;
+
+                angular.forEach(avaliacaoesBairroRef, function (avaliacao) {
+                    soma += parseInt(avaliacao.nota);
+                });
+
+                //Calcular a média:
+                mediaAvaliacoes = parseInt(soma) / parseInt(totalAvaliacoesBairro);
+
+                var mediaBairro = {};
+
+                mediaBairro.lat = $localStorage.latLngBairro.lat;
+                mediaBairro.lng = $localStorage.latLngBairro.lng;
+                mediaBairro.media = parseFloat(mediaAvaliacoes.toFixed(2));
+                mediaBairro.polygon = $localStorage.polygonsBairro;
+
+                mediasBairroRef.update(mediaBairro, onComplete);
+
+                resolve();
+            }, function (errorObject) {
+                reject(errorObject);
+                console.log("The read failed: " + errorObject.code);
+            });
+        });
+    }
+
+    function updateMediaCidade(avaliacaoesCidadeRef, mediasCidadeRef) {
+        return new Promise(function (resolve, reject) {
+
+            var soma = 0;
+            var mediaAvaliacoes = 0;
+            var totalAvaliacoesCidade = 0;
+
+            avaliacaoesCidadeRef.once("value", function (cidade) {
+                cidade.forEach(function (bairro) {
+                    bairro.forEach(function (avaliacao) {
+                        soma += parseInt(avaliacao.val().nota);
+                        totalAvaliacoesCidade += 1;
+                    });
+                });
+
+                //Calcular a média:
+                mediaAvaliacoes = parseInt(soma) / parseInt(totalAvaliacoesCidade);
+
+                var mediaCidade = {};
+
+                mediaCidade.lat = $localStorage.latLngCidade.lat;
+                mediaCidade.lng = $localStorage.latLngCidade.lng;
+                mediaCidade.media = parseFloat(mediaAvaliacoes.toFixed(2));
+                mediaCidade.polygon = $localStorage.polygonsCidade;
+
+                mediasCidadeRef.update(mediaCidade, onComplete);
+
+                resolve();
+            }, function (errorObject) {
+                reject(errorObject);
+                console.log("The read failed: " + errorObject.code);
+            });
+        });
+    }
+    
+    var onComplete = function (error) {
+        if (error) {
+            console.log('Erro ao Sincronizar: ' + error.message);
+        }
+    };
+       
     $scope.ratingsObject = {
         iconOn: 'ion-ios-star',
         iconOff: 'ion-ios-star-outline',
@@ -131,55 +181,147 @@ angular.module('citizenmap.controllers', [])
     };
 })
 
-.controller('mapaCtrl', function(FBURL, $localStorage, $ionicLoading, $scope) {
+.controller('mapasCtrl', function (avaliacaoService, mapaService, FBURL, $firebaseArray, $ionicModal, $ionicLoading, $localStorage, $scope, $state) {
+    var servicosRef = new Firebase(FBURL).child('servicos');
+    $scope.servicos = $firebaseArray(servicosRef);
+    
+    $scope.definirTipo = function (tipo) {
+        mapaService.tipoSelecionado = tipo;
+    }
+     
+    $scope.definirServico = function (servico) {
+        avaliacaoService.servicoSelecionado = servico;
+        $state.go('menu.mapa');
+    }
+    
+    $ionicModal.fromTemplateUrl('modalselecionarservico.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function (modal) {
+        $scope.modal = modal;
+    });
+
+    $scope.openModal = function () {
+        $scope.modal.show();
+    };
+
+    $scope.closeModal = function () {
+        $scope.modal.hide();
+    };
+
+    // Cleanup the modal when we're done with it!
+    $scope.$on('$destroy', function () {
+        $scope.modal.remove();
+    });
+
+    // Execute action on hide modal:
+    $scope.$on('modal.hidden', function () {
+    });
+
+    // Execute action on remove modal:
+    $scope.$on('modal.removed', function () {
+    });
+})
+
+.controller('mapaCtrl', function(avaliacaoService, mapaService, FBURL, $localStorage, $ionicLoading, $scope) {
+    $scope.servico = avaliacaoService.servicoSelecionado;
+    $scope.tipoLocal = mapaService.tipoSelecionado;
+    
     $scope.map = new google.maps.Map(document.getElementById('map'), {center: {lat: -34.397, lng: 150.644}, zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP});
     $scope.map.setCenter($localStorage.latLng);
     $scope.infoWindow = new google.maps.InfoWindow;
     
-    $scope.$on('$ionicView.beforeEnter', function () {
-        var bairros = [];
-        var mediasRef = new Firebase(FBURL).child('medias').child('Saúde');
-        mediasRef.once("value", function (cidade) {
-            cidade.forEach(function (bairro) {
-                bairro.forEach(function (snapshot) {
-                    if (snapshot.hasChildren()) {
-                        var bairro = {
-                            center: {lat: snapshot.val().lat, lng: snapshot.val().lng},
-                            media: snapshot.val().media,
-                            polygon: snapshot.val().polygon
-                        };                     
-                        bairros.push(bairro)
-                    }
-                });
-            });
-            
-            putFronteiras(bairros);
-        }, function (errorObject) {
-            console.log("The read failed: " + errorObject.code);
-        });      
+    $scope.$on('$ionicView.beforeEnter', function () {          
+        putAvaliacoes($scope.tipoLocal, $scope.servico.nome);
     });
     
-    function putFronteiras(bairros) {
-        bairros.forEach(function (bairro) {
-            if (bairro.polygon) {
+    function putAvaliacoes(tipo, servico) {
+        if (tipo == "Cidade") {
+            carregarCidades(servico).then(function (cidades) {
+                putFronteiras(cidades);
+            }, function (error) {
+                console.log(error.message);
+            });
+        } else if (tipo == "Bairro") {
+            carregarBairros(servico).then(function (bairros) {
+                putFronteiras(bairros);
+            }, function (error) {
+                console.log(error.message);
+            });
+        }
+    }
+    
+    function carregarCidades(servico) {
+        var cidades = [];
+        var mediasRef = new Firebase(FBURL).child('medias').child(servico);
+
+        return new Promise(function (resolve, reject) {
+            mediasRef.once("value", function (cidade) {
+                cidade.forEach(function (snapshot) {
+                    var cidade = {
+                        center: {lat: snapshot.val().lat, lng: snapshot.val().lng},
+                        media: snapshot.val().media,
+                        polygon: snapshot.val().polygon
+                    };
+                    cidades.push(cidade)
+                });
+
+                resolve(cidades);
+            }, function (errorObject) {
+                reject(errorObject);
+                console.log("The read failed: " + errorObject.code);
+            });
+        });
+    }
+    
+    function carregarBairros(servico) {
+        var bairros = [];
+        var mediasRef = new Firebase(FBURL).child('medias').child(servico);
+
+        return new Promise(function (resolve, reject) {
+            mediasRef.once("value", function (cidade) {
+                cidade.forEach(function (bairro) {
+                    bairro.forEach(function (snapshot) {
+                        if (snapshot.hasChildren()) {
+                            var bairro = {
+                                center: {lat: snapshot.val().lat, lng: snapshot.val().lng},
+                                media: snapshot.val().media,
+                                polygon: snapshot.val().polygon
+                            };
+                            bairros.push(bairro)
+                        }
+                    });
+                });
+
+                resolve(bairros);
+            }, function (errorObject) {
+                reject(errorObject);
+                console.log("The read failed: " + errorObject.code);
+            });
+        });
+    }
+    
+    function putFronteiras(locais) {
+        locais.forEach(function (local) {
+            if (local.polygon) {
                 var triangleCoords = [];
 
-                bairro.polygon.forEach(function (polygon) {
+                local.polygon.forEach(function (polygon) {
                     var ponto = {lat: polygon.y, lng: polygon.x};
                     triangleCoords.push(ponto);
                 })
 
-                var bermudaTriangle = new google.maps.Polygon({
+                var polygons = new google.maps.Polygon({
                     paths: triangleCoords,
-                    strokeColor: getCor(bairro.media),
+                    strokeColor: getCor(local.media),
                     strokeOpacity: 0.8,
                     strokeWeight: 1,
-                    fillColor: getCor(bairro.media),
+                    fillColor: getCor(local.media),
                     fillOpacity: 0.35,
                 });
 
-                bermudaTriangle.setMap($scope.map);
-                bermudaTriangle.addListener('click', showArrays);                               
+                polygons.setMap($scope.map);
+                polygons.addListener('click', showArrays);                               
             }
         });
     }
@@ -397,7 +539,7 @@ angular.module('citizenmap.controllers', [])
 //                    });
 
                     Localizacao.obterRegiaoWikiMapia(promise).then(function (promise) {
-                        console.log(promise.cidade + "/" + promise.bairro);
+                        console.log(promise.cidade.nome + "/" + promise.bairro.nome);
                         $localStorage.latLngBairro = promise.bairro.latLng;
                         $localStorage.latLngCidade = promise.cidade.latLng;
                         $localStorage.bairro = promise.bairro.nome;

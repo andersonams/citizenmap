@@ -12,6 +12,10 @@ angular.module('citizenmap.services', [])
     this.servicoSelecionado;
 }])
 
+.service('mapaService', [function(){
+    this.tipoSelecionado;
+}])
+
 .service('obterLocalizacaoService', [function($cordovaGeolocation){
     this.myFunc = function () {
         if (navigator.geolocation) {

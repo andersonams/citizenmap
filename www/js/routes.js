@@ -37,6 +37,16 @@ angular.module('citizenmap.routes', [])
         templateUrl: 'templates/firebase.html',
         controller: 'firebaseCtrl'
       })
+      
+      .state('menu.mapas', {
+        url: '/mapas',
+        views: {
+          'menuview': {
+            templateUrl: 'templates/mapas.html',
+            controller: 'mapasCtrl'
+          }
+        }
+      })
 
       .state('menu.mapa', {
         url: '/mapa',

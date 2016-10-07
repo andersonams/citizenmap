@@ -1,0 +1,49 @@
+<ion-view title="Mapas" hide-back-button="true" id="principalmapa">
+    <ion-content padding="true" class="has-header" ng-controller="mapasCtrl">
+        <div class="button-bar"></div>
+        <div>
+            <img src="img/maps.ico" width="30%" height="auto" style="display: block;margin-left: auto;margin-right: auto;padding-top: 10px;">
+        </div>
+        <h5 id="principal-heading7" style="color:#000000;text-align:center;">Escolha abaixo o mapa a ser visualizado.</h5>
+        <div id="principal-markdown4" style="color:#000000;text-align:center;">
+            <p>Estes mapas tem a finalidade de mostrar a situação das cidades e bairros de forma visual e simples.</p>
+        </div>
+        <ion-list>
+            <ion-item class="item-thumbnail-left" ng-click="definirTipo('Cidade'); modal.show()">
+                <img ng-src="img/cidade.png">
+                <h2>Cidades</h2>
+                <p style="white-space:normal;">Visualize as médias das cidades avaliadas. Cidades não avalidadas não aparecem no mapa.</p>
+            </ion-item>
+            <ion-item class="item-thumbnail-left" ng-click="definirTipo('Bairro'); modal.show()">
+                <img ng-src="img/bairro.png">
+                <h2>Bairros</h2>
+                <p style="white-space:normal;">Visualize as médias dos bairros avaliados. Bairros não avaliados não são destacados no mapa.</p>
+            </ion-item>
+        </ion-list> 
+    </ion-content>
+</ion-view>
+<script id="modalselecionarservico.html" type="text/ng-template">
+    <ion-modal-view>
+        <ion-header-bar class="bar-positive">
+            <h1 class="title">Serviço Público</h1>
+            <button class="button button-clear button-primary" ng-click="modal.hide()">Voltar</button>
+        </ion-header-bar>
+        <ion-content>
+            <div class="list list-inset" id="exclusao" style="color:#000000;text-align:center;">
+                <div>
+                    <img src="img/publico.png" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
+                </div>
+                <h5 id="principal-heading7" style="color:#000000;text-align:center;">Escolha abaixo o mapa a ser visualizado.</h5>
+                <div id="principal-markdown4" style="color:#000000;text-align:center;">
+                    <p>Estes mapas tem a finalidade de mostrar a situação das cidades e bairros de forma visual e simples.</p>
+                </div>
+                <ion-list>
+                    <ion-item class="item-thumbnail-left" ng-click="definirServico(servico); modal.hide()" ng-repeat="servico in servicos">
+                        <img ng-src="img/{{servico.img}}">
+                        <h1 style="font-weight: 100; height: 45px">{{servico.nome}}</h1>
+                    </ion-item>
+                </ion-list>
+            </div>
+        </ion-content>
+    </ion-modal-view>
+</script>
