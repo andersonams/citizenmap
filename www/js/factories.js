@@ -323,7 +323,7 @@ angular.module('citizenmap.factories', [])
 
             $cordovaGeolocation.getCurrentPosition(options).then(function (position) {
                 var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-
+                
                 defer.resolve(latLng);
             }, function (error) {
                 console.log("Não foi possível obter a localização: " + error.message);
@@ -384,15 +384,13 @@ angular.module('citizenmap.factories', [])
         
         obterRegiaoWikiMapia: function (latLng) {
             latLng = latLng.toString().replace("(", "").replace(")", "").split(',', 2);
-            //latLng[0] = "-22.790584";
-            //latLng[1] = "-43.311603";
 
             var categorias = {bairro: 4621, cidade: 88};
-            var apikey = "70F1CCA2-54898CF0-837A03C8-CED3AA09-FE7D605E-5D5E3474-DA76638B-471DF940";
+            var apiKey = "70F1CCA2-54898CF0-837A03C8-CED3AA09-FE7D605E-5D5E3474-DA76638B-471DF940";
             var data = [];
 
             return new Promise(function (resolve, reject) {
-                get("http://api.wikimapia.org/?key=" + apikey + "&function=place.search&q=&lat=" + latLng[0] + "&lon=" + latLng[1] + "&format=json&pack=&language=en&page=1&count=1&category=" + categorias.bairro + "&categories_or=&categories_and=&distance=").then(function (response) {
+                get("http://api.wikimapia.org/?key=" + apiKey + "&function=place.search&q=&lat=" + latLng[0] + "&lon=" + latLng[1] + "&format=json&pack=&language=pt&page=1&count=1&category=" + categorias.bairro + "&categories_or=&categories_and=&distance=").then(function (response) {
                     angular.forEach(response.places, function (componente) {
                         data["bairro"] = {
                             nome: componente.title,
@@ -402,7 +400,7 @@ angular.module('citizenmap.factories', [])
                         };
                     });
 
-                    get("http://api.wikimapia.org/?key=" + apikey + "&function=place.getbyid&id=" + data.bairro.cityId + "&format=json&pack=&language=en&data_blocks=main%2Cgeometry%2Clocation%2C").then(function (response) {
+                    get("http://api.wikimapia.org/?key=" + apiKey + "&function=place.getbyid&id=" + data.bairro.cityId + "&format=json&pack=&language=en&data_blocks=main%2Cgeometry%2Clocation%2C").then(function (response) {
                         data["cidade"] = {
                             nome: response.title,
                             latLng: {lat: response.location.lat, lng: response.location.lon},
@@ -410,7 +408,6 @@ angular.module('citizenmap.factories', [])
                         };
 
                         resolve(data);
-
                     }, function (error) {
                         reject(error);
                         console.error("Failed!", error);

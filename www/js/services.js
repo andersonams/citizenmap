@@ -9,31 +9,34 @@ angular.module('citizenmap.services', [])
 }])
 
 .service('avaliacaoService', [function(){
-    this.servicoSelecionado;
+    var servico;
+        
+    return {
+        getServico: function () {
+            return servico;
+        },
+        setServico: function (value) {
+            servico = value;
+        } 
+    };
 }])
 
-.service('mapaService', [function(){
-    this.tipoSelecionado;
-}])
-
-.service('obterLocalizacaoService', [function($cordovaGeolocation){
-    this.myFunc = function () {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                console.log("SERVICE Geolocalização por HTML5: " + latLng.toString());
-                //return latLng;
-            }, function () {
-                //handleLocationError(true, $scope.infoWindow, $scope.map.getCenter());
-            });
-        } else {
-            $cordovaGeolocation.getCurrentPosition(options).then(function (position) {
-                var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                console.log("SERVICE Geolocalização por Cordova Geolocation: " + latLng.toString());
-                //return latLng;
-            }, function (error) {
-                console.log("Não foi possível obter a localização: " + error.message);
-            });
-        }
-    }
-}]);
+.service('mapaService', function () {
+    var servico;
+    var tipo;
+    
+    return {
+        getServico: function () {
+            return servico;
+        },
+        setServico: function (value) {
+            servico = value;
+        },
+        getTipo: function () {
+            return tipo;
+        },
+        setTipo: function (value) {
+            tipo = value;
+        }   
+    };
+});
