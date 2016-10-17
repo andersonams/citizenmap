@@ -315,7 +315,7 @@ angular.module('citizenmap.factories', [])
     return Auth;
 })
 
-.factory('Localizacao', function ($cordovaGeolocation, $q)  {
+.factory('LocalizacaoFactory', function ($cordovaGeolocation, $q)  {
     return {
         obterLocalizacao: function () {
             var defer = $q.defer();

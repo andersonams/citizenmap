@@ -1,17 +1,27 @@
 <ion-view title="Avaliação" hide-back-button="true" id="avaliacao">
-    <ion-content padding="true" class="has-" ng-controller="avaliacaoCtrl">
-        <div>
-            <img ng-src="img/{{servico.img}}" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;" />
-        </div>
-        <div style="color:#000000;text-align:center;">
-            <h3><p>{{servico.nome}}</p></h3>
-            <h4>{{cidade}} <i class="icon ion-ios-information"></i></h4>
-            <h5>{{bairro}}</h5>
-            <p>Avalie abaixo o serviço selecionado:</p>
-        </div>
-        <div>
-            <ionic-ratings ratingsobj='ratingsObject' index='$index' ng-model="nota"></ionic-ratings>
-        </div>
-        <button type="button" id="salvar-button" class="button button-positive button-block" ng-click="salvarAvaliacao(servico)">Avaliar</button>
+    <ion-content padding="true" class="has-header" ng-controller="avaliacaoCtrl">
+        <form novalidate class="list" name="avaliacaoForm" ng-submit="salvarAvaliacao(servico)">
+            <div>
+                <img ng-src="img/{{servico.img}}" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;" />
+            </div>
+            <div style="color:#000000;text-align:center;">
+                <h3><p>{{servico.nome}}</p></h3>
+                <h4>{{cidade}} <i class="icon ion-ios-information"></i></h4>
+                <h5>{{bairro}}</h5>
+                <p>Avalie abaixo o serviço selecionado:</p>
+            </div>
+            <div>
+                <ionic-ratings ratingsobj='ratingsObject' index='$index'></ionic-ratings>
+            </div>
+            <div style="color:#000000;text-align:center;">
+                <p style="margin-top: 10px;">Escolha um dos motivos abaixo para a nota selecionada:</p>
+            </div>
+            <ion-list>           
+                <ion-radio class="item item-text-wrap" name="detalhe" ng-repeat="(chave, detalhe) in servico.detalhes" ng-value="chave" ng-model="model.detalhe" ng-checked="$index === 1 ? true : false">
+                    {{detalhe}}
+                </ion-radio>
+            </ion-list>         
+            <button type="submit" id="salvar-button" class="button button-positive button-block">Avaliar</button>
+        </form>
     </ion-content>
 </ion-view>

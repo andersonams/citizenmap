@@ -1,25 +1,27 @@
 <ion-view title="Login" id="login">
     <ion-content padding="true" class="has-header">
-        <form novalidate class="list" name="loginForm" ng-submit="loginForm.$valid && login(usuario)">
+        <form novalidate class="list" name="loginForm" ng-submit="login(usuario)">
             <h5 id="login-heading3" style="color:#000000;text-align:center;">Dados de Acesso</h5>
-            <label class="item item-input item-floating-label" ng-class="{ 'has-error' : loginForm.txtEmail.$invalid && loginForm.$submitted }">
-                <input name="txtEmail" type="email" ng-model="usuario.email" placeholder="E-Mail" ng-maxlength="30" required>
-            </label>
-            <div class="form-errors" ng-messages="loginForm.txtEmail.$error" ng-if="loginForm.$submitted">
-                <div class="form-error" ng-message="required">Campo obrigatório.</div>
-                <div class="form-error" ng-message="email">Este campo deve ser um e-mail.</div>
-                <div class="form-error" ng-message="maxlength">Campo com no máximo 30 caracteres.</div>
+            <ion-input class="item item-input item-stacked-label" ng-class="{ 'has-errors' : loginForm.txtEmail.$invalid && loginForm.$submitted, 'no-errors' : loginForm.txtEmail.$valid && loginForm.$submitted}">
+                <ion-label >E-mail</ion-label>
+                <input type="email" name="txtEmail" placeholder="Digite seu e-mail" ng-model="usuario.email" ng-maxlength="30" required>
+            </ion-input>
+            <div class="error-container" ng-show="loginForm.txtEmail.$error && loginForm.$submitted" ng-messages="loginForm.txtEmail.$error">
+                <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório</div>
+                <div class="error" ng-message="email"><i class="ion-information-circled"></i> Este campo deve ser um e-mail</div>
+                <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 30 caracteres.</div>
             </div>
-            <label class="item item-input item-floating-label" ng-class="{ 'has-error-lr' : loginForm.txtPassword.$invalid && loginForm.$submitted }">
-                <input name="txtPassword" type="password" ng-model="usuario.password" placeholder="Senha" ng-minlength="6" ng-maxlength="12" required>
-            </label>
-            <div class="form-errors" ng-messages="loginForm.txtPassword.$error" ng-if="loginForm.$submitted">
-                <div class="form-error" ng-message="required">Campo obrigatório.</div>
-                <div class="form-error" ng-message="minlength">Campo com no mínimo 6 dígitos.</div>
-                <div class="form-error" ng-message="maxlength">Campo com no máximo 12 caracteres.</div>
+            <ion-input class="item item-input item-stacked-label" ng-class="{ 'has-errors' : loginForm.txtPassword.$invalid && loginForm.$submitted, 'no-errors' : loginForm.txtPassword.$valid && loginForm.$submitted}">
+                <ion-label >Senha</ion-label>
+                <input type="password" name="txtPassword" placeholder="Digite sua senha" ng-model="usuario.password" ng-minlength="6" ng-maxlength="12" required>
+            </ion-input>
+            <div class="error-container" ng-show="loginForm.txtPassword.$error && loginForm.$submitted" ng-messages="loginForm.txtPassword.$error">
+                <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório</div>
+                <div class="error" ng-message="minlength"><i class="ion-information-circled"></i> Campo com no mínimo 6 dígitos.</div>
+                <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 12 caracteres.</div>
             </div>
             <div class="spacer" style="height: 40px;"></div>
-            <button type="submit" id="login-button" class="button button-positive  button-block">Entrar</button>
+            <button type="submit" id="login-button" class="button button-positive  button-block" ng-disabled="loginForm.$invalid && loginForm.$submitted">Entrar</button>
             <a ui-sref="login" id="facebook-button" class="button button-positive  button-block" ng-click="loginProvider('facebook')"><i class="fa fa-facebook-official" aria-hidden="true"></i> Entrar via Facebook</a>
             <p class="text-center padding-top">
                 <a href="#/forgot" class="button button-clear button-positive">Esqueceu a Senha?</a>

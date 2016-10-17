@@ -2,14 +2,14 @@
     <ion-content padding="true" class="has-header" ng-controller="principalCtrl">
         <div class="button-bar"></div>
         <div>
-            <img src="img/yUjLofstQya8LtjenyYn_mendix developers-01.png" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
+            <img src="img/citizenmap.png" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
         </div>
         <h5 id="principal-heading7" style="color:#000000;text-align:center;">Selecione o tipo de serviço a ser avaliado:</h5>
         <div id="principal-markdown4" style="color:#000000;text-align:center;">
             <p>Cada serviço pode ser avaliado <strong>uma</strong> vez por mês.</p>
         </div>
         <ion-list>
-            <ion-item class="item-thumbnail-left" ng-click="definirServico(servico)" ng-repeat="servico in servicos">
+            <ion-item type=button" class="item-thumbnail-left" ng-click="definirServico(servico)" ng-repeat="servico in servicosView" ng-class="{ 'avaliacaoFalse' : !servico.disponibilidade}">
                 <img ng-src="img/{{servico.img}}">
                 <h2>{{servico.nome}}</h2>
                 <p style="white-space:normal;">{{servico.descricao}}</p>

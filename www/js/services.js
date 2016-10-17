@@ -1,13 +1,5 @@
 angular.module('citizenmap.services', [])
 
-.factory('BlankFactory', [function(){
-
-}])
-
-.service('BlankService', [function(){
-
-}])
-
 .service('avaliacaoService', [function(){
     var servico;
         
@@ -21,7 +13,7 @@ angular.module('citizenmap.services', [])
     };
 }])
 
-.service('mapaService', function () {
+.service('mapaService', [function () {
     var servico;
     var tipo;
     
@@ -39,4 +31,31 @@ angular.module('citizenmap.services', [])
             tipo = value;
         }   
     };
-});
+}])
+
+.service('LocalizacaoService', [function(){
+    return {
+        setLocalizacao: function (Localizacao, $localStorage) {
+            return new Promise(function (resolve, reject) {
+                Localizacao.obterLocalizacao().then(function (promise) {
+                    $localStorage.latLng = promise;
+
+                    Localizacao.obterRegiaoWikiMapia(promise).then(function (promise) {
+                        $localStorage.latLngBairro = promise.bairro.latLng;
+                        $localStorage.latLngCidade = promise.cidade.latLng;
+                        $localStorage.bairro = promise.bairro.nome;
+                        $localStorage.cidade = promise.cidade.nome;
+                        $localStorage.polygonsBairro = promise.bairro.polygons;
+                        $localStorage.polygonsCidade = promise.cidade.polygons;
+
+                        resolve();
+                    }, function (error) {
+                        reject(error);
+                    });
+                }, function (error) {
+                    reject(error);
+                });
+            });
+        },
+    };
+}]);
