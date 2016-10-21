@@ -17,12 +17,12 @@ angular.module('citizenmap.controllers', [])
                 
             }, function (error) {
                 Utils.hide();
-                Utils.alertshow("Não foi possível carregar os serviços: " + error.message);
+                Utils.errMessage("Não foi possível carregar os serviços: " + error.message);
                 console.log("Não foi possível carregar os serviços: " + error.message);
             });
         }, function (error) {
             Utils.hide();
-            Utils.alertshow("Não foi possível carregar os serviços: " + error.message);
+            Utils.errMessage("Não foi possível carregar os serviços: " + error.message);
             console.log("Não foi possível carregar os serviços: " + error.message);
         });
     });
@@ -78,7 +78,7 @@ angular.module('citizenmap.controllers', [])
                                 });
 
                                 var data1 = new Date(Math.max.apply(null, datas));
-                                var data2 = new Date("2016/10/16");
+                                var data2 = new Date();
 
                                 var timeDiff = Math.abs(data2.getTime() - data1.getTime());
                                 var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
@@ -153,11 +153,13 @@ angular.module('citizenmap.controllers', [])
                     console.log("Avaliação criada: " + avaliacao.key());
                 }, function (error) {
                     Utils.hide();
-                    console.log("Não foi possível obter a região: " + error.message);
+                    Utils.alertshow("Não foi possível registrar a avaliação: " + error.message);
+                    console.log("Não foi possível registrar a avaliação: " + error.message);
                 });
             }, function (error) {
                 Utils.hide();
-                console.log("Não foi possível obter a região: " + error.message);
+                Utils.alertshow("Não foi possível registrar a avaliação: " + error.message);
+                console.log("Não foi possível registrar a avaliação: " + error.message);
             });
         }, function (error) {
             Utils.hide();
@@ -178,14 +180,14 @@ angular.module('citizenmap.controllers', [])
                 var detalhes = {};
                 
                 avaliacaoesBairroRef.forEach(function (avaliacao) {
-                    if (typeof detalhes[avaliacao.detalhe] == 'undefined') {
+                    if (!angular.isDefined(detalhes[avaliacao.detalhe])) {
                         detalhes[avaliacao.detalhe] = 1;
                     } else {
                         detalhes[avaliacao.detalhe] += 1;
                     }
                     soma += parseInt(avaliacao.nota);
                 })
-                
+
                //Definir o detalhe mais escolhido: 
                detalhe = Object.keys(detalhes).reduce(function(a, b){ return detalhes[a] > detalhes[b] ? a : b });
                detalheMax = Object.keys(detalhes).reduce(function(m, k){ return detalhes[k] > m ? detalhes[k] : m }, -Infinity);
@@ -212,7 +214,6 @@ angular.module('citizenmap.controllers', [])
     }
 
     function updateMediaCidade(avaliacaoesCidadeRef, mediasCidadeRef) {
-        
         return new Promise(function (resolve, reject) {
             var soma = 0;
             var mediaAvaliacoes = 0;
@@ -224,7 +225,7 @@ angular.module('citizenmap.controllers', [])
             avaliacaoesCidadeRef.once("value", function (cidade) {
                 cidade.forEach(function (bairro) {
                     bairro.forEach(function (avaliacao) {
-                        if (typeof detalhes[avaliacao.val().detalhe] == 'undefined') {   
+                        if (!angular.isDefined(detalhes[avaliacao.val().detalhe])) {
                             detalhes[avaliacao.val().detalhe] = 1;
                         } else {
                             detalhes[avaliacao.val().detalhe] += 1;
@@ -333,7 +334,7 @@ angular.module('citizenmap.controllers', [])
         $scope.servico = mapaService.getServico();
         $scope.tipoLocal = mapaService.getTipo();
         
-        if (typeof $scope.servico == 'undefined' || $scope.tipoLocal == 'undefined') {
+        if (!angular.isDefined($scope.servico) || !angular.isDefined($scope.tipoLocal)) {
             $state.go('menu.principal');
         } else {
             putMapa();
@@ -672,7 +673,7 @@ angular.module('citizenmap.controllers', [])
             console.log('Usuário Logado!', authData);
             $state.go('menu.principal');
             });
-        } 
+        }
         else {
         console.log(error);
         }
