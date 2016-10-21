@@ -5,66 +5,107 @@ angular.module('citizenmap.controllers', [])
 
 })
 
-.controller('principalCtrl', function (avaliacaoService, FBURL, $firebaseArray, $localStorage, $scope, $state) {
+.controller('principalCtrl', function (avaliacaoService, FBURL, $firebaseArray, $localStorage, $scope, $state, Utils) {   
+    $scope.$on('$ionicView.beforeEnter', function () {
+        Utils.show();
+        
+        definirServicosView().then(function (servicosView) {
+            $scope.servicosView = servicosView;
+            
+            definirServicosAvaliaveis(servicosView).then(function () {
+                Utils.hide();
+                
+            }, function (error) {
+                Utils.hide();
+                Utils.alertshow("Não foi possível carregar os serviços: " + error.message);
+                console.log("Não foi possível carregar os serviços: " + error.message);
+            });
+        }, function (error) {
+            Utils.hide();
+            Utils.alertshow("Não foi possível carregar os serviços: " + error.message);
+            console.log("Não foi possível carregar os serviços: " + error.message);
+        });
+    });
+    
     $scope.definirServico = function (servico) {
         avaliacaoService.setServico(servico);
         $state.go('menu.avaliacao');
     }
     
-    $scope.$on('$ionicView.beforeEnter', function () {
-        var servicosRef = new Firebase(FBURL).child('servicos');
+    function definirServicosView() {
+        var servicosRef;
+        var servicosView = [];
+        
+        servicosRef = new Firebase(FBURL).child('servicos');
+        servicosRef = $firebaseArray(servicosRef);
+
+        return new Promise(function (resolve, reject) {
+            servicosRef.$loaded().then(function () {
+                servicosRef.forEach(function (servico) {
+                    var servicoT = {nome: servico.nome, descricao: servico.descricao, img: servico.img, disponibilidade: servico.disponibilidade, detalhes: servico.detalhes};
+                    servicosView.push(servicoT);
+                })
+
+                resolve(servicosView);
+            }, function (errorObject) {
+                reject(errorObject);
+                console.log("The read failed: " + errorObject.code);
+            });
+        });
+    }
+    
+    function definirServicosAvaliaveis(servicosView) {
         var avaliacaoesRef = new Firebase(FBURL).child('avaliacoes');
-        $scope.servicos = $firebaseArray(servicosRef);
+        var tipoUsuario = $localStorage.tipoUsuario;
+        
+        return new Promise(function (resolve, reject) {
+            if (tipoUsuario == 'cmn') {
+                servicosView.forEach(function (servico) {
+                    avaliacaoesRef.once("value", function (avaliacoes) {
+                        if (avaliacoes.child(servico.nome).exists()) {
+                            var datas = [];
+                            var avaliacaoesCidadeRef = avaliacaoesRef.child(servico.nome);
 
-        $scope.servicos.$loaded().then(function () {
-            $scope.servicosView = [];
-            
-            $scope.servicos.forEach(function (servico) {
-                var servicoT = {nome: servico.nome, descricao: servico.descricao, img: servico.img, disponibilidade: servico.disponibilidade, detalhes: servico.detalhes};
-                $scope.servicosView.push(servicoT);
-            })
-
-            $scope.servicosView.forEach(function (servico) {
-                avaliacaoesRef.once("value", function (avaliacoes) {
-                    if (avaliacoes.child(servico.nome).exists()) {
-                        var datas = [];
-                        var avaliacaoesCidadeRef = avaliacaoesRef.child(servico.nome);
-
-                        avaliacaoesCidadeRef.once("value", function (cidades) {
-                            cidades.forEach(function (bairros) {
-                                bairros.forEach(function (avls) {
-                                    avls.forEach(function (avl) {
-                                        if (avl.val().perfil == $localStorage.chaveUsuario) {
-                                            datas.push(new Date(avl.val().data));
-                                        }
+                            avaliacaoesCidadeRef.once("value", function (cidades) {
+                                cidades.forEach(function (bairros) {
+                                    bairros.forEach(function (avls) {
+                                        avls.forEach(function (avl) {
+                                            if (avl.val().perfil == $localStorage.chaveUsuario) {
+                                                datas.push(new Date(avl.val().data));
+                                            }
+                                        });
                                     });
                                 });
+
+                                var data1 = new Date(Math.max.apply(null, datas));
+                                var data2 = new Date("2016/10/16");
+
+                                var timeDiff = Math.abs(data2.getTime() - data1.getTime());
+                                var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+                                if (diffDays < 30) {
+                                    servico.disponibilidade = false;
+                                }
+                                
+                                resolve();
+                            }, function (errorObject) {
+                                reject();
+                                console.log("Erro: " + errorObject.code);
                             });
-
-                            var data1 = new Date(Math.max.apply(null, datas));
-                            var data2 = new Date("2016/10/16");
-
-                            var timeDiff = Math.abs(data2.getTime() - data1.getTime());
-                            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                            
-                            if(diffDays < 30){
-                                servico.disponibilidade = false;
-                            }
-                        }, function (errorObject) {
-                            console.log("The read failed: " + errorObject.code);
-                        });
-                    }
-                }, function (errorObject) {
-                    console.log("The read failed: " + errorObject.code);
-                });
-            })
-        }, function (errorObject) {
-            console.log("The read failed: " + errorObject.code);
+                        }
+                    }, function (errorObject) {
+                        reject();
+                        console.log("Erro: " + errorObject.code);
+                    });
+                })
+            } else {
+                resolve();
+            }
         });
-    });
+    }
 })
 
-.controller('avaliacaoCtrl', function(LocalizacaoFactory, LocalizacaoService, avaliacaoService, FBURL, $firebaseArray, $localStorage, $scope, Utils) {
+.controller('avaliacaoCtrl', function(LocalizacaoFactory, localizacaoService, avaliacaoService, FBURL, Utils, $firebaseArray, $localStorage, $scope, $state) {
     $scope.model = {
         detalhe: 'default',
         nota: 1
@@ -75,7 +116,7 @@ angular.module('citizenmap.controllers', [])
         $scope.bairro = $localStorage.bairro;
         $scope.cidade = $localStorage.cidade;
         
-        LocalizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
+        localizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
             console.log("Geolozalização Apache Cordova: " + $localStorage.latLng.toString());
             console.log($localStorage.cidade + "/" + $localStorage.bairro);
         }, function (error) {
@@ -108,6 +149,7 @@ angular.module('citizenmap.controllers', [])
                 updateMediaBairro(avaliacaoesBairroRef, mediasBairroRef).then(function () {
                     Utils.hide();
                     Utils.alertshow("Avaliação Registrada com Sucesso!");
+                    $state.go('menu.posavaliacao');
                     console.log("Avaliação criada: " + avaliacao.key());
                 }, function (error) {
                     Utils.hide();
@@ -240,6 +282,10 @@ angular.module('citizenmap.controllers', [])
     };
 })
 
+.controller('posAvaliacaoCtrl', function () {
+    
+})
+
 .controller('mapasCtrl', function (FBURL, $firebaseArray, $ionicModal, mapaService, $scope, $state) {
     var servicosRef = new Firebase(FBURL).child('servicos');
     $scope.servicos = $firebaseArray(servicosRef);
@@ -282,7 +328,7 @@ angular.module('citizenmap.controllers', [])
     });
 })
 
-.controller('mapaCtrl', function(FBURL, LocalizacaoFactory, LocalizacaoService, Utils, $firebaseArray, $localStorage, mapaService, $scope, $state) {   
+.controller('mapaCtrl', function(FBURL, LocalizacaoFactory, localizacaoService, Utils, $firebaseArray, $localStorage, mapaService, $scope, $state) {   
     $scope.$on('$ionicView.enter', function () {
         $scope.servico = mapaService.getServico();
         $scope.tipoLocal = mapaService.getTipo();
@@ -459,7 +505,7 @@ angular.module('citizenmap.controllers', [])
             return;
         } else {
             Utils.show();
-            LocalizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
+            localizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
                 console.log("Geolozalização Apache Cordova: " + $localStorage.latLng.toString());
                 console.log($localStorage.cidade + "/" + $localStorage.bairro);
 
@@ -568,7 +614,7 @@ angular.module('citizenmap.controllers', [])
     }
 })
       
-.controller("loginCtrl", function(Auth, FBURL, LocalizacaoFactory, LocalizacaoService, $firebaseObject, $localStorage, $scope, $state, Utils) {
+.controller("loginCtrl", function(Auth, FBURL, LocalizacaoFactory, localizacaoService, $firebaseObject, $localStorage, $scope, $state, Utils) {
     var rootRef = new Firebase(FBURL);
     
     // Login Comum:
@@ -590,13 +636,14 @@ angular.module('citizenmap.controllers', [])
                         $localStorage.nome = objUsuario.nome;
                         $localStorage.email = objUsuario.email;
                         $localStorage.gravatar = objUsuario.gravatar;
+                        $localStorage.tipoUsuario = objUsuario.tipo;
                     })
                     .catch(function(error) {
                         console.error("Erro:", error);
                     });
                 });
                 
-                LocalizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
+                localizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
                     console.log("Geolozalização Apache Cordova: " + $localStorage.latLng.toString());
                     console.log($localStorage.cidade + "/" + $localStorage.bairro);
                     

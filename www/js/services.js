@@ -33,7 +33,7 @@ angular.module('citizenmap.services', [])
     };
 }])
 
-.service('LocalizacaoService', [function(){
+.service('localizacaoService', [function(){
     return {
         setLocalizacao: function (Localizacao, $localStorage) {
             return new Promise(function (resolve, reject) {

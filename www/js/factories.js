@@ -24,6 +24,7 @@ angular.module('citizenmap.factories', [])
             perfil.email = email;
             perfil.gravatar = gravatar(email, 40);
             perfil.data_registro = Date();
+            perfil.tipo = 'cmn'
             
             var perfisRef = $firebaseArray(rootRef.child('perfis'));
             var enderecosRef = $firebaseArray(rootRef.child('enderecos'));

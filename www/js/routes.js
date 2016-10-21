@@ -88,6 +88,16 @@ angular.module('citizenmap.routes', [])
         }
       })
       
+      .state('menu.posavaliacao', {
+        url: '/posavaliacao',
+        views: {
+          'menuview': {
+            templateUrl: 'templates/posavaliacao.html',
+            controller: 'posAvaliacaoCtrl'
+          }
+        }
+      })
+      
       .state('menu.administracao', {
         url: '/administracao',
         views: {

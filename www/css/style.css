@@ -2,6 +2,8 @@
     font-size: 50px;
 }
 
-.avaliacaoFalse {
-    background: #e9967a;
+.notactive {
+   pointer-events: none;
+   cursor: default;
+   background-color: #e9967a;
 }
