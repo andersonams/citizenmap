@@ -1,6 +1,6 @@
 <ion-view title="Login" id="login">
     <ion-content padding="true" class="has-header">
-        <form novalidate class="list" name="loginForm" ng-submit="login(usuario)">
+        <form novalidate class="list" name="loginForm" ng-submit="login(loginForm)">
             <h5 id="login-heading3" style="color:#000000;text-align:center;">Dados de Acesso</h5>
             <ion-input class="item item-input item-stacked-label" ng-class="{ 'has-errors' : loginForm.txtEmail.$invalid && loginForm.$submitted, 'no-errors' : loginForm.txtEmail.$valid && loginForm.$submitted}">
                 <ion-label >E-mail</ion-label>

@@ -1,6 +1,6 @@
 <ion-view title="Avaliação" hide-back-button="true" id="avaliacao">
     <ion-content padding="true" class="has-header" ng-controller="avaliacaoCtrl">
-        <form novalidate class="list" name="avaliacaoForm" ng-submit="salvarAvaliacao(servico)">
+        <form novalidate class="list" name="avaliacaoForm" ng-submit="salvarAvaliacao(avaliacaoForm)">
             <div>
                 <img ng-src="img/{{servico.img}}" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;" />
             </div>
@@ -17,8 +17,8 @@
                 <p style="margin-top: 10px;">Escolha um dos motivos abaixo para a nota selecionada:</p>
             </div>
             <ion-list>           
-                <ion-radio class="item item-text-wrap" name="detalhe" ng-repeat="(chave, detalhe) in servico.detalhes" ng-value="chave" ng-model="model.detalhe" ng-checked="$index === 1 ? true : false">
-                    {{detalhe}}
+                <ion-radio class="item item-text-wrap" name="detalhe" ng-repeat="(chave, valor) in servico.detalhes" ng-value="chave" ng-model="model.detalhe" ng-checked="$index === 1 ? true : false">
+                    {{valor}}
                 </ion-radio>
             </ion-list>         
             <button type="submit" id="salvar-button" class="button button-positive button-block">Avaliar</button>

@@ -28,7 +28,7 @@ angular.module('citizenmap.utils', [])
         },
 
         errMessage: function(err) {
-            var msg = "Erro desconhecido! Favor reportá-lo à equipe!";
+            var msg = "Erro Interno! Favor reportá-lo à equipe! " + err.code;
 
             if(err && err.code) {
               switch (err.code) {

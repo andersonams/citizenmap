@@ -17,13 +17,11 @@ angular.module('citizenmap.controllers', [])
                 
             }, function (error) {
                 Utils.hide();
-                Utils.errMessage("Não foi possível carregar os serviços: " + error.message);
-                console.log("Não foi possível carregar os serviços: " + error.message);
+                Utils.errMessage(error);
             });
         }, function (error) {
             Utils.hide();
-            Utils.errMessage("Não foi possível carregar os serviços: " + error.message);
-            console.log("Não foi possível carregar os serviços: " + error.message);
+            Utils.errMessage(error);
         });
     });
     
@@ -49,7 +47,7 @@ angular.module('citizenmap.controllers', [])
                 resolve(servicosView);
             }, function (errorObject) {
                 reject(errorObject);
-                console.log("The read failed: " + errorObject.code);
+                console.log(errorObject.message);
             });
         });
     }
@@ -89,13 +87,13 @@ angular.module('citizenmap.controllers', [])
                                 
                                 resolve();
                             }, function (errorObject) {
-                                reject();
-                                console.log("Erro: " + errorObject.code);
+                                reject(errorObject);
+                                console.log(errorObject.message);
                             });
                         }
                     }, function (errorObject) {
-                        reject();
-                        console.log("Erro: " + errorObject.code);
+                        reject(errorObject);
+                        console.log(errorObject.message);
                     });
                 })
             } else {
@@ -105,17 +103,18 @@ angular.module('citizenmap.controllers', [])
     }
 })
 
-.controller('avaliacaoCtrl', function(LocalizacaoFactory, localizacaoService, avaliacaoService, FBURL, Utils, $firebaseArray, $localStorage, $scope, $state) {
+.controller('avaliacaoCtrl', function(LocalizacaoFactory, localizacaoService, avaliacaoService, FBURL, Utils, $firebaseArray, $localStorage, $scope, $state) {  
     $scope.model = {
-        detalhe: 'default',
+        detalhe: '',
         nota: 1
     };
-    
+               
     $scope.$on('$ionicView.beforeEnter', function () {
         $scope.servico = avaliacaoService.getServico();
         $scope.bairro = $localStorage.bairro;
         $scope.cidade = $localStorage.cidade;
-        
+     
+        // Temporário:
         localizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
             console.log("Geolozalização Apache Cordova: " + $localStorage.latLng.toString());
             console.log($localStorage.cidade + "/" + $localStorage.bairro);
@@ -124,48 +123,50 @@ angular.module('citizenmap.controllers', [])
         });
     });
     
-    $scope.salvarAvaliacao = function (servico) {
-        Utils.show();
-        
-        var avaliacaoesCidadeRef = new Firebase(FBURL).child('avaliacoes').child(servico.nome).child($scope.cidade);
-        var avaliacaoesBairroRef = new Firebase(FBURL).child('avaliacoes').child(servico.nome).child($scope.cidade).child($scope.bairro);
-        var mediasBairroRef = new Firebase(FBURL).child('medias').child(servico.nome).child($scope.cidade).child($scope.bairro);
-        var mediasCidadeRef = new Firebase(FBURL).child('medias').child(servico.nome).child($scope.cidade);
-        
-        var latLngUsuario = $localStorage.latLng.toString().replace("(", "").replace(")", "").split(',', 2);
-        var avaliacao = {};
-        
-        avaliacao.data = Date();
-        avaliacao.nota = $scope.model.nota;
-        avaliacao.detalhe = $scope.model.detalhe;
-        avaliacao.perfil = $localStorage.chaveUsuario;
-        avaliacao.lat = parseFloat(latLngUsuario[0]);
-        avaliacao.lng = parseFloat(latLngUsuario[1]);
-                      
-        avaliacaoesBairroRef = $firebaseArray(avaliacaoesBairroRef);
-   
-        avaliacaoesBairroRef.$add(avaliacao).then(function (avaliacao) {
-            updateMediaCidade(avaliacaoesCidadeRef, mediasCidadeRef).then(function () {
-                updateMediaBairro(avaliacaoesBairroRef, mediasBairroRef).then(function () {
-                    Utils.hide();
-                    Utils.alertshow("Avaliação Registrada com Sucesso!");
-                    $state.go('menu.posavaliacao');
-                    console.log("Avaliação criada: " + avaliacao.key());
+    $scope.salvarAvaliacao = function (avaliacaoForm) {
+        if (avaliacaoForm.$valid) {
+            Utils.show();
+
+            var avaliacaoesCidadeRef = new Firebase(FBURL).child('avaliacoes').child($scope.servico.nome).child($scope.cidade);
+            var avaliacaoesBairroRef = new Firebase(FBURL).child('avaliacoes').child($scope.servico.nome).child($scope.cidade).child($scope.bairro);
+            var mediasBairroRef = new Firebase(FBURL).child('medias').child($scope.servico.nome).child($scope.cidade).child($scope.bairro);
+            var mediasCidadeRef = new Firebase(FBURL).child('medias').child($scope.servico.nome).child($scope.cidade);
+
+            var latLngUsuario = $localStorage.latLng.toString().replace("(", "").replace(")", "").split(',', 2);
+            var avaliacao = {};
+
+            avaliacao.data = Date();
+            avaliacao.nota = $scope.model.nota;
+            avaliacao.detalhe = $scope.model.detalhe;
+            avaliacao.perfil = $localStorage.chaveUsuario;
+            avaliacao.lat = parseFloat(latLngUsuario[0]);
+            avaliacao.lng = parseFloat(latLngUsuario[1]);
+
+            avaliacaoesBairroRef = $firebaseArray(avaliacaoesBairroRef);
+
+            avaliacaoesBairroRef.$add(avaliacao).then(function (avaliacao) {
+                updateMediaCidade(avaliacaoesCidadeRef, mediasCidadeRef).then(function () {
+                    updateMediaBairro(avaliacaoesBairroRef, mediasBairroRef).then(function () {
+                        Utils.hide();
+                        Utils.alertshow("Avaliação Registrada com Sucesso!");
+                        $state.go('menu.posavaliacao');
+                        console.log("Avaliação criada: " + avaliacao.key());
+                    }, function (error) {
+                        Utils.hide();
+                        Utils.errMessage(error);
+                        console.log("Não foi possível atualizar a média do bairro: " + error.message);
+                    });
                 }, function (error) {
                     Utils.hide();
-                    Utils.alertshow("Não foi possível registrar a avaliação: " + error.message);
-                    console.log("Não foi possível registrar a avaliação: " + error.message);
+                    Utils.errMessage(error);
+                    console.log("Não foi possível atualizar a média da cidade: " + error.message);
                 });
             }, function (error) {
                 Utils.hide();
-                Utils.alertshow("Não foi possível registrar a avaliação: " + error.message);
+                Utils.errMessage(error);
                 console.log("Não foi possível registrar a avaliação: " + error.message);
             });
-        }, function (error) {
-            Utils.hide();
-            Utils.alertshow("Não foi possível registrar a avaliação: " + error.message);
-            console.log("Não foi possível registrar a avaliação: " + error.message);
-        });
+        }
     };
     
     function updateMediaBairro(avaliacaoesBairroRef, mediasBairroRef) {
@@ -616,32 +617,28 @@ angular.module('citizenmap.controllers', [])
 })
       
 .controller("loginCtrl", function(Auth, FBURL, LocalizacaoFactory, localizacaoService, $firebaseObject, $localStorage, $scope, $state, Utils) {
-    var rootRef = new Firebase(FBURL);
-    
-    // Login Comum:
-    $scope.login = function (usuario) {
-        if (angular.isDefined(usuario)) {
+    $scope.usuario = {
+        email: '',
+        password: ''
+    };
+  
+    $scope.login = function (loginForm) {
+        var rootRef = new Firebase(FBURL).child('perfis');
+        
+        if (loginForm.$valid) {
             Utils.show();
-            Auth.login(usuario).then(function (authData) {
+            
+            Auth.login($scope.usuario).then(function (authData) {
                 console.log("Authenticated successfully with payload:", authData);
-                rootRef.child('perfis').orderByChild("id_firebase").equalTo(authData.uid).on("child_added", function (snapshot) {
-                    var chaveUsuario = snapshot.key();
-                    var objUsuario = $firebaseObject(rootRef.child('perfis').child(chaveUsuario));
-
-                    objUsuario.$loaded().then(function (data) {
-                        // console.log(data === objUsuario);
-                        // console.log(objUsuario);
-                        $localStorage.chaveUsuario = chaveUsuario;
-                        $localStorage.chaveEndereco = objUsuario.endereco;
-                        $localStorage.chaveConfiguracao = objUsuario.configuracao;
-                        $localStorage.nome = objUsuario.nome;
-                        $localStorage.email = objUsuario.email;
-                        $localStorage.gravatar = objUsuario.gravatar;
-                        $localStorage.tipoUsuario = objUsuario.tipo;
-                    })
-                    .catch(function(error) {
-                        console.error("Erro:", error);
-                    });
+            
+                rootRef.orderByChild("id_firebase").equalTo(authData.uid).on("child_added", function (perfil) {
+                    $localStorage.chaveUsuario = perfil.key();
+                    $localStorage.chaveEndereco = perfil.val().endereco;
+                    $localStorage.chaveConfiguracao = perfil.val().configuracao;
+                    $localStorage.nome = perfil.val().nome;
+                    $localStorage.email = perfil.val().email;
+                    $localStorage.gravatar = perfil.val().gravatar;
+                    $localStorage.tipoUsuario = perfil.val().tipo;                   
                 });
                 
                 localizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
@@ -652,33 +649,33 @@ angular.module('citizenmap.controllers', [])
                     $state.go('menu.principal');
                 }, function (error) {
                     Utils.hide();
+                    Utils.errMessage(error);
                     console.log("Não foi possível obter a localização: " + error.message);
                 });
             }, function (error) {
                 Utils.hide();
                 Utils.errMessage(error);
+                console.log("Não foi possível efetuar a autenticação: " + error.message);
             });
-        }
+       }
     };
     
     // Método para login através de alguma rede social:
-    $scope.loginProvider = function(provider) {
-      Auth.loginProvider(provider).then(function(authData){
-        console.log('Usuário Logado!', authData);
-        $state.go('menu.principal');
-      })
-      .catch(function(error) {
-        if (error.code === "TRANSPORT_UNAVAILABLE") {
-            Auth.$authWithOAuthPopup(provider).then(function(authData) {
+    $scope.loginProvider = function (provider) {
+        Auth.loginProvider(provider).then(function (authData) {
             console.log('Usuário Logado!', authData);
             $state.go('menu.principal');
-            });
-        }
-        else {
-        console.log(error);
-        }
-      });
-    };  
+        }).catch(function (error) {
+            if (error.code === "TRANSPORT_UNAVAILABLE") {
+                Auth.$authWithOAuthPopup(provider).then(function (authData) {
+                    console.log('Usuário Logado!', authData);
+                    $state.go('menu.principal');
+                });
+            } else {
+                console.log(error);
+            }
+        });
+    };
 })
 
 .controller("cadastroCtrl", function(Auth, $location, $scope, Utils) {
@@ -728,18 +725,25 @@ angular.module('citizenmap.controllers', [])
     });
 })
 
-.controller('firebaseCtrl', function(FBURL, $firebaseArray, $scope) {
+.controller('firebaseCtrl', function(FBURL, $firebaseArray, $firebaseObject, $scope) {
     var firebaseRef = new Firebase(FBURL);
+  
+    // Métodos Firebase:
+    // Primeiros a serem chamados para a referência do banco.
+    // 
+    // .child() Retorna a chave informada por parâmetro, usado para acessar os nós e navegar pelo banco.
     
-    // Acessar o nó para fazer a inserção, similar à tabela:
-    // Iterador, devendo ser usado com o $firebaseArray:
-    $scope.avlsIterator = $firebaseArray(firebaseRef.child('avaliacoes').child('saude').child('Duque de Caxias').child('Beira Mar'));
     
-    // Metódos dos Objetos de Query do Firebase:
+    // Metódos de Query do Firebase:
+    // São chamados logos após os métodos do Firebase.
+    // 
+    // orderByChild() Ordenação por nós filhos.
+    // equalTo() Filtro que retorna o objeto informado por parâmetro.
     // on() Fica escutando qualquer alteração daquele nó, chamando a si mesmo toda vez que o nó é alterado.
     // once() Lê o nó somente no momento da excução da função.
     
-    // Para cada um dos métodos acima, são passados Tipos de Eventos:
+    // Para os métodos on() e once(), são passados Tipos de Eventos:
+    // 
     // child_added
     // child_changed
     // child_removed
@@ -848,4 +852,34 @@ angular.module('citizenmap.controllers', [])
             });
         }
     }
+    
+    // Usando $firebaseArray e $firebaseObject (Biblioteca AngularFire)
+    //
+    // $firebaseArray
+    // Matriz sincronizada que deve ser usada para qualquer lista de objetos que serão ordenadas, iteradas, e que têm identificações exclusivas. Usados para iterar nós que tem chaves únicas. Possue métodos de inserção que automaticamente incluem uma chave primária ao item adicionado.
+    $scope.perfis = $firebaseArray(firebaseRef.child('perfis'));
+    
+    $scope.perfis.$loaded().then(function (avlsIterator) {
+        console.log(avlsIterator);
+    }, function (errorObject) {
+        reject(errorObject);
+        console.log("The read failed: " + errorObject.code);
+    });
+
+    $scope.perfis.$add({perfil: "Teste"}).then(function (ref) {
+        console.log("added record with id " + ref.key());
+    }, function (errorObject) {
+        reject(errorObject);
+        console.log("The read failed: " + errorObject.code);
+    });
+    
+    // $firebaseObject
+    // São úteis para armazenar pares de chave ou valor e registros singulares que não são utilizados como uma coleção.
+    $scope.objPerfil = $firebaseObject(firebaseRef.child('perfis').child('-KJMqzNbtyNAx72Fh8vm'));
+    
+    $scope.objPerfil.$loaded().then(function (objPerfil) {
+        console.log(objPerfil);
+    }).catch(function (error) {
+        console.error("Erro:", error);
+    });
 });
