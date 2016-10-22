@@ -319,22 +319,22 @@ angular.module('citizenmap.factories', [])
 .factory('LocalizacaoFactory', function ($cordovaGeolocation, $q)  {
     return {
         obterLocalizacao: function () {
-            var defer = $q.defer();
+            var deferred = $q.defer();
             var options = {timeout: 10000, enableHighAccuracy: true};
 
             $cordovaGeolocation.getCurrentPosition(options).then(function (position) {
                 var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 
-                defer.resolve(latLng);
+                deferred.resolve(latLng);
             }, function (error) {
-                console.log("Não foi possível obter a localização: " + error.message);
+                deferred.reject(error);
             });   
-            return defer.promise;
+            return deferred.promise;
         },
         
         obterRegiaoGoogle: function (latLng) {
             var latLngStr;
-            var defer = $q.defer();
+            var deferred = $q.defer();
             var geocoder = new google.maps.Geocoder;
             var input;
             
@@ -372,15 +372,15 @@ angular.module('citizenmap.factories', [])
                             latLng: {lat: parseFloat(latLngCidade[0]), lng: parseFloat(latLngCidade[1])}
                         };
                         
-                        defer.resolve(response);
+                        deferred.resolve(response);
                     } else {
-                        Utils.alertshow("Não há resultados com as coordenadas atuais.");
+                        deferred.reject("Não há resultados com as coordenadas atuais.");
                     }
                 } else {
-                    Utils.alertshow('Falha no Geocoder: ' + status);
+                    deferred.reject(status);
                 }
             });
-            return defer.promise;
+            return deferred.promise;
         },
         
         obterRegiaoWikiMapia: function (latLng) {
@@ -411,11 +411,9 @@ angular.module('citizenmap.factories', [])
                         resolve(data);
                     }, function (error) {
                         reject(error);
-                        console.error("Failed!", error);
                     });
                 }, function (error) {
                     reject(error);
-                    console.error("Failed!", error);
                 });
             });
 

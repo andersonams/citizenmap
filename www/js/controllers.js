@@ -18,10 +18,12 @@ angular.module('citizenmap.controllers', [])
             }, function (error) {
                 Utils.hide();
                 Utils.errMessage(error);
+                console.log(error.message);
             });
         }, function (error) {
             Utils.hide();
             Utils.errMessage(error);
+            console.log(error.message);
         });
     });
     
@@ -47,7 +49,6 @@ angular.module('citizenmap.controllers', [])
                 resolve(servicosView);
             }, function (errorObject) {
                 reject(errorObject);
-                console.log(errorObject.message);
             });
         });
     }
@@ -88,12 +89,10 @@ angular.module('citizenmap.controllers', [])
                                 resolve();
                             }, function (errorObject) {
                                 reject(errorObject);
-                                console.log(errorObject.message);
                             });
                         }
                     }, function (errorObject) {
                         reject(errorObject);
-                        console.log(errorObject.message);
                     });
                 })
             } else {
@@ -181,7 +180,7 @@ angular.module('citizenmap.controllers', [])
                 var detalhes = {};
                 
                 avaliacaoesBairroRef.forEach(function (avaliacao) {
-                    if (!angular.isDefined(detalhes[avaliacao.detalhe])) {
+                    if (angular.isUndefined(detalhes[avaliacao.detalhe])) {
                         detalhes[avaliacao.detalhe] = 1;
                     } else {
                         detalhes[avaliacao.detalhe] += 1;
@@ -209,7 +208,6 @@ angular.module('citizenmap.controllers', [])
                 resolve();
             }, function (errorObject) {
                 reject(errorObject);
-                console.log("The read failed: " + errorObject.code);
             });
         });
     }
@@ -226,7 +224,7 @@ angular.module('citizenmap.controllers', [])
             avaliacaoesCidadeRef.once("value", function (cidade) {
                 cidade.forEach(function (bairro) {
                     bairro.forEach(function (avaliacao) {
-                        if (!angular.isDefined(detalhes[avaliacao.val().detalhe])) {
+                        if (angular.isUndefined(detalhes[avaliacao.val().detalhe])) {
                             detalhes[avaliacao.val().detalhe] = 1;
                         } else {
                             detalhes[avaliacao.val().detalhe] += 1;
@@ -256,7 +254,6 @@ angular.module('citizenmap.controllers', [])
                 resolve();
             }, function (errorObject) {
                 reject(errorObject);
-                console.log("The read failed: " + errorObject.code);
             });
         });
     }
@@ -330,18 +327,45 @@ angular.module('citizenmap.controllers', [])
     });
 })
 
-.controller('mapaCtrl', function(FBURL, LocalizacaoFactory, localizacaoService, Utils, $firebaseArray, $localStorage, mapaService, $scope, $state) {   
+.controller('mapaCtrl', function(FBURL, LocalizacaoFactory, localizacaoService, Utils, $firebaseArray, $localStorage, mapaService, $scope, $state) {
     $scope.$on('$ionicView.enter', function () {
         $scope.servico = mapaService.getServico();
         $scope.tipoLocal = mapaService.getTipo();
         
-        if (!angular.isDefined($scope.servico) || !angular.isDefined($scope.tipoLocal)) {
+        if (angular.isUndefined($scope.servico) || angular.isUndefined($scope.tipoLocal)) {
             $state.go('menu.principal');
         } else {
+            Utils.show();
+            
             putMapa();
-            putAvaliacoes($scope.tipoLocal, $scope.servico);
+            putAvaliacoes($scope.tipoLocal, $scope.servico).then(function () {
+                Utils.hide();
+            }, function (error) {
+                Utils.hide();
+                Utils.errMessage(error);
+                console.log(error.message);
+            });
         }
     });
+    
+    $scope.ondeEstou = function () {
+        if (!$scope.map) {
+            return;
+        } else {
+            Utils.show();
+            localizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
+                console.log("Geolozalização Apache Cordova: " + $localStorage.latLng.toString());
+                console.log($localStorage.cidade + "/" + $localStorage.bairro);
+
+                $scope.map.setCenter($localStorage.latLng);
+                Utils.hide();
+            }, function (error) {
+                Utils.hide();
+                Utils.errMessage(error);
+                console.log("Não foi possível obter a localização: " + error.message);
+            });
+        }
+    };
     
     function putMapa() {
         $scope.map = new google.maps.Map(document.getElementById('map'), {center: {lat: -34.397, lng: 150.644}, zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP});
@@ -350,19 +374,23 @@ angular.module('citizenmap.controllers', [])
     }
     
     function putAvaliacoes(tipo, servico) {
-        if (tipo == "Cidade") {
-            carregarCidades(servico).then(function (cidades) {
-                putFronteiras(cidades);
-            }, function (error) {
-                console.log(error.message);
-            });
-        } else if (tipo == "Bairro") {
-            carregarBairros(servico).then(function (bairros) {
-                putFronteiras(bairros);
-            }, function (error) {
-                console.log(error.message);
-            });
-        }
+        return new Promise(function (resolve, reject) {
+            if (tipo == "Cidade") {
+                carregarCidades(servico).then(function (cidades) {
+                    putFronteiras(cidades);
+                    resolve();
+                }, function (error) {
+                    reject(error);
+                });
+            } else if (tipo == "Bairro") {
+                carregarBairros(servico).then(function (bairros) {
+                    putFronteiras(bairros);
+                    resolve();
+                }, function (error) {
+                    reject(error);
+                });
+            }
+        });
     }
     
     function carregarCidades(servico) {
@@ -387,7 +415,6 @@ angular.module('citizenmap.controllers', [])
                 resolve(cidades);
             }, function (errorObject) {
                 reject(errorObject);
-                console.log("The read failed: " + errorObject.code);
             });
         });
     }
@@ -418,7 +445,6 @@ angular.module('citizenmap.controllers', [])
                 resolve(bairros);
             }, function (errorObject) {
                 reject(errorObject);
-                console.log("The read failed: " + errorObject.code);
             });
         });
     }
@@ -501,23 +527,6 @@ angular.module('citizenmap.controllers', [])
             $scope.infoWindow.open($scope.map);
         }, false);
     }
-
-    $scope.ondeEstou = function () {
-        if (!$scope.map) {
-            return;
-        } else {
-            Utils.show();
-            localizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
-                console.log("Geolozalização Apache Cordova: " + $localStorage.latLng.toString());
-                console.log($localStorage.cidade + "/" + $localStorage.bairro);
-
-                $scope.map.setCenter($localStorage.latLng);
-                Utils.hide();
-            }, function (error) {
-                console.log("Não foi possível obter a localização: " + error.message);
-            });
-        }
-    };
 })
    
 .controller('perfilCtrl', function(FBURL, $ionicModal, $localStorage, $scope, Utils) {
@@ -616,7 +625,7 @@ angular.module('citizenmap.controllers', [])
     }
 })
       
-.controller("loginCtrl", function(Auth, FBURL, LocalizacaoFactory, localizacaoService, $firebaseObject, $localStorage, $scope, $state, Utils) {
+.controller("loginCtrl", function(Auth, FBURL, LocalizacaoFactory, localizacaoService, $localStorage, $scope, $state, Utils) {
     $scope.usuario = {
         email: '',
         password: ''

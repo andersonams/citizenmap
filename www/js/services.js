@@ -35,18 +35,18 @@ angular.module('citizenmap.services', [])
 
 .service('localizacaoService', [function(){
     return {
-        setLocalizacao: function (Localizacao, $localStorage) {
+        setLocalizacao: function (LocalizacaoFactory, $localStorage) {
             return new Promise(function (resolve, reject) {
-                Localizacao.obterLocalizacao().then(function (promise) {
-                    $localStorage.latLng = promise;
+                LocalizacaoFactory.obterLocalizacao().then(function (latLng) {
+                    $localStorage.latLng = latLng;
 
-                    Localizacao.obterRegiaoWikiMapia(promise).then(function (promise) {
-                        $localStorage.latLngBairro = promise.bairro.latLng;
-                        $localStorage.latLngCidade = promise.cidade.latLng;
-                        $localStorage.bairro = promise.bairro.nome;
-                        $localStorage.cidade = promise.cidade.nome;
-                        $localStorage.polygonsBairro = promise.bairro.polygons;
-                        $localStorage.polygonsCidade = promise.cidade.polygons;
+                    LocalizacaoFactory.obterRegiaoWikiMapia(latLng).then(function (localizacao) {
+                        $localStorage.latLngBairro = localizacao.bairro.latLng;
+                        $localStorage.latLngCidade = localizacao.cidade.latLng;
+                        $localStorage.bairro = localizacao.bairro.nome;
+                        $localStorage.cidade = localizacao.cidade.nome;
+                        $localStorage.polygonsBairro = localizacao.bairro.polygons;
+                        $localStorage.polygonsCidade = localizacao.cidade.polygons;
 
                         resolve();
                     }, function (error) {
