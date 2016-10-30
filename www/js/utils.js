@@ -23,7 +23,7 @@ angular.module('citizenmap.utils', [])
             });
         },
         errMessage: function (err) {
-            var msg = "Erro Interno! Favor reportá-lo à equipe! " + err.code;
+            var msg = "Erro Interno! Favor reportá-lo à equipe! " + err.message;
 
             if (err && err.code) {
                 switch (err.code) {

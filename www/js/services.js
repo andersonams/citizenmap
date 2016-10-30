@@ -1,6 +1,6 @@
 angular.module('citizenmap.services', [])
 
-.service('avaliacaoService', [function(){
+.service('AvaliacaoService', [function(){
     var servico;
         
     return {
@@ -13,7 +13,7 @@ angular.module('citizenmap.services', [])
     };
 }])
 
-.service('mapaService', [function () {
+.service('MapaService', [function () {
     var servico;
     var tipo;
     
@@ -33,22 +33,30 @@ angular.module('citizenmap.services', [])
     };
 }])
 
-.service('localizacaoService', [function(){
+.service('LocalizacaoService', [function () {
     return {
         setLocalizacao: function (LocalizacaoFactory, $localStorage) {
             return new Promise(function (resolve, reject) {
-                LocalizacaoFactory.obterLocalizacao().then(function (latLng) {
+                LocalizacaoFactory.obterCoordenadas().then(function (latLng) {
                     $localStorage.latLng = latLng;
 
-                    LocalizacaoFactory.obterRegiaoWikiMapia(latLng).then(function (localizacao) {
-                        $localStorage.latLngBairro = localizacao.bairro.latLng;
-                        $localStorage.latLngCidade = localizacao.cidade.latLng;
-                        $localStorage.bairro = localizacao.bairro.nome;
-                        $localStorage.cidade = localizacao.cidade.nome;
-                        $localStorage.polygonsBairro = localizacao.bairro.polygons;
-                        $localStorage.polygonsCidade = localizacao.cidade.polygons;
+                    LocalizacaoFactory.obterLocalizacaoWikiMapia(latLng).then(function (localizacao) {
+                        $localStorage.bairro = localizacao.bairro;
+                        $localStorage.cidade = localizacao.cidade;
 
-                        resolve();
+                        LocalizacaoFactory.salvarCidade(localizacao.cidade).then(function (cidade) {
+                            $localStorage.cidade.id = cidade.key();
+
+                            LocalizacaoFactory.salvarBairro(localizacao.bairro).then(function (bairro) {
+                                $localStorage.bairro.id = bairro.key();
+
+                                resolve();
+                            }, function (error) {
+                                reject(error);
+                            });
+                        }, function (error) {
+                            reject(error);
+                        });
                     }, function (error) {
                         reject(error);
                     });
@@ -56,6 +64,6 @@ angular.module('citizenmap.services', [])
                     reject(error);
                 });
             });
-        },
+        }
     };
 }]);

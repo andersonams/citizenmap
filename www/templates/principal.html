@@ -10,7 +10,7 @@
         </div>
         <ion-list>
             <ion-item type=button" class="item-thumbnail-left" ng-click="definirServico(servico)" ng-repeat="servico in servicosView"  ng-class="{notactive: !servico.disponibilidade}">
-                <img ng-src="img/{{servico.img}}">
+                <img ng-src="img/{{servico.imagem}}">
                 <h2>{{servico.nome}}</h2>
                 <p style="white-space:normal;">{{servico.descricao}}</p>
             </ion-item>

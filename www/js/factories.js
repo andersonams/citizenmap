@@ -1,6 +1,6 @@
 angular.module('citizenmap.factories', [])
 
-.factory('Auth', function (FBURL, Gravatar, $firebaseAuth, $firebaseArray, $firebaseObject, $timeout) {
+.factory('AuthFactory', function (FBURL, Gravatar, $firebaseAuth, $firebaseArray, $firebaseObject, $timeout) {
     var rootRef = new Firebase(FBURL);
     var auth = $firebaseAuth(rootRef);
     
@@ -76,9 +76,9 @@ angular.module('citizenmap.factories', [])
     return Auth;
 })
 
-.factory('LocalizacaoFactory', function ($cordovaGeolocation, $q) {
+.factory('LocalizacaoFactory', function (FBURL, $cordovaGeolocation, $firebaseArray, $firebaseObject, $q) {
     return {
-        obterLocalizacao: function () {
+        obterCoordenadas: function () {
             var deferred = $q.defer();
             var options = {timeout: 10000, enableHighAccuracy: true};
 
@@ -92,7 +92,7 @@ angular.module('citizenmap.factories', [])
             return deferred.promise;
         },
         
-        obterRegiaoGoogle: function (latLng) {
+        obterLocalizacaoGoogle: function (latLng) {
             var latLngStr;
             var deferred = $q.defer();
             var geocoder = new google.maps.Geocoder;
@@ -105,7 +105,7 @@ angular.module('citizenmap.factories', [])
             geocoder.geocode({'location': latLng}, function (results, status) {
                 if (status === google.maps.GeocoderStatus.OK) {
                     if (results) {
-                        var response = [];
+                        var localizacao = [];
                         var data = [];
                         var i = [];
 
@@ -122,17 +122,19 @@ angular.module('citizenmap.factories', [])
                         var latLngBairro = data['political sublocality sublocality_level_1 (1)'].geometry.location.toString().replace("(", "").replace(")", "").split(',', 2);
                         var latLngCidade = data['locality political (1)'].geometry.location.toString().replace("(", "").replace(")", "").split(',', 2);
                         
-                        response["bairro"] = {
+                        localizacao["bairro"] = {
                             nome: data['political sublocality sublocality_level_1 (1)']['address_components'][0].long_name,
-                            latLng: {lat: parseFloat(latLngBairro[0]), lng: parseFloat(latLngBairro[1])}
+                            lat: parseFloat(latLngBairro[0]),
+                            lng: parseFloat(latLngBairro[1])
                         };
                         
-                        response["cidade"] = {
+                        localizacao["cidade"] = {
                             nome: data['locality political (1)']['address_components'][0].long_name,
-                            latLng: {lat: parseFloat(latLngCidade[0]), lng: parseFloat(latLngCidade[1])}
+                            lat: parseFloat(latLngCidade[0]),
+                            lng: parseFloat(latLngCidade[1])
                         };
                         
-                        deferred.resolve(response);
+                        deferred.resolve(localizacao);
                     } else {
                         deferred.reject("Não há resultados com as coordenadas atuais.");
                     }
@@ -143,32 +145,31 @@ angular.module('citizenmap.factories', [])
             return deferred.promise;
         },
         
-        obterRegiaoWikiMapia: function (latLng) {
+        obterLocalizacaoWikiMapia: function (latLng) {
             latLng = latLng.toString().replace("(", "").replace(")", "").split(',', 2);
 
             var categorias = {bairro: 4621, cidade: 88};
             var apiKey = "70F1CCA2-54898CF0-837A03C8-CED3AA09-FE7D605E-5D5E3474-DA76638B-471DF940";
-            var data = [];
+            var localizacao = [];
 
             return new Promise(function (resolve, reject) {
                 get("http://api.wikimapia.org/?key=" + apiKey + "&function=place.search&q=&lat=" + latLng[0] + "&lon=" + latLng[1] + "&format=json&pack=&language=pt&page=1&count=1&category=" + categorias.bairro + "&categories_or=&categories_and=&distance=").then(function (response) {
-                    angular.forEach(response.places, function (componente) {
-                        data["bairro"] = {
-                            nome: componente.title,
-                            latLng: {lat: componente.location.lat, lng: componente.location.lon},
-                            polygons: componente.polygon,
-                            cityId: componente.location.city_id
-                        };
-                    });
+                    localizacao["bairro"] = {
+                        nome: response.places[0].title,
+                        lat: response.places[0].location.lat,
+                        lng: response.places[0].location.lon,
+                        polygon: response.places[0].polygon,
+                    };
 
-                    get("http://api.wikimapia.org/?key=" + apiKey + "&function=place.getbyid&id=" + data.bairro.cityId + "&format=json&pack=&language=en&data_blocks=main%2Cgeometry%2Clocation%2C").then(function (response) {
-                        data["cidade"] = {
+                    get("http://api.wikimapia.org/?key=" + apiKey + "&function=place.getbyid&id=" + response.places[0].location.city_id + "&format=json&pack=&language=pt&data_blocks=main%2Cgeometry%2Clocation%2C").then(function (response) {
+                        localizacao["cidade"] = {
                             nome: response.title,
-                            latLng: {lat: response.location.lat, lng: response.location.lon},
-                            polygons: response.polygon
+                            lat: response.location.lat,
+                            lng: response.location.lon,
+                            polygon: response.polygon
                         };
 
-                        resolve(data);
+                        resolve(localizacao);
                     }, function (error) {
                         reject(error);
                     });
@@ -202,17 +203,60 @@ angular.module('citizenmap.factories', [])
         obterLocalizacaoHTML5: function () {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    return new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
                 }, function () {
-                    handleLocationError(true, $scope.infoWindow, $scope.map.getCenter());
+                    handleLocationError(true);
                 });
             }
             
-            function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-                infoWindow.setPosition(pos);
-                infoWindow.setContent(browserHasGeolocation ? 'Erro: O serviço de geolocalização falhou.' : 'Erro: Seu navegador não suporta geolocalização.');
+            function handleLocationError(browserHasGeolocation) {
+                return browserHasGeolocation ? 'Erro: O serviço de geolocalização falhou.' : 'Erro: Seu navegador não suporta geolocalização.';
             }
+        },
+        
+        salvarCidade: function (cidade) {
+            var cidadeRef = new Firebase(FBURL).child('cidades');
+            var cidadeObject = $firebaseObject(cidadeRef.orderByChild("nome").equalTo(cidade.nome));
+
+            return new Promise(function (resolve, reject) {
+                cidadeObject.$loaded().then(function (cidadeSnapshot) {
+                    if (angular.isDefined(cidadeSnapshot.$value)) {
+                        cidadeRef = $firebaseArray(cidadeRef);
+                        cidadeRef.$add(cidade).then(function (cidadeRef) {
+                            resolve(cidadeRef);
+                        });
+                    } else {
+                        cidadeRef.orderByChild("nome").equalTo(cidade.nome).on("child_added", function (cidadeRef) {
+                            resolve(cidadeRef);
+                        });
+                    }
+                }, function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        salvarBairro: function (bairro) {
+            var bairroRef = new Firebase(FBURL).child('bairros');
+            var bairroObject = $firebaseObject(bairroRef.orderByChild("nome").equalTo(bairro.nome));
+
+            return new Promise(function (resolve, reject) {
+                bairroObject.$loaded().then(function (bairroSnapshot) {
+                    if (angular.isDefined(bairroSnapshot.$value)) {
+                        bairroRef = $firebaseArray(bairroRef);
+                        bairroRef.$add(bairro).then(function (bairroRef) {
+                            resolve(bairroRef);
+                        });
+                    } else {
+                        bairroRef.orderByChild("nome").equalTo(bairro.nome).on("child_added", function (bairroRef) {
+                            resolve(bairroRef);
+                        });
+                    }
+                }, function (error) {
+                    reject(error);
+                });
+            });
         }
     }
 });

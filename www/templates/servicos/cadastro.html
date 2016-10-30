@@ -1,0 +1,50 @@
+<ion-view cache-view="false" title="Serviço" id="servico">
+    <ion-content padding="true" class="has-header">
+        <form novalidate class="list" name="servicoForm" ng-submit="salvar(servicoForm)">
+            <h5 style="text-align: center;">Cadastro de Serviços:</h5>
+            <h4 style="color:gray; text-align:center;">{{usuario.email}}</h4>
+            <div class="list">
+                <label class="item item-input item-stacked-label" ng-class="{ 'has-errors' : servicoForm.txtNome.$invalid && servicoForm.$submitted }">
+                    <span class="input-label" style="color: gray; font-size: smaller;">Nome</span>
+                    <input name="txtNome" type="text" ng-model="servico.nome" placeholder="Nome" ng-minlength="1" ng-maxlength="30" required>
+                </label>
+                <div class="error-container" ng-show="servicoForm.txtNome.$error && servicoForm.$submitted" ng-messages="servicoForm.txtNome.$error">
+                    <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                    <div class="error" ng-message="minlength"><i class="ion-information-circled"></i> Campo com no mínimo 1 dígito.</div>
+                    <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 30 caracteres.</div>
+                </div>
+                <label class="item item-input item-stacked-label" ng-class="{ 'has-errors' : servicoForm.txtDescricao.$invalid && servicoForm.$submitted }">
+                    <span class="input-label" style="color: gray; font-size: smaller;">Descrição</span>
+                    <input name="txtDescricao" type="text" ng-model="servico.descricao" placeholder="Descrição" ng-minlength="1" required>
+                </label>
+                <div class="error-container" ng-show="servicoForm.txtDescricao.$error && servicoForm.$submitted" ng-messages="servicoForm.txtDescricao.$error">
+                    <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                    <div class="error" ng-message="minlength"><i class="ion-information-circled"></i> Campo com no mínimo 1 dígito.</div>
+                </div>
+                <label class="item item-input item-stacked-label" ng-class="{ 'has-errors' : servicoForm.txtImagem.$invalid && servicoForm.$submitted }">
+                    <span class="input-label" style="color: gray; font-size: smaller;">Imagem</span>
+                    <input name="txtImagem" type="text" ng-model="servico.imagem" placeholder="Arquivo de Imagem" ng-minlength="1" ng-maxlength="30" required>
+                </label>
+                <div class="error-container" ng-show="servicoForm.txtImagem.$error && servicoForm.$submitted" ng-messages="servicoForm.txtImagem.$error">
+                    <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                    <div class="error" ng-message="minlength"><i class="ion-information-circled"></i> Campo com no mínimo 1 dígito.</div>
+                    <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 30 caracteres.</div>
+                </div>
+            </div>
+            <h5 style="text-align: center;">Detalhes</h5>
+            <div class="item-input" ng-repeat="input in inputs">
+                <label class="item-input-wrapper">
+                    <input type="text" placeholder="Detalhe" ng-model="input.value" />
+                </label>
+                <button class="button button-small button-balanced" ng-if="$index == inputs.length - 1" ng-click="addInput()">
+                    <i class="icon ion-plus"></i>
+                </button>
+                <button class="button button-small button-assertive" ng-if="$index != inputs.length - 1" ng-click="removeInput($index)">
+                    <i class="icon ion-minus"></i>
+                </button>
+            </div>
+
+            <button type="submit" id="salvar-button" class="button button-positive button-block" ng-disabled="servicoForm.$invalid && servicoForm.$submitted">Salvar Serviço</button>
+        </form>
+    </ion-content>
+</ion-view>

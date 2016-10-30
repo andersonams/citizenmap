@@ -2,12 +2,12 @@
     <ion-content padding="true" class="has-header" ng-controller="avaliacaoCtrl">
         <form novalidate class="list" name="avaliacaoForm" ng-submit="salvarAvaliacao(avaliacaoForm)">
             <div>
-                <img ng-src="img/{{servico.img}}" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;" />
+                <img ng-src="img/{{servico.imagem}}" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;" />
             </div>
             <div style="color:#000000;text-align:center;">
                 <h3><p>{{servico.nome}}</p></h3>
-                <h4>{{cidade}} <i class="icon ion-ios-information"></i></h4>
-                <h5>{{bairro}}</h5>
+                <h4>{{cidade.nome}} <i class="icon ion-ios-information"></i></h4>
+                <h5>{{bairro.nome}}</h5>
                 <p>Avalie abaixo o serviço selecionado:</p>
             </div>
             <div>

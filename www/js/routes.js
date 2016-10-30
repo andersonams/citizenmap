@@ -10,9 +10,9 @@ angular.module('citizenmap.routes', [])
 
       .state('menu', {
         url: '/menu',
+        abstract: true,
         templateUrl: 'templates/menu.html',
-        controller: 'menuCtrl',
-        abstract: false
+        controller: 'menuCtrl'
       })
       
       .state('entrada', {
@@ -88,26 +88,25 @@ angular.module('citizenmap.routes', [])
         }
       })
       
-      .state('menu.posavaliacao', {
-        url: '/posavaliacao',
+      .state('menu.conclusao', {
+        url: '/conclusao',
         views: {
           'menuview': {
-            templateUrl: 'templates/posavaliacao.html',
-            controller: 'posAvaliacaoCtrl'
+            templateUrl: 'templates/conclusao.html',
+            controller: 'conclusaoCtrl'
           }
         }
       })
       
-      .state('menu.administracao', {
-        url: '/administracao',
+      .state('menu.servicos', {
+        url: '/servicos',
         views: {
           'menuview': {
-            templateUrl: 'templates/administracao.html',
-            controller: 'administracaoCtrl'
+            templateUrl: 'templates/servicos/index.html',
           }
         }
       })
-      
+           
       .state('menu.ajuda', {
         url: '/ajuda',
         views: {
