@@ -15,7 +15,8 @@ angular.module('citizenmap.services', [])
 
 .service('MapaService', [function () {
     var servico;
-    var tipo;
+    var tipoLocal;
+    var tipoMapa;
     
     return {
         getServico: function () {
@@ -24,12 +25,31 @@ angular.module('citizenmap.services', [])
         setServico: function (value) {
             servico = value;
         },
-        getTipo: function () {
-            return tipo;
+        getTipoLocal: function () {
+            return tipoLocal;
         },
-        setTipo: function (value) {
-            tipo = value;
-        }   
+        setTipoLocal: function (value) {
+            tipoLocal = value;
+        },
+        getTipoMapa: function () {
+            return tipoMapa;
+        },
+        setTipoMapa: function (value) {
+            tipoMapa = value;
+        }
+    };
+}])
+
+.service('ServicoService', [function () {
+    var servico;
+
+    return {
+        getServico: function () {
+            return servico;
+        },
+        setServico: function (value) {
+            servico = value;
+        }
     };
 }])
 

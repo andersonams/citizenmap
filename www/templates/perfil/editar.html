@@ -1,0 +1,71 @@
+<ion-view cache-view="false" title="Perfil" id="perfil">
+    <ion-content padding="true" class="has-header">
+        <form novalidate class="list" name="perfilForm" ng-submit="salvar(perfilForm)">
+            <h5 id="principal-heading7" style="color:#000000;text-align:center;">Altere abaixo dados do seu perfil:</h5>
+            <h4 style="color:gray; text-align:center;">{{usuario.email}}</h4>
+            <div class="list">
+                <div class="item item-divider" style="text-align: center;">
+                    <i class="icon ion-android-person"></i> Dados Pessoais
+                </div>           
+                <label class="item item-input item-stacked-label" ng-class="{ 'has-errors' : perfilForm.txtNome.$invalid && perfilForm.$submitted }">
+                    <span class="input-label" style="color: gray; font-size: smaller;">Nome</span>
+                    <input name="txtNome" type="text" ng-model="perfil.nome" placeholder="Nome" ng-minlength="1" ng-maxlength="30" required>
+                </label>
+                <div class="error-container" ng-show="perfilForm.txtNome.$error && perfilForm.$submitted" ng-messages="perfilForm.txtNome.$error">
+                    <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                    <div class="error" ng-message="minlength"><i class="ion-information-circled"></i> Campo com no mínimo 1 dígito.</div>
+                    <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 30 caracteres.</div>
+                </div>
+                <label class="item item-input item-stacked-label" ng-class="{ 'has-errors' : perfilForm.txtSobrenome.$invalid && perfilForm.$submitted }">
+                    <span class="input-label" style="color: gray; font-size: smaller;">Sobrenome</span>
+                    <input name="txtSobrenome" type="text" ng-model="perfil.sobrenome" placeholder="Sobrenome" ng-minlength="1" ng-maxlength="30" required>
+                </label>
+                <div class="error-container" ng-show="perfilForm.txtSobrenome.$error && perfilForm.$submitted" ng-messages="perfilForm.txtSobrenome.$error">
+                    <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                    <div class="error" ng-message="minlength"><i class="ion-information-circled"></i> Campo com no mínimo 1 dígito.</div>
+                    <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 30 caracteres.</div>
+                </div>
+            </div>
+            <div class="list">
+                <div class="item item-divider" style="text-align: center;">
+                    <i class="icon ion-android-locate"></i> Endereço
+                </div>
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Bairro
+                    </div>
+                    <select name="bairro" ng-model="endereco.bairro" required>
+                        <option>Parque Beira Mar</option>
+                        <option>Parque Duque</option>
+                        <option>Santa Marta</option>
+                    </select>
+                </label>
+                <div class="error-container" ng-show="perfilForm.bairro.$error && perfilForm.$submitted" ng-messages="perfilForm.bairro.$error">
+                    <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                </div>
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Cidade
+                    </div>
+                    <select name="cidade" ng-model="endereco.cidade">
+                        <option>Duque de Caixas</option>
+                        <option>Rio de Janeiro</option>
+                        <option>Niterói</option>
+                    </select>
+                </label>
+                <div class="error-container" ng-show="perfilForm.cidade.$error && perfilForm.$submitted" ng-messages="perfilForm.cidade.$error">
+                    <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                </div>
+            </div>
+            <div class="list">
+                <div class="item item-divider" style="text-align: center;">
+                    <i class="icon ion-android-settings"></i> Configurações
+                </div>
+                <ion-checkbox name="alertaemail" ng-model="configuracao.email" ng-init="configuracao.email = true">Enviar Alertas de E-Mail</ion-checkbox>
+            </div>
+            <button type="submit" id="salvar-button" class="button button-positive button-block" ng-disabled="perfilForm.$invalid && perfilForm.$submitted">Salvar Alterações</button>
+        </form>
+        <button id="excluir-perfil-button" class="button button-energized button-block" ng-click="modal.show()">Alterar Senha</button>
+        <button id="excluir-perfil-button" class="button button-assertive button-block" ng-click="modal.show()">Excluir Conta</button>
+    </ion-content>
+</ion-view>

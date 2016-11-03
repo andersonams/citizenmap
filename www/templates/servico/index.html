@@ -1,0 +1,20 @@
+<ion-view title="Serviços" id="servico">
+    <ion-content padding="true" class="has-header">
+        <div class="button-bar"></div>
+        <div>
+            <img src="img/citizenmap.png" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
+        </div>
+        <h5 id="principal-heading7" style="color:#000000;text-align:center;">Administração de Serviços:</h5>
+        <div id="principal-markdown4" style="color:#000000;text-align:center;">
+            <p>Funcionalidade para cadastro e edição de serviços.</p>
+        </div>
+        <ion-list>
+            <ion-item type=button" class="item-thumbnail-left" ng-repeat="servico in servicos" ng-click="definirServico(servico)" >
+                <img ng-src="img/{{servico.imagem}}">
+                <h2>{{servico.nome}}</h2>
+                <p style="white-space:normal;">{{servico.descricao}}</p>
+            </ion-item>
+        </ion-list>
+        <button ui-sref="menu.servico.cadastrar" class="button button-positive button-block">Cadastrar Serviço</button>
+    </ion-content>
+</ion-view>

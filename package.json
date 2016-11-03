@@ -1,7 +1,7 @@
 {
-  "name": "app",
+  "name": "citizenmap",
   "version": "1.1.1",
-  "description": "app: An Ionic project",
+  "description": "citizenmap: An Ionic project",
   "dependencies": {
     "gulp": "^3.5.6",
     "gulp-sass": "^2.0.4",
@@ -22,7 +22,5 @@
     "cordova-plugin-statusbar",
     "ionic-plugin-keyboard"
   ],
-  "cordovaPlatforms": [
-    "android"
-  ]
+  "cordovaPlatforms": []
 }

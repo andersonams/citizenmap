@@ -1,0 +1,24 @@
+<ion-modal-view>
+    <ion-header-bar class="bar-energized">
+        <h1 class="title">Alterar Senha</h1>
+        <button class="button button-clear button-primary" ng-click="modal.hide()">Cancelar</button>
+    </ion-header-bar>
+    <ion-content>
+        <div style="text-align: center;">
+            <h3>Tem certeza que deseja prosseguir?</h3>
+            <p>Informe a atual e a nova senha para prosseguir com a alteração:</p>
+        </div>
+
+        <div class="list">
+            <label class="item item-input item-floating-label">
+                <span class="input-label">Senha Atual</span>
+                <input type="password" placeholder="Senha Atual">
+            </label>
+            <label class="item item-input item-floating-label">
+                <span class="input-label">Senha Nova</span>
+                <input type="password" placeholder="Senha Nova">
+            </label>
+            <button id="excluir-perfil-button" class="button button-energized button-block" ng-click="modal.show()">Alterar</button>
+        </div>
+    </ion-content>
+</ion-modal-view>

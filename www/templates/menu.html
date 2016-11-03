@@ -16,15 +16,15 @@
         </ion-header-bar>
         <ion-content>
             <ul class="list">
-                <div class="item item-avatar" ui-sref="menu.perfil" menu-close="">
+                <div class="item item-avatar" ui-sref="menu.perfil.editar" menu-close="">
                     <img ng-src="{{gravatar}}" src="//ionicframework.com/img/docs/spengler.jpg">
                     <h2>{{nome}}</h2>
                     <p>{{email}}</p>
                 </div>
                 <ion-list>
-                    <ion-item ui-sref="menu.principal" menu-close=""><i class="ion-android-home"></i> Principal</ion-item>
-                    <ion-item ui-sref="menu.mapas" menu-close=""><i class="ion-android-map"></i> Mapas</ion-item>
-                    <ion-item ui-sref="menu.servicos" menu-close=""><i class="ion-android-checkmark-circle"></i> Administração</ion-item>
+                    <ion-item ui-sref="menu.avaliacao" menu-close=""><i class="ion-android-home"></i> Principal</ion-item>
+                    <ion-item ui-sref="menu.mapa" menu-close=""><i class="ion-android-map"></i> Mapas</ion-item>
+                    <ion-item ui-sref="menu.servico" menu-close=""><i class="ion-android-checkmark-circle"></i> Administração</ion-item>
                     <ion-item ui-sref="menu.ajuda" menu-close=""><i class="ion-android-bulb"></i> Ajuda</ion-item>
                     <ion-item ng-click="sair()" menu-close="" style="background-color: gainsboro;"><i class="ion-android-close"></i> Sair</ion-item>
                 </ion-list>

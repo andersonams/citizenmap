@@ -7,114 +7,157 @@ angular.module('citizenmap.routes', [])
     // Set up the various states which the app can be in.
     // Each state's controller can be found in controllers.js
     $stateProvider
-
-      .state('menu', {
+    
+    .state('menu', {
         url: '/menu',
         abstract: true,
         templateUrl: 'templates/menu.html',
         controller: 'menuCtrl'
-      })
-      
-      .state('entrada', {
+    })
+
+    .state('entrada', {
         url: '/entrada',
         templateUrl: 'templates/entrada.html'
-      })
-      
-      .state('login', {
+    })
+
+    .state('login', {
         url: '/login',
         templateUrl: 'templates/login.html',
         controller: 'loginCtrl'
-      })
-      
-      .state('cadastro', {
-        url: '/cadastro',
-        templateUrl: 'templates/cadastro.html',
+    })
+
+    .state('cadastrar', {
+        url: '/cadastrar',
+        templateUrl: 'templates/perfil/cadastrar.html',
         controller: 'cadastroCtrl'
-      })
-      
-      .state('firebase', {
+    })
+
+    .state('firebase', {
         url: '/firebase',
         templateUrl: 'templates/firebase.html',
         controller: 'firebaseCtrl'
-      })
-      
-      .state('menu.mapas', {
-        url: '/mapas',
-        views: {
-          'menuview': {
-            templateUrl: 'templates/mapas.html',
-            controller: 'mapasCtrl'
-          }
-        }
-      })
+    })
 
-      .state('menu.mapa', {
-        url: '/mapa',
-        views: {
-          'menuview': {
-            templateUrl: 'templates/mapa.html',
-            controller: 'mapaCtrl'
-          }
-        }
-      })
-
-      .state('menu.perfil', {
+    .state('menu.perfil', {
         url: '/perfil',
+        abstract: true,
         views: {
-          'menuview': {
-            templateUrl: 'templates/perfil.html',
-            controller: 'perfilCtrl'
-          }
+            'menuview': {
+                template: '<ui-view/>',
+            }
         }
-      })
+    })
 
-      .state('menu.principal', {
-        url: '/principal',
+    .state('menu.perfil.editar', {
+        url: '/editar',
         views: {
-          'menuview': {
-            templateUrl: 'templates/principal.html',
-            controller: 'principalCtrl'
-          }
+            'menuview@menu': {
+                templateUrl: 'templates/perfil/editar.html',
+                controller: 'perfilCtrl'
+            }
         }
-      })
+    })
 
-      .state('menu.avaliacao', {
+    .state('menu.avaliacao', {
         url: '/avaliacao',
         views: {
-          'menuview': {
-            templateUrl: 'templates/avaliacao.html',
-            controller: 'avaliacaoCtrl'
-          }
+            'menuview': {
+                templateUrl: 'templates/avaliacao/index.html',
+                controller: 'principalCtrl'
+            }
         }
-      })
-      
-      .state('menu.conclusao', {
-        url: '/conclusao',
+    })
+
+    .state('menu.avaliacao.avaliar', {
+        url: '/avaliar',
         views: {
-          'menuview': {
-            templateUrl: 'templates/conclusao.html',
-            controller: 'conclusaoCtrl'
-          }
+            'menuview@menu': {
+                templateUrl: "templates/avaliacao/avaliar.html",
+                controller: 'avaliacaoCtrl'
+            }
         }
-      })
-      
-      .state('menu.servicos', {
-        url: '/servicos',
+    })
+
+    .state('menu.avaliacao.finalizar', {
+        url: '/finalizar',
         views: {
-          'menuview': {
-            templateUrl: 'templates/servicos/index.html',
-          }
+            'menuview@menu': {
+                templateUrl: "templates/avaliacao/finalizar.html",
+                controller: 'conclusaoCtrl'
+            }
         }
-      })
-           
-      .state('menu.ajuda', {
+    })
+
+    .state('menu.mapa', {
+        url: '/mapa',
+        views: {
+            'menuview': {
+                templateUrl: 'templates/mapa/index.html',
+                controller: 'mapasCtrl'
+            }
+        }
+    })
+    
+    .state('menu.mapa.media', {
+        url: '/media',
+        views: {
+            'menuview@menu': {
+                templateUrl: 'templates/mapa/media.html',
+                controller: 'mapasCtrl'
+            }
+        }
+    })
+
+    .state('menu.mapa.visualizar', {
+        url: '/visualizar',
+        views: {
+            'menuview@menu': {
+                templateUrl: 'templates/mapa/visualizar.html',
+                controller: 'mapaCtrl'
+            }
+        }
+    })
+
+    .state('menu.servico', {
+        url: '/servico',
+        views: {
+            'menuview': {
+                templateUrl: 'templates/servico/index.html',
+                controller: 'servicoIndexCtrl'
+            }
+        }
+    })
+
+    .state('menu.servico.cadastrar', {
+        url: '/cadastrar',
+        parent: 'menu.servico',
+        views: {
+            'menuview@menu': {
+                templateUrl: "templates/servico/cadastrar.html",
+                controller: 'servicoCtrl'
+            }
+        }
+    })
+    
+    .state('menu.servico.editar', {
+        url: '/editar',
+        parent: 'menu.servico',
+        views: {
+            'menuview@menu': {
+                templateUrl: "templates/servico/editar.html",
+                controller: 'servicoCtrl'
+            }
+        }
+    })
+
+    .state('menu.ajuda', {
         url: '/ajuda',
         views: {
-          'menuview': {
-            templateUrl: 'templates/ajuda.html'
-          }
+            'menuview': {
+                templateUrl: 'templates/ajuda.html'
+            }
         }
-      })
+    })
 
     $urlRouterProvider.otherwise('entrada')
   });
