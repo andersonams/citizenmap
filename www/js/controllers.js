@@ -84,7 +84,10 @@ angular.module('citizenmap.controllers', [])
     }
 })
 
-.controller('avaliacaoCtrl', function(LocalizacaoFactory, AvaliacaoService, FBURL, IonicInteraction, $ionicModal, $firebaseArray, $localStorage, $scope, $state) {
+.controller('avaliacaoCtrl', function(LocalizacaoFactory, AvaliacaoService, FBURL, IonicInteraction, IonicModal, IonicRatings, $firebaseArray, $localStorage, $scope, $state) {
+    IonicModal.gerarModal('templates/modals/alterarlocalizacao.html', $scope);
+    IonicRatings.gerarRatings($scope);
+    
     $scope.$on('$ionicView.beforeEnter', function () {
         IonicInteraction.show();
         
@@ -104,50 +107,10 @@ angular.module('citizenmap.controllers', [])
             console.log("Não foi possível obter a localização: " + error.message);
         });
     });
-       
-    $scope.ratingsObject = {
-        iconOn: 'ion-ios-star',
-        iconOff: 'ion-ios-star-outline',
-        iconOnColor: 'rgb(200, 200, 100)',
-        iconOffColor: 'rgb(200, 100, 100)',
-        rating: 1,
-        minRating: 0,
-        callback: function (rating) {
-            $scope.ratingsCallback(rating);
-        }
-    };
-
+    
     $scope.ratingsCallback = function (rating) {
         $scope.model.nota = rating;
     };
-    
-    $ionicModal.fromTemplateUrl('templates/modals/alterarlocalizacao.html', {
-        scope: $scope,
-        animation: 'slide-in-up'
-    }).then(function (modal) {
-        $scope.modal = modal;
-    });
-
-    $scope.openModal = function () {
-        $scope.modal.show();
-    };
-
-    $scope.closeModal = function () {
-        $scope.modal.hide();
-    };
-
-    // Cleanup the modal when we're done with it!
-    $scope.$on('$destroy', function () {
-        $scope.modal.remove();
-    });
-
-    // Execute action on hide modal:
-    $scope.$on('modal.hidden', function () {
-    });
-
-    // Execute action on remove modal:
-    $scope.$on('modal.removed', function () {
-    });
     
     $scope.definirLocalizacao = function (local) {
         IonicInteraction.show();
@@ -314,7 +277,9 @@ angular.module('citizenmap.controllers', [])
     
 })
 
-.controller('mapasCtrl', function (FBURL, $firebaseArray, $ionicModal, MapaService, $scope, $state) {
+.controller('mapasCtrl', function (FBURL, IonicModal, MapaService, $firebaseArray, $scope, $state) {
+    IonicModal.gerarModal('templates/modals/selecionarservico.html', $scope);
+    
     $scope.$on('$ionicView.enter', function () {
         $scope.servicos = $firebaseArray(new Firebase(FBURL).child('servicos'));
         
@@ -340,34 +305,6 @@ angular.module('citizenmap.controllers', [])
         MapaService.setServico(servico);
         $state.go('menu.mapa.visualizar');
     }
-    
-    $ionicModal.fromTemplateUrl('templates/modals/selecionarservico.html', {
-        scope: $scope,
-        animation: 'slide-in-up'
-    }).then(function (modal) {
-        $scope.modal = modal;
-    });
-
-    $scope.openModal = function () {
-        $scope.modal.show();
-    };
-
-    $scope.closeModal = function () {
-        $scope.modal.hide();
-    };
-
-    // Cleanup the modal when we're done with it!
-    $scope.$on('$destroy', function () {
-        $scope.modal.remove();
-    });
-
-    // Execute action on hide modal:
-    $scope.$on('modal.hidden', function () {
-    });
-
-    // Execute action on remove modal:
-    $scope.$on('modal.removed', function () {
-    });
 })
 
 .controller('mapaCtrl', function(FBURL, LocalizacaoFactory, IonicInteraction, $firebaseArray, $localStorage, MapaService, $scope, $state) {
@@ -631,7 +568,9 @@ angular.module('citizenmap.controllers', [])
     }
 })
    
-.controller('perfilCtrl', function(FBURL, IonicInteraction, $ionicModal, $localStorage, $scope) {
+.controller('perfilCtrl', function(FBURL, IonicInteraction, IonicModal, $localStorage, $scope) {
+    IonicModal.gerarModal('templates/modals/alterarsenha.html', $scope);
+    
     var perfilRef = new Firebase(FBURL).child('perfis').child($localStorage.usuario.id);
     var enderecoRef = new Firebase(FBURL).child('enderecos').child($localStorage.usuario.endereco);
     var configuracaoRef = new Firebase(FBURL).child('configuracoes').child($localStorage.usuario.configuracao);
@@ -674,34 +613,6 @@ angular.module('citizenmap.controllers', [])
             IonicInteraction.alertshow("Sucesso", "Seu perfil foi atualizado com sucesso!");
         }
     };
-
-    $ionicModal.fromTemplateUrl('templates/modals/alterarsenha.html', {
-        scope: $scope,
-        animation: 'slide-in-up'
-    }).then(function (modal) {
-        $scope.modal = modal;
-    });
-
-    $scope.openModal = function () {
-        $scope.modal.show();
-    };
-
-    $scope.closeModal = function () {
-        $scope.modal.hide();
-    };
-
-    // Cleanup the modal when we're done with it!
-    $scope.$on('$destroy', function () {
-        $scope.modal.remove();
-    });
-
-    // Execute action on hide modal:
-    $scope.$on('modal.hidden', function () {
-    });
-
-    // Execute action on remove modal:
-    $scope.$on('modal.removed', function () {
-    });
 
     function onComplete(error) {
         if (error) {

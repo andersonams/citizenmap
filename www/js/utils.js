@@ -1,6 +1,6 @@
 angular.module('citizenmap.utils', [])
 
-.factory('IonicInteraction', function($ionicLoading, $ionicPopup) { 
+.factory('IonicInteraction', function($ionicLoading, $ionicPopup) {
     return {
         show: function () {
             $ionicLoading.show({
@@ -45,7 +45,105 @@ angular.module('citizenmap.utils', [])
                 }
             }
             this.alertshow("Erro!", msg);
+        }
+    };
+})
+
+.factory('IonicLoading', function($ionicLoading) {
+    return {
+        show: function () {
+            $ionicLoading.show({
+                animation: 'fade-in',
+                showBackdrop: false,
+                maxWidth: 200,
+                showDelay: 500,
+                template: '<ion-spinner icon="android"></ion-spinner>'
+            });
         },
+        hide: function () {
+            $ionicLoading.hide();
+        }
+    };
+})
+
+.factory('IonicPopUp', function($ionicPopup) {
+    return {
+        alertshow: function (tit, msg) {
+            var alertPopup = $ionicPopup.alert({
+                title: tit,
+                template: msg
+            });
+            alertPopup.then(function () {
+            });
+        },
+        errMessage: function (err) {
+            var msg = "Erro Interno! Favor reportá-lo à equipe! " + err.message;
+
+            if (err && err.code) {
+                switch (err.code) {
+                    case "EMAIL_TAKEN":
+                        msg = "Endereço de e-mail já utilizado!";
+                        break;
+                    case "INVALID_EMAIL":
+                        msg = "Endereço de e-mail ou senha inválidos!";
+                        break;
+                    case "INVALID_PASSWORD":
+                        msg = "Endereço de e-mail ou senha inválidos!";
+                        break;
+                    case "INVALID_USER":
+                        msg = "Endereço de e-mail ou senha inválidos!";
+                        break;
+                    case "NETWORK_ERROR":
+                        msg = "Erro de rede. Verifique sua conexão e tente novamente.";
+                        break;
+                }
+            }
+            this.alertshow("Erro!", msg);
+        }
+    };
+})
+
+.factory('IonicModal', function($ionicModal) {
+    return {
+        gerarModal: function (templateModal, $scope) {
+            $ionicModal.fromTemplateUrl(templateModal, {
+                scope: $scope,
+                animation: 'slide-in-up'
+            }).then(function (modal) {
+                $scope.modal = modal;
+
+                // Cleanup the modal when we're done with it!
+                $scope.$on('$destroy', function () {
+                    $scope.modal.remove();
+                });
+
+                // Execute action on hide modal:
+                $scope.$on('modal.hidden', function () {
+                });
+
+                // Execute action on remove modal:
+                $scope.$on('modal.removed', function () {
+                });
+            });
+        }
+    };
+})
+
+.factory('IonicRatings', function() {
+    return {
+        gerarRatings: function ($scope) {
+            $scope.ratingsObject = {
+                iconOn: 'ion-ios-star',
+                iconOff: 'ion-ios-star-outline',
+                iconOnColor: 'rgb(200, 200, 100)',
+                iconOffColor: 'rgb(200, 100, 100)',
+                rating: 1,
+                minRating: 0,
+                callback: function (rating) {
+                    $scope.ratingsCallback(rating);
+                }
+            };
+        }
     };
 })
 
