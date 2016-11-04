@@ -84,25 +84,24 @@ angular.module('citizenmap.controllers', [])
     }
 })
 
-.controller('avaliacaoCtrl', function(LocalizacaoFactory, LocalizacaoService, AvaliacaoService, FBURL, IonicInteraction, $firebaseArray, $localStorage, $scope, $state) {  
+.controller('avaliacaoCtrl', function(LocalizacaoFactory, AvaliacaoService, FBURL, IonicInteraction, $ionicModal, $firebaseArray, $localStorage, $scope, $state) {
     $scope.$on('$ionicView.beforeEnter', function () {
         IonicInteraction.show();
         
-        LocalizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
-            console.log("Geolozalização Apache Cordova: " + $localStorage.latLng.toString());
-            console.log($localStorage.cidade.nome + "/" + $localStorage.bairro.nome);
+        $scope.model = {detalhe: 'default', nota: 1};
+        $scope.servico = AvaliacaoService.getServico();
+        
+        LocalizacaoFactory.getLocalizacao().then(function (localizacao) {
+            LocalizacaoFactory.setLocalizacao(localizacao);
             
-            $scope.model = {detalhe: 'default', nota: 1};
-            $scope.servico = AvaliacaoService.getServico();
-            $scope.bairro = $localStorage.bairro;
-            $scope.cidade = $localStorage.cidade;
-            
+            $scope.bairro = localizacao.bairro;
+            $scope.cidade = localizacao.cidade;
+            $scope.locais = localizacao.locais;
             IonicInteraction.hide();
         }, function (error) {
-            console.log("Não foi possível obter a localização: " + error.message);
-
-            $state.go('menu.avaliacao.finalizar');
+            IonicInteraction.hide();
             IonicInteraction.errMessage(error);
+            console.log("Não foi possível obter a localização: " + error.message);
         });
     });
        
@@ -122,6 +121,51 @@ angular.module('citizenmap.controllers', [])
         $scope.model.nota = rating;
     };
     
+    $ionicModal.fromTemplateUrl('templates/modals/alterarlocalizacao.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function (modal) {
+        $scope.modal = modal;
+    });
+
+    $scope.openModal = function () {
+        $scope.modal.show();
+    };
+
+    $scope.closeModal = function () {
+        $scope.modal.hide();
+    };
+
+    // Cleanup the modal when we're done with it!
+    $scope.$on('$destroy', function () {
+        $scope.modal.remove();
+    });
+
+    // Execute action on hide modal:
+    $scope.$on('modal.hidden', function () {
+    });
+
+    // Execute action on remove modal:
+    $scope.$on('modal.removed', function () {
+    });
+    
+    $scope.definirLocalizacao = function (local) {
+        IonicInteraction.show();
+        
+        LocalizacaoFactory.getLocalizacaoByID(local).then(function (localizacao) {
+            LocalizacaoFactory.setLocalizacao(localizacao);
+            
+            $scope.bairro = localizacao.bairro;
+            $scope.cidade = localizacao.cidade;
+            $scope.locais = localizacao.locais;
+            IonicInteraction.hide();
+        }, function (error) {
+            IonicInteraction.hide();
+            IonicInteraction.errMessage(error);
+            console.log("Não foi possível obter a localização: " + error.message);
+        });
+    };
+    
     $scope.salvarAvaliacao = function (avaliacaoForm) {
         if (avaliacaoForm.$valid) {
             IonicInteraction.show();    
@@ -136,12 +180,13 @@ angular.module('citizenmap.controllers', [])
             avaliacao.perfil = $localStorage.usuario.id;
             avaliacao.lat = parseFloat(latLngUsuario[0]);
             avaliacao.lng = parseFloat(latLngUsuario[1]);
-            avaliacao.cidade =  $localStorage.cidade.id;
-            avaliacao.bairro =  $localStorage.bairro.id;
+            avaliacao.cidade = $localStorage.cidade.id_firebase;
+            avaliacao.bairro = $localStorage.bairro.id_firebase;
+            console.log($localStorage.bairro);
 
             avaliacoesRef.$add(avaliacao).then(function (avaliacao) {
-                updateMediaCidade($scope.servico.id, $localStorage.cidade.id).then(function () {
-                    updateMediaBairro($scope.servico.id, $localStorage.bairro.id).then(function () {
+                updateMediaCidade($scope.servico.id, $localStorage.cidade.id_firebase).then(function () {
+                    updateMediaBairro($scope.servico.id, $localStorage.bairro.id_firebase).then(function () {
                         IonicInteraction.hide();
                         IonicInteraction.alertshow("Avaliação Registrada com Sucesso!");
                         $state.go('menu.avaliacao.finalizar');
@@ -325,7 +370,7 @@ angular.module('citizenmap.controllers', [])
     });
 })
 
-.controller('mapaCtrl', function(FBURL, LocalizacaoFactory, LocalizacaoService, IonicInteraction, $firebaseArray, $localStorage, MapaService, $scope, $state) {
+.controller('mapaCtrl', function(FBURL, LocalizacaoFactory, IonicInteraction, $firebaseArray, $localStorage, MapaService, $scope, $state) {
     $scope.$on('$ionicView.enter', function () {
         IonicInteraction.show();
         
@@ -363,11 +408,9 @@ angular.module('citizenmap.controllers', [])
             return;
         } else {
             IonicInteraction.show();
-            LocalizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
-                console.log("Geolozalização Apache Cordova: " + $localStorage.latLng.toString());
-                console.log($localStorage.cidade + "/" + $localStorage.bairro);
-
-                $scope.map.setCenter($localStorage.latLng);
+            LocalizacaoFactory.getLocalizacao().then(function (localizacao) {
+                $scope.map.setCenter(localizacao.latLng);
+                
                 IonicInteraction.hide();
             }, function (error) {
                 IonicInteraction.hide();
@@ -685,7 +728,7 @@ angular.module('citizenmap.controllers', [])
     };
 })
       
-.controller("loginCtrl", function(AuthFactory, FBURL, IonicInteraction, LocalizacaoFactory, LocalizacaoService, $localStorage, $scope, $state) {
+.controller("loginCtrl", function(AuthFactory, FBURL, IonicInteraction, LocalizacaoFactory, $localStorage, $scope, $state) {
     $scope.usuario = {email: '', password: ''};
   
     $scope.login = function (loginForm) {
@@ -701,10 +744,11 @@ angular.module('citizenmap.controllers', [])
                     $localStorage.usuario = perfil.val();
                     $localStorage.usuario.id = perfil.key();                    
                 });
-
-                LocalizacaoService.setLocalizacao(LocalizacaoFactory, $localStorage).then(function () {
+                
+                LocalizacaoFactory.getLocalizacao().then(function (localizacao) {
+                    LocalizacaoFactory.setLocalizacao(localizacao);
                     console.log("Geolozalização Apache Cordova: " + $localStorage.latLng.toString());
-                    console.log($localStorage.cidade.nome + "/" + $localStorage.bairro.nome);
+                    console.log($localStorage.cidade.title + "/" + $localStorage.bairro.title);                    
 
                     IonicInteraction.hide();
                     $state.go('menu.avaliacao');
@@ -783,6 +827,7 @@ angular.module('citizenmap.controllers', [])
             $scope.servico = ServicoService.getServico();
             $scope.inputs = [];
             
+            ServicoService.setServico();
             angular.forEach($scope.servico.detalhes, function(detalhe, chave) {
                 $scope.inputs.push({id: chave, value: detalhe});
             });
@@ -795,7 +840,7 @@ angular.module('citizenmap.controllers', [])
             };
             $scope.inputs = [{value: null}];
         }
-    });   
+    });
     
     $scope.cadastrar = function (servicoForm) {
         var servicosRef = $firebaseArray(new Firebase(FBURL).child('servicos'));
