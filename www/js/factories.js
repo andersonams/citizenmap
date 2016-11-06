@@ -9,7 +9,7 @@ angular.module('citizenmap.factories', [])
         // Criação do Usuário:
         criarUsuario: function(usuario) {
             return auth.$createUser({email: usuario.email, password: usuario.password});
-        },      
+        },
         // Criação do Perfil:
         criarPerfil: function (uid, usuario, perfil, endereco, configuracao) {
             perfil.id_firebase = uid;
@@ -38,17 +38,29 @@ angular.module('citizenmap.factories', [])
                 });
             });
         },
+        // Alterar Senha:
+        changePassword: function(credenciais) {
+            return auth.$changePassword(credenciais);
+        },
+        // Recuperar Senha:
+        resetPassword: function(credenciais) {
+            return auth.$resetPassword(credenciais);
+        },
+        // Excluir Conta:
+        removeUser: function(credenciais) {
+            return auth.$removeUser(credenciais);
+        },
         // Login Comum:
         login: function(usuario) {
-          return auth.$authWithPassword({email: usuario.email, password: usuario.password});
+            return auth.$authWithPassword({email: usuario.email, password: usuario.password});
         }, 
         // Login Rede Social:
         loginProvider: function (provider) {
-          return auth.$authWithOAuthPopup(provider);
+            return auth.$authWithOAuthPopup(provider);
         },
         // Logout:
         logout: function () {
-           return auth.$unauth();
+            return auth.$unauth();
         },
         // Wrap com a função $onAuth com $timeout para ser processado no loop:
         onAuth: function onLoggedIn(callback) {

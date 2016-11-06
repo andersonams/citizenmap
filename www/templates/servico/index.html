@@ -1,18 +1,17 @@
-<ion-view title="Serviços" id="servico">
+<ion-view title="Administração" id="administracao">
     <ion-content padding="true" class="has-header">
         <div class="button-bar"></div>
         <div>
-            <img src="img/citizenmap.png" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
+            <img ng-src="img/adm.png" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
         </div>
-        <h5 id="principal-heading7" style="color:#000000;text-align:center;">Administração de Serviços:</h5>
+        <h4 style="color:gray; text-align:center;">Administração de Serviços</h4>
         <div id="principal-markdown4" style="color:#000000;text-align:center;">
-            <p>Funcionalidade para cadastro e edição de serviços.</p>
+            <p>Funcionalidade para cadastro e edição de serviços. Selecione um item para editar ou crie um novo selecionando <i style="font-style: italic;">Cadastrar Serviço</i> ao final da lista.</p>
         </div>
         <ion-list>
-            <ion-item type=button" class="item-thumbnail-left" ng-repeat="servico in servicos" ng-click="definirServico(servico)" >
+            <ion-item type=button" class="item-thumbnail-left" ng-repeat="servico in servicos" ng-click="definirServico(servico)" ng-class="{notactiveview: !servico.disponibilidade}">
                 <img ng-src="img/{{servico.imagem}}">
-                <h2>{{servico.nome}}</h2>
-                <p style="white-space:normal;">{{servico.descricao}}</p>
+                <h1 style="font-weight: 100; height: 45px">{{servico.nome}}</h1>
             </ion-item>
         </ion-list>
         <button ui-sref="menu.servico.cadastrar" class="button button-positive button-block">Cadastrar Serviço</button>

@@ -8,6 +8,11 @@
     background-color: #e9967a;
 }
 
+.notactiveview {
+    cursor: default;
+    background-color: #e9967a;
+}
+
 .badge {
     display: inline-block;
     min-width: 10px;

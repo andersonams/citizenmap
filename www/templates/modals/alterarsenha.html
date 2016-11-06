@@ -1,24 +1,37 @@
-<ion-modal-view>
+<ion-modal-view style="width: 100%; height: 100%; top: 0%; left: 0%; right: 0%; bottom: 0%;">
     <ion-header-bar class="bar-energized">
         <h1 class="title">Alterar Senha</h1>
-        <button class="button button-clear button-primary" ng-click="modal.hide()">Cancelar</button>
+        <button class="button button-clear button-primary" ng-click="modal.alterarsenha.hide()">Cancelar</button>
     </ion-header-bar>
     <ion-content>
-        <div style="text-align: center;">
-            <h3>Tem certeza que deseja prosseguir?</h3>
-            <p>Informe a atual e a nova senha para prosseguir com a alteração:</p>
-        </div>
-
-        <div class="list">
-            <label class="item item-input item-floating-label">
-                <span class="input-label">Senha Atual</span>
-                <input type="password" placeholder="Senha Atual">
-            </label>
-            <label class="item item-input item-floating-label">
-                <span class="input-label">Senha Nova</span>
-                <input type="password" placeholder="Senha Nova">
-            </label>
-            <button id="excluir-perfil-button" class="button button-energized button-block" ng-click="modal.show()">Alterar</button>
-        </div>
+        <form novalidate class="list" name="senhaForm" ng-submit="alterarSenha(senhaForm)">
+            <div class="list list-inset" id="exclusao">
+                <div style="text-align: center;">
+                    <h4 style="color:gray; text-align:center;">Alterar Senha</h4>
+                    <p>Informe a atual e a nova senha para prosseguir com a alteração:</p>
+                </div>
+                <div class="list">
+                    <label class="item item-input item-floating-label" ng-class="{ 'has-errors' : senhaForm.oldPassword.$invalid && senhaForm.$submitted }">
+                        <span class="input-label">Senha Atual</span>
+                        <input name="oldPassword" type="password" placeholder="Senha Atual" ng-model="changePassword.oldPassword" ng-minlength="6" ng-maxlength="12" required>
+                    </label>
+                    <div class="error-container" ng-show="senhaForm.oldPassword.$error && senhaForm.$submitted" ng-messages="senhaForm.oldPassword.$error">
+                        <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                        <div class="error" ng-message="minlength"><i class="ion-information-circled"></i> Campo com no mínimo 6 dígitos.</div>
+                        <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 12 caracteres.</div>
+                    </div>
+                    <label class="item item-input item-floating-label" ng-class="{ 'has-errors' : senhaForm.newPassword.$invalid && senhaForm.$submitted }">
+                        <span class="input-label">Senha Nova</span>
+                        <input name="newPassword" type="password" placeholder="Senha Nova" ng-model="changePassword.newPassword" ng-minlength="6" ng-maxlength="12" required>
+                    </label>
+                    <div class="error-container" ng-show="senhaForm.newPassword.$error && senhaForm.$submitted" ng-messages="senhaForm.newPassword.$error">
+                        <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                        <div class="error" ng-message="minlength"><i class="ion-information-circled"></i> Campo com no mínimo 6 dígitos.</div>
+                        <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 12 caracteres.</div>
+                    </div>
+                    <button type="submit" id="alterar-senha-button" class="button button-energized button-block" ng-click="modal.alterarsenha.hide()">Alterar</button>
+                </div>
+            </div>
+        </form>
     </ion-content>
 </ion-modal-view>

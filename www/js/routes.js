@@ -25,10 +25,16 @@ angular.module('citizenmap.routes', [])
         templateUrl: 'templates/login.html',
         controller: 'loginCtrl'
     })
+    
+    .state('recuperar', {
+        url: '/recuperar',
+        templateUrl: 'templates/recuperar.html',
+        controller: 'loginCtrl'
+    })
 
     .state('cadastrar', {
         url: '/cadastrar',
-        templateUrl: 'templates/perfil/cadastrar.html',
+        templateUrl: 'templates/cadastrar.html',
         controller: 'cadastroCtrl'
     })
 
@@ -57,7 +63,7 @@ angular.module('citizenmap.routes', [])
             }
         }
     })
-
+    
     .state('menu.avaliacao', {
         url: '/avaliacao',
         views: {

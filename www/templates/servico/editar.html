@@ -1,8 +1,7 @@
 <ion-view title="Editar Serviço" id="editarservico" cache-view="false">
     <ion-content padding="true" class="has-header">
         <form novalidate class="list" name="servicoForm" ng-submit="salvar(servicoForm)">
-            <h5 style="text-align: center;">Cadastro de Serviços:</h5>
-            <h4 style="color:gray; text-align:center;">{{usuario.email}}</h4>
+            <h4 style="color:gray; text-align:center;">{{servico.nome}}</h4>
             <div class="list">
                 <label class="item item-input item-stacked-label" ng-class="{ 'has-errors' : servicoForm.txtNome.$invalid && servicoForm.$submitted }">
                     <span class="input-label" style="color: gray; font-size: smaller;">Nome</span>
@@ -30,6 +29,17 @@
                     <div class="error" ng-message="minlength"><i class="ion-information-circled"></i> Campo com no mínimo 1 dígito.</div>
                     <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 30 caracteres.</div>
                 </div>
+                <ul class="list">
+                    <li class="item item-toggle">
+                        <i style="color:gray;">Disponibilidade</i>
+                        <label class="toggle toggle-assertive">
+                            <input type="checkbox" ng-model="servico.disponibilidade">
+                            <div class="track">
+                                <div class="handle"></div>
+                            </div>
+                        </label>
+                    </li>
+                </ul>
             </div>
             <h5 style="text-align: center;">Detalhes</h5>
             <div class="item-input" ng-repeat="input in inputs">

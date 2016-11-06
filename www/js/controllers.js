@@ -2,7 +2,7 @@
 angular.module('citizenmap.controllers', [])
   
 .controller('principalCtrl', function (AvaliacaoService, FBURL, IonicInteraction, $firebaseArray, $localStorage, $scope, $state) {
-    $scope.$on('$ionicView.beforeEnter', function () {
+    $scope.$on('$ionicView.enter', function () {
         IonicInteraction.show();
         
         definirServicosView().then(function (servicosView) {
@@ -13,13 +13,13 @@ angular.module('citizenmap.controllers', [])
                 
             }, function (error) {
                 IonicInteraction.hide();
-                IonicInteraction.errMessage(error);
-                console.log(error.message);
+                IonicInteraction.alertError(error);
+                console.error(error);
             });
         }, function (error) {
             IonicInteraction.hide();
-            IonicInteraction.errMessage(error);
-            console.log(error.message);
+            IonicInteraction.alertError(error);
+            console.error(error);
         });
     });
     
@@ -32,7 +32,7 @@ angular.module('citizenmap.controllers', [])
         var servicosRef;
         var servicosView = [];
         
-        servicosRef = new Firebase(FBURL).child('servicos');
+        servicosRef = new Firebase(FBURL).child('servicos').orderByChild("disponibilidade").equalTo(true);
         servicosRef = $firebaseArray(servicosRef);
 
         return new Promise(function (resolve, reject) {
@@ -51,7 +51,7 @@ angular.module('citizenmap.controllers', [])
     
     function definirServicosAvaliaveis(servicosView) {
         return new Promise(function (resolve, reject) {
-            if ($localStorage.usuario.tipo == 'adm') {
+            if ($localStorage.usuario.tipo == 'cmn') {
                 servicosView.forEach(function (servico) {
                     var datas = [];
                     var avaliacaoesServicoRef = new Firebase(FBURL).child('avaliacoes').child(servico.id);
@@ -84,11 +84,12 @@ angular.module('citizenmap.controllers', [])
     }
 })
 
-.controller('avaliacaoCtrl', function(LocalizacaoFactory, AvaliacaoService, FBURL, IonicInteraction, IonicModal, IonicRatings, $firebaseArray, $localStorage, $scope, $state) {
-    IonicModal.gerarModal('templates/modals/alterarlocalizacao.html', $scope);
-    IonicRatings.gerarRatings($scope);
+.controller('avaliacaoCtrl', function(LocalizacaoFactory, AvaliacaoService, FBURL, IonicInteraction, $firebaseArray, $localStorage, $scope, $state) {
+    IonicInteraction.gerarModal('alterarlocalizacao', 'templates/modals/alterarlocalizacao.html', $scope);
+    IonicInteraction.gerarRatings($scope);
+    console.log($scope);
     
-    $scope.$on('$ionicView.beforeEnter', function () {
+    $scope.$on('$ionicView.enter', function () {
         IonicInteraction.show();
         
         $scope.model = {detalhe: 'default', nota: 1};
@@ -102,9 +103,10 @@ angular.module('citizenmap.controllers', [])
             $scope.locais = localizacao.locais;
             IonicInteraction.hide();
         }, function (error) {
+            $state.go('menu.avaliacao');
             IonicInteraction.hide();
-            IonicInteraction.errMessage(error);
-            console.log("Não foi possível obter a localização: " + error.message);
+            IonicInteraction.alertError(error);
+            console.error(error);
         });
     });
     
@@ -124,8 +126,8 @@ angular.module('citizenmap.controllers', [])
             IonicInteraction.hide();
         }, function (error) {
             IonicInteraction.hide();
-            IonicInteraction.errMessage(error);
-            console.log("Não foi possível obter a localização: " + error.message);
+            IonicInteraction.alertError(error);
+            console.error(error);
         });
     };
     
@@ -145,29 +147,31 @@ angular.module('citizenmap.controllers', [])
             avaliacao.lng = parseFloat(latLngUsuario[1]);
             avaliacao.cidade = $localStorage.cidade.id_firebase;
             avaliacao.bairro = $localStorage.bairro.id_firebase;
-            console.log($localStorage.bairro);
 
             avaliacoesRef.$add(avaliacao).then(function (avaliacao) {
                 updateMediaCidade($scope.servico.id, $localStorage.cidade.id_firebase).then(function () {
                     updateMediaBairro($scope.servico.id, $localStorage.bairro.id_firebase).then(function () {
                         IonicInteraction.hide();
-                        IonicInteraction.alertshow("Avaliação Registrada com Sucesso!");
+                        IonicInteraction.alert("Avaliação Registrada com Sucesso!");
                         $state.go('menu.avaliacao.finalizar');
                         console.log("Avaliação criada: " + avaliacao.key());
                     }, function (error) {
                         IonicInteraction.hide();
-                        IonicInteraction.errMessage(error);
-                        console.log("Não foi possível atualizar a média do bairro: " + error.message);
+                        IonicInteraction.alertError(error);
+                        $state.go('menu.avaliacao');
+                        console.error(error);
                     });
                 }, function (error) {
                     IonicInteraction.hide();
-                    IonicInteraction.errMessage(error);
-                    console.log("Não foi possível atualizar a média da cidade: " + error.message);
+                    IonicInteraction.alertError(error);
+                    $state.go('menu.avaliacao');
+                    console.error(error);
                 });
             }, function (error) {
                 IonicInteraction.hide();
-                IonicInteraction.errMessage(error);
-                console.log("Não foi possível registrar a avaliação: " + error.message);
+                IonicInteraction.alertError(error);
+                $state.go('menu.avaliacao');
+                console.error(error);
             });
         }
     };
@@ -265,8 +269,8 @@ angular.module('citizenmap.controllers', [])
       
     function onComplete(error) {
         if (error) {
-            IonicInteraction.errMessage(error);
-            console.log('Erro ao Sincronizar: ' + error.message);
+            IonicInteraction.alertError(error);
+            console.error(error);
         } else {
             console.log('Sincronização concluída.');
         }
@@ -277,8 +281,8 @@ angular.module('citizenmap.controllers', [])
     
 })
 
-.controller('mapasCtrl', function (FBURL, IonicModal, MapaService, $firebaseArray, $scope, $state) {
-    IonicModal.gerarModal('templates/modals/selecionarservico.html', $scope);
+.controller('mapasCtrl', function (FBURL, IonicInteraction, MapaService, $firebaseArray, $scope, $state) {
+    IonicInteraction.gerarModal('selecionarservico', 'templates/modals/selecionarservico.html', $scope);
     
     $scope.$on('$ionicView.enter', function () {
         $scope.servicos = $firebaseArray(new Firebase(FBURL).child('servicos'));
@@ -304,10 +308,10 @@ angular.module('citizenmap.controllers', [])
     $scope.definirServico = function (servico) {
         MapaService.setServico(servico);
         $state.go('menu.mapa.visualizar');
-    }
+    };
 })
 
-.controller('mapaCtrl', function(FBURL, LocalizacaoFactory, IonicInteraction, $firebaseArray, $localStorage, MapaService, $scope, $state) {
+.controller('mapaCtrl', function(FBURL, LocalizacaoFactory, IonicInteraction, MapaService, $firebaseArray, $localStorage, $scope, $state) {
     $scope.$on('$ionicView.enter', function () {
         IonicInteraction.show();
         
@@ -320,21 +324,25 @@ angular.module('citizenmap.controllers', [])
             putMapa();
             putAvaliacoes($scope.servico).then(function () {
                 IonicInteraction.hide();
+
             }, function (error) {
                 IonicInteraction.hide();
-                IonicInteraction.errMessage(error);
-                console.log(error.message);
-            }); 
-        // Mapa de Médias        
+                IonicInteraction.alertError(error);
+                $state.go('menu.avaliacao');
+                console.error(error);
+            });
+            // Mapa de Médias        
         } else if ($scope.tipoMapa == 'Médias') {
-                putMapa();
-                putMedias($scope.tipoLocal, $scope.servico).then(function () {
-                    IonicInteraction.hide();
-                }, function (error) {
-                    IonicInteraction.hide();
-                    IonicInteraction.errMessage(error);
-                    console.log(error.message);
-                });    
+            putMapa();
+            putMedias($scope.tipoLocal, $scope.servico).then(function () {
+                IonicInteraction.hide();
+
+            }, function (error) {
+                IonicInteraction.hide();
+                IonicInteraction.alertError(error);
+                $state.go('menu.avaliacao');
+                console.error(error);
+            });
         } else {
             $state.go('menu.avaliacao');
         }
@@ -351,8 +359,8 @@ angular.module('citizenmap.controllers', [])
                 IonicInteraction.hide();
             }, function (error) {
                 IonicInteraction.hide();
-                IonicInteraction.errMessage(error);
-                console.log("Não foi possível obter a localização: " + error.message);
+                IonicInteraction.alertError(error);
+                console.error(error);
             });
         }
     };
@@ -568,31 +576,33 @@ angular.module('citizenmap.controllers', [])
     }
 })
    
-.controller('perfilCtrl', function(FBURL, IonicInteraction, IonicModal, $localStorage, $scope) {
-    IonicModal.gerarModal('templates/modals/alterarsenha.html', $scope);
-    
+.controller('perfilCtrl', function(AuthFactory, FBURL, IonicInteraction, $localStorage, $scope, $state) {
     var perfilRef = new Firebase(FBURL).child('perfis').child($localStorage.usuario.id);
     var enderecoRef = new Firebase(FBURL).child('enderecos').child($localStorage.usuario.endereco);
     var configuracaoRef = new Firebase(FBURL).child('configuracoes').child($localStorage.usuario.configuracao);
+    
+    IonicInteraction.gerarModal('alterarsenha', 'templates/modals/alterarsenha.html', $scope);
+    IonicInteraction.gerarModal('excluirconta', 'templates/modals/excluirconta.html', $scope);
 
-    $scope.$on('$ionicView.beforeEnter', function () {
+    $scope.$on('$ionicView.enter', function () {
         IonicInteraction.show();
 
         $scope.perfil = {};
         $scope.usuario = {};
         $scope.endereco = {};
         $scope.configuracao = {};
+        $scope.changePassword = {oldPassword: '', newPassword: ''};      
 
-        perfilRef.on("value", function (snapshot) {
+        perfilRef.once("value", function (snapshot) {
             $scope.perfil.nome = snapshot.val().nome;
             $scope.perfil.sobrenome = snapshot.val().sobrenome;
             $scope.usuario.email = snapshot.val().email;
 
-            enderecoRef.on("value", function (snapshot) {
+            enderecoRef.once("value", function (snapshot) {
                 $scope.endereco.bairro = snapshot.val().bairro;
                 $scope.endereco.cidade = snapshot.val().cidade;
 
-                configuracaoRef.on("value", function (snapshot) {
+                configuracaoRef.once("value", function (snapshot) {
                     $scope.configuracao.email = snapshot.val().email;
                     
                     IonicInteraction.hide();
@@ -600,6 +610,39 @@ angular.module('citizenmap.controllers', [])
             });
         });
     });
+    
+    $scope.alterarSenha = function (senhaForm) {
+        if (senhaForm.$valid) {
+            IonicInteraction.show();
+
+            AuthFactory.changePassword({email: $scope.usuario.email, oldPassword: $scope.changePassword.oldPassword, newPassword: $scope.changePassword.newPassword}).then(function () {
+                IonicInteraction.hide();
+                IonicInteraction.alert("Sucesso", "Senha alterada com sucesso!");
+
+            }, function (error) {
+                IonicInteraction.hide();
+                IonicInteraction.alertError(error);
+                console.error(error);
+            });
+        }
+    };
+    
+    $scope.excluirConta = function (contaForm) {
+        if (contaForm.$valid) {
+            IonicInteraction.show();
+            
+            AuthFactory.removeUser({email: $scope.usuario.email, password: $scope.changePassword.oldPassword}).then(function () {
+                $state.go('entrada');
+                IonicInteraction.hide();
+                IonicInteraction.alert("Sucesso", "Conta excluída com sucesso!");
+
+            }, function (error) {
+                IonicInteraction.hide();
+                IonicInteraction.alertError(error);
+                console.error(error);
+            });
+        }
+    }
 
     $scope.salvar = function (perfilForm) {
         if (perfilForm.$valid) {
@@ -610,22 +653,22 @@ angular.module('citizenmap.controllers', [])
             configuracaoRef.update({email: $scope.configuracao.email}, onComplete);
 
             IonicInteraction.hide();
-            IonicInteraction.alertshow("Sucesso", "Seu perfil foi atualizado com sucesso!");
+            IonicInteraction.alert("Sucesso", "Seu perfil foi atualizado com sucesso!");
         }
     };
 
     function onComplete(error) {
         if (error) {
-            IonicInteraction.errMessage(error);
-            console.log('Erro ao Sincronizar: ' + error.message);
+            IonicInteraction.alertError(error);
+            console.error(error);
         } else {
             console.log('Sincronização concluída.');
         }
     }
 })
 
-.controller('menuCtrl', function(AuthFactory, $localStorage, $location, $scope) {
-    $scope.$on('$ionicView.beforeEnter', function(){
+.controller('menuCtrl', function(AuthFactory, $localStorage, $scope, $state) {
+    $scope.$on('$ionicView.enter', function(){
         $scope.nome = $localStorage.usuario.nome;
         $scope.email = $localStorage.usuario.email;
         $scope.gravatar = $localStorage.usuario.gravatar;
@@ -634,8 +677,7 @@ angular.module('citizenmap.controllers', [])
     // Sair:
     $scope.sair = function() {
         AuthFactory.logout();
-        console.log("Usuário deslogado!");
-        $location.path("/login");
+        $state.go('login');    
     };
 })
       
@@ -665,13 +707,13 @@ angular.module('citizenmap.controllers', [])
                     $state.go('menu.avaliacao');
                 }, function (error) {
                     IonicInteraction.hide();
-                    IonicInteraction.errMessage(error);
-                    console.log("Não foi possível obter a localização: " + error.message);
+                    IonicInteraction.alertError(error);
+                    console.error(error);
                 });
             }, function (error) {
                 IonicInteraction.hide();
-                IonicInteraction.errMessage(error);
-                console.log("Não foi possível efetuar a autenticação: " + error.message);
+                IonicInteraction.alertError(error);
+                console.error(error);
             });
         }
     };
@@ -685,12 +727,29 @@ angular.module('citizenmap.controllers', [])
             if (error.code === "TRANSPORT_UNAVAILABLE") {
                 AuthFactory.$authWithOAuthPopup(provider).then(function (authData) {
                     console.log('Usuário Logado!', authData);
-                    $state.go('menu.avaliacao.avaliar');
+                    $state.go('menu.avaliacao');
                 });
             } else {
-                console.log(error);
+                console.error(error);
             }
         });
+    };
+    
+    $scope.resetPassword = function (senhaForm) {
+        if (senhaForm.$valid) {
+            IonicInteraction.show();
+
+            AuthFactory.resetPassword({email: $scope.usuario.email}).then(function () {
+                $state.go('login');
+                IonicInteraction.hide();
+                IonicInteraction.alert("Sucesso", "E-mail de redefinição de senha enviado com sucesso!")
+                
+            }, function (error) {
+                IonicInteraction.hide();
+                IonicInteraction.alertError(error);
+                console.error(error);
+            });
+        }
     };
 })
 
@@ -707,22 +766,22 @@ angular.module('citizenmap.controllers', [])
             AuthFactory.criarUsuario($scope.usuario).then(function (userData) {
                 AuthFactory.criarPerfil(userData.uid, $scope.usuario, $scope.perfil, $scope.endereco, $scope.configuracao).then(function () {
                     IonicInteraction.hide();
-                    IonicInteraction.alertshow("Sucesso", "Seu perfil foi criado com sucesso!");
+                    IonicInteraction.alert("Sucesso", "Seu perfil foi criado com sucesso!");
                     $location.path('/');
-                }, function (err) {
+                }, function (error) {
                     IonicInteraction.hide();
-                    IonicInteraction.errMessage(err);
+                    IonicInteraction.alertError(error);
                 });
-            }, function (err) {
+            }, function (error) {
                 IonicInteraction.hide();
-                IonicInteraction.errMessage(err);
+                IonicInteraction.alertError(error);
             });
         }
     };  
 })
 
-.controller('servicoIndexCtrl', function (FBURL, IonicInteraction, ServicoService, $firebaseArray, $scope, $state) {
-    $scope.$on('$ionicView.beforeEnter', function () {
+.controller('servicoIndexCtrl', function (FBURL, ServicoService, $firebaseArray, $scope, $state) {
+    $scope.$on('$ionicView.enter', function () {
         $scope.servicos = $firebaseArray(new Firebase(FBURL).child('servicos'));
     });
 
@@ -732,8 +791,8 @@ angular.module('citizenmap.controllers', [])
     };
 })
 
-.controller('servicoCtrl', function(FBURL, IonicInteraction, ServicoService, $firebaseArray, $scope) {
-    $scope.$on('$ionicView.beforeEnter', function () {
+.controller('servicoCtrl', function(FBURL, IonicInteraction, ServicoService, $firebaseArray, $scope, $state) {
+    $scope.$on('$ionicView.enter', function () {
         if (angular.isDefined(ServicoService.getServico())) {
             $scope.servico = ServicoService.getServico();
             $scope.inputs = [];
@@ -764,17 +823,18 @@ angular.module('citizenmap.controllers', [])
 
                 putDetalhes($scope.inputs, servico).then(function () {
                     IonicInteraction.hide();
-                    IonicInteraction.alertshow("Sucesso", "Serviço cadastrado com sucesso!");
+                    IonicInteraction.alert("Sucesso", "Serviço cadastrado com sucesso!");
+                    $state.go('menu.servico');
 
                 }, function (error) {
                     IonicInteraction.hide();
-                    IonicInteraction.errMessage(error);
-                    console.log("Não foi possível adicionar os detalhes: " + error.message);
+                    IonicInteraction.alertError(error);
+                    console.error(error);
                 });
             }, function (error) {
                 IonicInteraction.hide();
-                IonicInteraction.errMessage(error);
-                console.log("Não foi possível adicionar o serviço: " + error.message);
+                IonicInteraction.alertError(error);
+                console.error(error);
             });
         }
     };
@@ -801,7 +861,7 @@ angular.module('citizenmap.controllers', [])
             });
             
             IonicInteraction.hide();
-            IonicInteraction.alertshow("Sucesso", "Serviço atualizado com sucesso!");
+            IonicInteraction.alert("Sucesso", "Serviço atualizado com sucesso!");
         }
     }
 
@@ -834,8 +894,8 @@ angular.module('citizenmap.controllers', [])
     
    function onComplete(error) {
         if (error) {
-            IonicInteraction.errMessage(error);
-            console.log('Erro ao Sincronizar: ' + error.message);
+            IonicInteraction.alertError(error);
+            console.error(error);
         } else {
             console.log('Sincronização concluída.');
         }
@@ -906,8 +966,8 @@ angular.module('citizenmap.controllers', [])
                             // Pesquisando um perfil específico:
                             if(avl.val().perfil == 'Anderson'){
                                 console.log(avl.key());
-                                // console.log(avl.val());
-                                // console.log(avl.numChildren());
+                                console.log(avl.val());
+                                console.log(avl.numChildren());
                             }
                         });
                     });
@@ -1001,6 +1061,6 @@ angular.module('citizenmap.controllers', [])
     $scope.objPerfil.$loaded().then(function (objPerfil) {
         console.log(objPerfil);
     }).catch(function (error) {
-        console.error("Erro:", error);
+        console.error(error);
     });
 });

@@ -1,0 +1,23 @@
+<ion-view title="Recuperar Senha" id="recuperarsenha">
+    <ion-content padding="true" class="has-header">
+        <form novalidate class="list" name="senhaForm" ng-submit="resetPassword(senhaForm)">
+            <div class="list list-inset" id="exclusao" style="color:#000000;">
+                <div style="text-align: center;">
+                    <img ng-src="img/lock.png" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
+                    <h3>Não se lembra da sua senha?</h3>
+                    <p>Informe seu e-mail para prosseguir. Será enviada uma senha temporária para efetuar a redefinição.</p>
+                </div>
+                <ion-input class="item item-input item-stacked-label" ng-class="{ 'has-errors' : senhaForm.oldPassword.$invalid && senhaForm.$submitted }">
+                    <ion-label >E-mail</ion-label>
+                    <input name="oldPassword" type="email" placeholder="Digite seu e-mail" ng-model="usuario.email" ng-minlength="5" ng-maxlength="30" required>
+                </ion-input>
+                <div class="error-container" ng-show="senhaForm.oldPassword.$error && senhaForm.$submitted" ng-messages="senhaForm.oldPassword.$error">
+                    <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                    <div class="error" ng-message="email"><i class="ion-information-circled"></i> Este campo deve ser um e-mail.</div>
+                    <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 30 caracteres.</div>
+                </div>
+                <button type="submit" id="alterar-senha-button" class="button button-positive button-block">Enviar</button>
+            </div>
+        </form>
+    </ion-content>
+</ion-view>

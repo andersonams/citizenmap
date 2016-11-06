@@ -2,19 +2,19 @@
     <ion-content padding="true" class="has-header" ng-controller="mapasCtrl">
         <div class="button-bar"></div>
         <div>
-            <img src="img/numerical_sorting.png" width="30%" height="auto" style="display: block;margin-left: auto;margin-right: auto;padding-top: 10px;">
+            <img ng-src="img/numerical_sorting.png" width="30%" height="auto" style="display: block;margin-left: auto;margin-right: auto;padding-top: 10px;">
         </div>
         <h5 id="principal-heading7" style="color:#000000;text-align:center;">Escolha abaixo o tipo de local:</h5>
         <div id="principal-markdown4" style="color:#000000;text-align:center;">
             <p>Visualize as médias das cidades ou bairros avaliados. Neste mapa é feita uma comparação visual das médias.</p>
         </div>    
         <ion-list>
-            <ion-item class="item-thumbnail-left" ng-click="definirTipoLocal('cidade'); modal.show()">
+            <ion-item class="item-thumbnail-left" ng-click="definirTipoLocal('cidade'); modal.selecionarservico.show()">
                 <img ng-src="img/cidade.png">
                 <h2>Cidades</h2>
                 <p style="white-space:normal;">Visualize as médias das cidades avaliadas. Cidades não avalidadas não aparecem no mapa.</p>
             </ion-item>
-            <ion-item class="item-thumbnail-left" ng-click="definirTipoLocal('bairro'); modal.show()">
+            <ion-item class="item-thumbnail-left" ng-click="definirTipoLocal('bairro'); modal.selecionarservico.show()">
                 <img ng-src="img/bairro.png">
                 <h2>Bairros</h2>
                 <p style="white-space:normal;">Visualize as médias dos bairros avaliados. Bairros não avaliados não são destacados no mapa.</p>

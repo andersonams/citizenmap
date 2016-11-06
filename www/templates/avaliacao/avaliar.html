@@ -1,12 +1,12 @@
-<ion-view title="Avaliação" id="avaliacao" cache-view="false" hide-back-button="true">
-    <ion-content padding="true" class="has-header" ng-controller="avaliacaoCtrl">
+<ion-view title="Avaliação" id="avaliacao" cache-view="false">
+    <ion-content padding="true" class="has-header">
         <form novalidate class="list" name="avaliacaoForm" ng-submit="salvarAvaliacao(avaliacaoForm)">
             <div>
                 <img ng-src="img/{{servico.imagem}}" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;" />
             </div>
             <div style="color:#000000;text-align:center;">
                 <h3><p>{{servico.nome}}</p></h3>
-                <h4 ng-click="modal.show()">{{cidade.title}} <i style="color:#EF473A;" class="icon ion-ios-information"></i></h4>
+                <h4 ng-click="modal.alterarlocalizacao.show()">{{cidade.title}} <i style="color:#EF473A;" class="icon ion-ios-information"></i></h4>
                 <h5>{{bairro.title}}</h5>
                 <p>Avalie abaixo o serviço selecionado:</p>
             </div>

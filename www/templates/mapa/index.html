@@ -1,15 +1,16 @@
-<ion-view title="Mapas" hide-back-button="true" id="principalmapa">
+<ion-view title="Mapas" id="principalmapa">
     <ion-content padding="true" class="has-header" ng-controller="mapasCtrl">
         <div class="button-bar"></div>
         <div>
-            <img src="img/map.png" width="30%" height="auto" style="display: block;margin-left: auto;margin-right: auto;padding-top: 10px;">
+            <img ng-src="img/map.png" width="30%" height="auto" style="display: block;margin-left: auto;margin-right: auto;padding-top: 10px;">
         </div>
+        <h4 style="color:gray; text-align:center;">Mapas</h4>
         <h5 id="principal-heading7" style="color:#000000;text-align:center;">Escolha abaixo o mapa a ser visualizado.</h5>
         <div id="principal-markdown4" style="color:#000000;text-align:center;">
             <p>Estes mapas tem a finalidade de mostrar a situação das cidades e bairros de forma visual e simples.</p>
         </div>
         <ion-list>
-            <ion-item class="item-thumbnail-left" ng-click="mapaAvaliacao(); modal.show()">
+            <ion-item class="item-thumbnail-left" ng-click="mapaAvaliacao(); modal.selecionarservico.show()">
                 <img ng-src="img/mappointer.png">
                 <h2>Avaliações</h2>
                 <p style="white-space:normal;">Visualize a localização exata de cada avaliação. Com este mapa, é possível visualizar as áreas mais avaliadas.</p>

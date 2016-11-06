@@ -1,8 +1,7 @@
 <ion-view title="Cadastrar Serviço" id="cadsatrarservico" cache-view="false">
     <ion-content padding="true" class="has-header">
         <form novalidate class="list" name="servicoForm" ng-submit="cadastrar(servicoForm)">
-            <h5 style="text-align: center;">Cadastro de Serviços:</h5>
-            <h4 style="color:gray; text-align:center;">{{usuario.email}}</h4>
+            <h4 style="color:gray; text-align:center;">Cadastro de Serviços</h4>
             <div class="list">
                 <label class="item item-input item-stacked-label" ng-class="{ 'has-errors' : servicoForm.txtNome.$invalid && servicoForm.$submitted }">
                     <span class="input-label" style="color: gray; font-size: smaller;">Nome</span>

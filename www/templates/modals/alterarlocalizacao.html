@@ -1,15 +1,16 @@
 <ion-modal-view style="width: 100%; height: 100%; top: 0%; left: 0%; right: 0%; bottom: 0%;">
     <ion-header-bar class="bar-energized">
         <h1 class="title">Alterar Localizacao</h1>
-        <button class="button button-clear button-primary" ng-click="modal.hide()">Cancelar</button>
+        <button class="button button-clear button-primary" ng-click="modal.alterarlocalizacao.hide()">Cancelar</button>
     </ion-header-bar>
     <ion-content>
         <div style="text-align: center;">
+            <img ng-src="img/mappointer.png" width="10%" height="auto" style="display: block; margin-left: auto; margin-right: auto; padding-top: 10px;">
             <h3>A localização está incorreta?</h3>
             <p>Abaixo estão as dez localizações mais próximas de você. Selecione corretamente a sua atual:</p>
         </div>
         <ion-list>
-            <ion-item class="item" ng-repeat="local in locais" ng-click="definirLocalizacao(local); modal.hide()">
+            <ion-item class="item" ng-repeat="local in locais" ng-click="definirLocalizacao(local); modal.alterarlocalizacao.hide()">
                 <i class="icon ion-android-pin"></i> {{local.title}} <span class="badge">{{local.location.city}}</span>
             </ion-item>
         </ion-list>

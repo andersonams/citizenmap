@@ -1,0 +1,29 @@
+<ion-modal-view style="width: 100%; height: 100%; top: 0%; left: 0%; right: 0%; bottom: 0%;">
+    <ion-header-bar class="bar-assertive">
+        <h1 class="title">Excluir Conta</h1>
+        <button class="button button-clear button-primary" ng-click="modal.excluirconta.hide()">Cancelar</button>
+    </ion-header-bar>
+    <ion-content>
+        <form novalidate class="list" name="contaForm" ng-submit="excluirConta(contaForm)">
+            <div class="list list-inset" id="exclusao">
+                <div style="text-align: center;">
+                    <h4 style="color:gray; text-align:center;">Excluir Conta</h4>
+                    <h5>Tem certeza que deseja prosseguir?</h5>
+                    <p>Informe sua senha para continuar com a exclusão. Após isso, você será redirecionado para a tela de entrada.</p>
+                </div>
+                <div class="list">
+                    <label class="item item-input item-floating-label" ng-class="{ 'has-errors' : contaForm.oldPassword.$invalid && contaForm.$submitted }">
+                        <span class="input-label">Senha Atual</span>
+                        <input name="oldPassword" type="password" placeholder="Senha Atual" ng-model="changePassword.oldPassword" ng-minlength="6" ng-maxlength="12" required>
+                    </label>
+                    <div class="error-container" ng-show="contaForm.oldPassword.$error && contaForm.$submitted" ng-messages="contaForm.oldPassword.$error">
+                        <div class="error" ng-message="required"><i class="ion-information-circled"></i> Campo obrigatório.</div>
+                        <div class="error" ng-message="minlength"><i class="ion-information-circled"></i> Campo com no mínimo 6 dígitos.</div>
+                        <div class="error" ng-message="maxlength"><i class="ion-information-circled"></i> Campo com no máximo 12 caracteres.</div>
+                    </div>
+                    <button type="submit" id="alterar-senha-button" class="button button-assertive button-block" ng-click="modal.excluirconta.hide()">Excluir Conta</button>
+                </div>
+            </div>
+        </form>
+    </ion-content>
+</ion-modal-view>

@@ -1,6 +1,6 @@
 angular.module('citizenmap.utils', [])
 
-.factory('IonicInteraction', function($ionicLoading, $ionicPopup) {
+.factory('IonicInteraction', function($ionicLoading, $ionicModal, $ionicPopup) {
     return {
         show: function () {
             $ionicLoading.show({
@@ -11,10 +11,12 @@ angular.module('citizenmap.utils', [])
                 template: '<ion-spinner icon="android"></ion-spinner>'
             });
         },
+        
         hide: function () {
             $ionicLoading.hide();
         },
-        alertshow: function (tit, msg) {
+        
+        alert: function (tit, msg) {
             var alertPopup = $ionicPopup.alert({
                 title: tit,
                 template: msg
@@ -22,11 +24,12 @@ angular.module('citizenmap.utils', [])
             alertPopup.then(function () {
             });
         },
-        errMessage: function (err) {
-            var msg = "Erro Interno! Favor reportá-lo à equipe! " + err.message;
+        
+        alertError: function (error) {
+            var msg = "Erro Interno! Favor reportá-lo à equipe! " + "<b>" + error.message + "</b>";
 
-            if (err && err.code) {
-                switch (err.code) {
+            if (error && error.code) {
+                switch (error.code) {
                     case "EMAIL_TAKEN":
                         msg = "Endereço de e-mail já utilizado!";
                         break;
@@ -34,7 +37,7 @@ angular.module('citizenmap.utils', [])
                         msg = "Endereço de e-mail ou senha inválidos!";
                         break;
                     case "INVALID_PASSWORD":
-                        msg = "Endereço de e-mail ou senha inválidos!";
+                        msg = "A senha especificada está incorreta!";
                         break;
                     case "INVALID_USER":
                         msg = "Endereço de e-mail ou senha inválidos!";
@@ -44,93 +47,32 @@ angular.module('citizenmap.utils', [])
                         break;
                 }
             }
-            this.alertshow("Erro!", msg);
-        }
-    };
-})
-
-.factory('IonicLoading', function($ionicLoading) {
-    return {
-        show: function () {
-            $ionicLoading.show({
-                animation: 'fade-in',
-                showBackdrop: false,
-                maxWidth: 200,
-                showDelay: 500,
-                template: '<ion-spinner icon="android"></ion-spinner>'
-            });
+            this.alert("Erro", msg);
         },
-        hide: function () {
-            $ionicLoading.hide();
-        }
-    };
-})
-
-.factory('IonicPopUp', function($ionicPopup) {
-    return {
-        alertshow: function (tit, msg) {
-            var alertPopup = $ionicPopup.alert({
-                title: tit,
-                template: msg
-            });
-            alertPopup.then(function () {
-            });
-        },
-        errMessage: function (err) {
-            var msg = "Erro Interno! Favor reportá-lo à equipe! " + err.message;
-
-            if (err && err.code) {
-                switch (err.code) {
-                    case "EMAIL_TAKEN":
-                        msg = "Endereço de e-mail já utilizado!";
-                        break;
-                    case "INVALID_EMAIL":
-                        msg = "Endereço de e-mail ou senha inválidos!";
-                        break;
-                    case "INVALID_PASSWORD":
-                        msg = "Endereço de e-mail ou senha inválidos!";
-                        break;
-                    case "INVALID_USER":
-                        msg = "Endereço de e-mail ou senha inválidos!";
-                        break;
-                    case "NETWORK_ERROR":
-                        msg = "Erro de rede. Verifique sua conexão e tente novamente.";
-                        break;
+        
+        gerarModal: function (nome, templateModal, $scope) {
+            $ionicModal.fromTemplateUrl(templateModal, {scope: $scope, animation: 'slide-in-up'}).then(function (modal) {
+                if(angular.isUndefined($scope.modal)){
+                    $scope.modal = {};
                 }
-            }
-            this.alertshow("Erro!", msg);
-        }
-    };
-})
-
-.factory('IonicModal', function($ionicModal) {
-    return {
-        gerarModal: function (templateModal, $scope) {
-            $ionicModal.fromTemplateUrl(templateModal, {
-                scope: $scope,
-                animation: 'slide-in-up'
-            }).then(function (modal) {
-                $scope.modal = modal;
+                
+                $scope.modal[nome] = modal;
 
                 // Cleanup the modal when we're done with it!
-                $scope.$on('$destroy', function () {
-                    $scope.modal.remove();
-                });
-
-                // Execute action on hide modal:
-                $scope.$on('modal.hidden', function () {
-                });
-
-                // Execute action on remove modal:
-                $scope.$on('modal.removed', function () {
-                });
+//              $scope.$on('$destroy', function () {
+//                  $scope.modal[nome].remove();
+//              });
+//
+//              // Execute action on hide modal:
+//              $scope.$on('modal.hidden', function () {
+//              });
+//
+//              // Execute action on remove modal:
+//              $scope.$on('modal.removed', function () {
+//              });
             });
-        }
-    };
-})
-
-.factory('IonicRatings', function() {
-    return {
+        },
+        
         gerarRatings: function ($scope) {
             $scope.ratingsObject = {
                 iconOn: 'ion-ios-star',
