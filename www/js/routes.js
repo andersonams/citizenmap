@@ -69,7 +69,7 @@ angular.module('citizenmap.routes', [])
         views: {
             'menuview': {
                 templateUrl: 'templates/avaliacao/index.html',
-                controller: 'principalCtrl'
+                controller: 'avaliacaoIndexCtrl'
             }
         }
     })
@@ -79,7 +79,7 @@ angular.module('citizenmap.routes', [])
         views: {
             'menuview@menu': {
                 templateUrl: "templates/avaliacao/avaliar.html",
-                controller: 'avaliacaoCtrl'
+                controller: 'avaliacaoAvaliarCtrl'
             }
         }
     })
@@ -89,7 +89,7 @@ angular.module('citizenmap.routes', [])
         views: {
             'menuview@menu': {
                 templateUrl: "templates/avaliacao/finalizar.html",
-                controller: 'conclusaoCtrl'
+                controller: 'avaliacaoFinalizarCtrl'
             }
         }
     })
@@ -99,7 +99,7 @@ angular.module('citizenmap.routes', [])
         views: {
             'menuview': {
                 templateUrl: 'templates/mapa/index.html',
-                controller: 'mapasCtrl'
+                controller: 'mapaIndexCtrl'
             }
         }
     })
@@ -109,7 +109,7 @@ angular.module('citizenmap.routes', [])
         views: {
             'menuview@menu': {
                 templateUrl: 'templates/mapa/media.html',
-                controller: 'mapasCtrl'
+                controller: 'mapaMediaCtrl'
             }
         }
     })
@@ -119,7 +119,7 @@ angular.module('citizenmap.routes', [])
         views: {
             'menuview@menu': {
                 templateUrl: 'templates/mapa/visualizar.html',
-                controller: 'mapaCtrl'
+                controller: 'mapaVisualizarCtrl'
             }
         }
     })
@@ -140,7 +140,7 @@ angular.module('citizenmap.routes', [])
         views: {
             'menuview@menu': {
                 templateUrl: "templates/servico/cadastrar.html",
-                controller: 'servicoCtrl'
+                controller: 'servicoCadastrarCtrl'
             }
         }
     })
@@ -151,7 +151,7 @@ angular.module('citizenmap.routes', [])
         views: {
             'menuview@menu': {
                 templateUrl: "templates/servico/editar.html",
-                controller: 'servicoCtrl'
+                controller: 'servicoEditarCtrl'
             }
         }
     })

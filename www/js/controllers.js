@@ -1,7 +1,7 @@
 'Use Strict';
 angular.module('citizenmap.controllers', [])
   
-.controller('principalCtrl', function (AvaliacaoService, FBURL, IonicInteraction, $firebaseArray, $localStorage, $scope, $state) {
+.controller('avaliacaoIndexCtrl', function (AvaliacaoService, FBURL, IonicInteraction, $firebaseArray, $localStorage, $scope, $state) {
     $scope.$on('$ionicView.enter', function () {
         IonicInteraction.show();
         
@@ -84,30 +84,36 @@ angular.module('citizenmap.controllers', [])
     }
 })
 
-.controller('avaliacaoCtrl', function(LocalizacaoFactory, AvaliacaoService, FBURL, IonicInteraction, $firebaseArray, $localStorage, $scope, $state) {
+.controller('avaliacaoAvaliarCtrl', function(AvaliacaoService, FBURL, LocalizacaoFactory, IonicInteraction, $firebaseArray, $localStorage, $scope, $state) {
     IonicInteraction.gerarModal('alterarlocalizacao', 'templates/modals/alterarlocalizacao.html', $scope);
     IonicInteraction.gerarRatings($scope);
-    console.log($scope);
     
     $scope.$on('$ionicView.enter', function () {
-        IonicInteraction.show();
-        
-        $scope.model = {detalhe: 'default', nota: 1};
-        $scope.servico = AvaliacaoService.getServico();
-        
-        LocalizacaoFactory.getLocalizacao().then(function (localizacao) {
-            LocalizacaoFactory.setLocalizacao(localizacao);
-            
-            $scope.bairro = localizacao.bairro;
-            $scope.cidade = localizacao.cidade;
-            $scope.locais = localizacao.locais;
-            IonicInteraction.hide();
-        }, function (error) {
-            $state.go('menu.avaliacao');
-            IonicInteraction.hide();
-            IonicInteraction.alertError(error);
-            console.error(error);
-        });
+        if (angular.isDefined(AvaliacaoService.getServico())) {
+            IonicInteraction.show();
+
+            $scope.servico = AvaliacaoService.getServico();
+            $scope.model = {detalhe: 0, nota: 1};
+
+            // Limpar serviço:
+            AvaliacaoService.setServico();
+
+            LocalizacaoFactory.getLocalizacao().then(function (localizacao) {
+                LocalizacaoFactory.setLocalizacao(localizacao);
+
+                $scope.bairro = localizacao.bairro;
+                $scope.cidade = localizacao.cidade;
+                $scope.locais = localizacao.locais;
+                IonicInteraction.hide();
+            }, function (error) {
+                $state.go('menu.avaliacao');
+                IonicInteraction.hide();
+                IonicInteraction.alertError(error);
+                console.error(error);
+            });
+        } else {
+            $state.go('menu.avaliacao')
+        }
     });
     
     $scope.ratingsCallback = function (rating) {
@@ -151,26 +157,26 @@ angular.module('citizenmap.controllers', [])
             avaliacoesRef.$add(avaliacao).then(function (avaliacao) {
                 updateMediaCidade($scope.servico.id, $localStorage.cidade.id_firebase).then(function () {
                     updateMediaBairro($scope.servico.id, $localStorage.bairro.id_firebase).then(function () {
-                        IonicInteraction.hide();
-                        IonicInteraction.alert("Avaliação Registrada com Sucesso!");
                         $state.go('menu.avaliacao.finalizar');
+                        IonicInteraction.hide();
+                        IonicInteraction.alert("Sucesso", "Avaliação registrada com sucesso!");
                         console.log("Avaliação criada: " + avaliacao.key());
                     }, function (error) {
+                        $state.go('menu.avaliacao');
                         IonicInteraction.hide();
                         IonicInteraction.alertError(error);
-                        $state.go('menu.avaliacao');
                         console.error(error);
                     });
                 }, function (error) {
+                    $state.go('menu.avaliacao');
                     IonicInteraction.hide();
                     IonicInteraction.alertError(error);
-                    $state.go('menu.avaliacao');
                     console.error(error);
                 });
             }, function (error) {
+                $state.go('menu.avaliacao');
                 IonicInteraction.hide();
                 IonicInteraction.alertError(error);
-                $state.go('menu.avaliacao');
                 console.error(error);
             });
         }
@@ -203,21 +209,23 @@ angular.module('citizenmap.controllers', [])
                     soma += parseInt(avaliacao.nota);
                 });
 
-               //Definir o detalhe mais escolhido: 
+               // Definir o detalhe mais escolhido: 
                detalhe.id = Object.keys(detalhes).reduce(function(a, b){ return detalhes[a] > detalhes[b] ? a : b; });
                detalhe.descricao = Object.keys(detalhes).reduce(function(m, k){ return detalhes[k] > m ? detalhes[k] : m; }, -Infinity);
 
-                //Calcular a média:
+                // Calcular a média:
                 mediaAvaliacoes = parseInt(soma) / parseInt(totalAvaliacoesBairro);
 
                 mediaBairro.media = parseFloat(mediaAvaliacoes.toFixed(2));
                 mediaBairro.detalhe = detalhe.id;
 
-                bairroRef.update(mediaBairro, onComplete);
-
-                resolve();
-            }, function (errorObject) {
-                reject(errorObject);
+                bairroRef.update(mediaBairro).then(function () {
+                    resolve();
+                }, function (error) {
+                    reject(error);
+                });
+            }, function (error) {
+                reject(error);
             });
         });
     }
@@ -248,58 +256,63 @@ angular.module('citizenmap.controllers', [])
                     totalAvaliacoesCidade += 1;
                 });
 
-                //Definir o detalhe mais ecolhido: 
+                // Definir o detalhe mais ecolhido: 
                 detalhe.id = Object.keys(detalhes).reduce(function (a, b) { return detalhes[a] > detalhes[b] ? a : b; });
                 detalhe.nome = Object.keys(detalhes).reduce(function (m, k) { return detalhes[k] > m ? detalhes[k] : m; }, -Infinity);
 
-                //Calcular a média:
+                // Calcular a média:
                 mediaAvaliacoes = parseInt(soma) / parseInt(totalAvaliacoesCidade);
 
                 mediaCidade.media = parseFloat(mediaAvaliacoes.toFixed(2));
                 mediaCidade.detalhe = detalhe.id;
 
-                cidadeRef.update(mediaCidade, onComplete);
-
-                resolve();
-            }, function (errorObject) {
-                reject(errorObject);
+                cidadeRef.update(mediaCidade).then(function () {
+                    resolve();
+                }, function (error) {
+                    reject(error);
+                });
+            }, function (error) {
+                reject(error);
             });
         });
     }
-      
-    function onComplete(error) {
-        if (error) {
-            IonicInteraction.alertError(error);
-            console.error(error);
-        } else {
-            console.log('Sincronização concluída.');
-        }
-    }
 })
 
-.controller('conclusaoCtrl', function () {
+.controller('avaliacaoFinalizarCtrl', function () {
     
 })
 
-.controller('mapasCtrl', function (FBURL, IonicInteraction, MapaService, $firebaseArray, $scope, $state) {
+.controller('mapaIndexCtrl', function (FBURL, IonicInteraction, MapaService, $firebaseArray, $scope, $state) {
     IonicInteraction.gerarModal('selecionarservico', 'templates/modals/selecionarservico.html', $scope);
     
     $scope.$on('$ionicView.enter', function () {
         $scope.servicos = $firebaseArray(new Firebase(FBURL).child('servicos'));
-        
-        if(angular.isUndefined(MapaService.getTipoMapa())){
-            $state.go('menu.mapa');
-        }
     });
     
-    $scope.mapaAvaliacao = function () {
-         MapaService.setTipoMapa('Avaliações');
+    $scope.definirTipoMapa = function (tipoMapa) {
+        MapaService.setTipoMapa(tipoMapa);
+    };
+     
+    $scope.definirServico = function (servico) {
+        MapaService.setServico(servico);
+        $state.go('menu.mapa.visualizar');
     };
     
     $scope.mapaMedia = function () {
-         MapaService.setTipoMapa('Médias');
-         $state.go('menu.mapa.media');
+        $state.go('menu.mapa.media');
     };
+})
+
+.controller('mapaMediaCtrl', function (FBURL, IonicInteraction, MapaService, $firebaseArray, $scope, $state) {
+    IonicInteraction.gerarModal('selecionarservico', 'templates/modals/selecionarservico.html', $scope);
+    
+    $scope.$on('$ionicView.enter', function () {
+        if (angular.isDefined(MapaService.getTipoMapa())) {
+            $scope.servicos = $firebaseArray(new Firebase(FBURL).child('servicos'));
+        } else {
+            $state.go('menu.mapa');
+        }
+    });
 
     $scope.definirTipoLocal = function (tipoLocal) {
         MapaService.setTipoLocal(tipoLocal);
@@ -311,40 +324,40 @@ angular.module('citizenmap.controllers', [])
     };
 })
 
-.controller('mapaCtrl', function(FBURL, LocalizacaoFactory, IonicInteraction, MapaService, $firebaseArray, $localStorage, $scope, $state) {
+.controller('mapaVisualizarCtrl', function(FBURL, LocalizacaoFactory, IonicInteraction, MapaService, $firebaseArray, $localStorage, $scope, $state) {
     $scope.$on('$ionicView.enter', function () {
-        IonicInteraction.show();
-        
         $scope.servico = MapaService.getServico();
         $scope.tipoLocal = MapaService.getTipoLocal();
         $scope.tipoMapa = MapaService.getTipoMapa();        
         
         // Mapa de Avaliações
         if ($scope.tipoMapa == 'Avaliações') {
+            IonicInteraction.show();
             putMapa();
             putAvaliacoes($scope.servico).then(function () {
                 IonicInteraction.hide();
 
             }, function (error) {
+                $state.go('menu.avaliacao');
                 IonicInteraction.hide();
                 IonicInteraction.alertError(error);
-                $state.go('menu.avaliacao');
                 console.error(error);
             });
-            // Mapa de Médias        
+        // Mapa de Médias
         } else if ($scope.tipoMapa == 'Médias') {
+            IonicInteraction.show();
             putMapa();
             putMedias($scope.tipoLocal, $scope.servico).then(function () {
                 IonicInteraction.hide();
 
             }, function (error) {
+                $state.go('menu.avaliacao');
                 IonicInteraction.hide();
                 IonicInteraction.alertError(error);
-                $state.go('menu.avaliacao');
                 console.error(error);
             });
         } else {
-            $state.go('menu.avaliacao');
+            $state.go('menu.mapa');
         }
     });
     
@@ -399,7 +412,7 @@ angular.module('citizenmap.controllers', [])
                     reject(error);
                 });
             } else {
-                reject("O tipo de local não foi definido.");
+                reject(new Error("O tipo de local não foi definido."));
             }
         });
     }
@@ -543,7 +556,7 @@ angular.module('citizenmap.controllers', [])
         heatMap = new google.maps.visualization.HeatmapLayer({
             data: avaliacoes,
             map: $scope.map,
-            radius: 15
+            radius: 10
         });
     }
     
@@ -592,22 +605,37 @@ angular.module('citizenmap.controllers', [])
         $scope.endereco = {};
         $scope.configuracao = {};
         $scope.changePassword = {oldPassword: '', newPassword: ''};      
-
-        perfilRef.once("value", function (snapshot) {
+        
+        perfilRef.once("value").then(function (snapshot) {
             $scope.perfil.nome = snapshot.val().nome;
             $scope.perfil.sobrenome = snapshot.val().sobrenome;
             $scope.usuario.email = snapshot.val().email;
 
-            enderecoRef.once("value", function (snapshot) {
+            enderecoRef.once("value").then(function (snapshot) {
                 $scope.endereco.bairro = snapshot.val().bairro;
                 $scope.endereco.cidade = snapshot.val().cidade;
 
-                configuracaoRef.once("value", function (snapshot) {
+                configuracaoRef.once("value").then(function (snapshot) {
                     $scope.configuracao.email = snapshot.val().email;
-                    
+
                     IonicInteraction.hide();
+                }, function (error) {
+                    $state.go('menu.avaliacao');
+                    IonicInteraction.hide();
+                    IonicInteraction.alertError(error);
+                    console.error(error);
                 });
+            }, function (error) {
+                $state.go('menu.avaliacao');
+                IonicInteraction.hide();
+                IonicInteraction.alertError(error);
+                console.error(error);
             });
+        }, function (error) {
+            $state.go('menu.avaliacao');
+            IonicInteraction.hide();
+            IonicInteraction.alertError(error);
+            console.error(error);
         });
     });
     
@@ -648,23 +676,29 @@ angular.module('citizenmap.controllers', [])
         if (perfilForm.$valid) {
             IonicInteraction.show();
 
-            perfilRef.update({nome: $scope.perfil.nome, sobrenome: $scope.perfil.sobrenome}, onComplete);
-            enderecoRef.update({bairro: $scope.endereco.bairro, cidade: $scope.endereco.cidade}, onComplete);
-            configuracaoRef.update({email: $scope.configuracao.email}, onComplete);
+            perfilRef.update({nome: $scope.perfil.nome, sobrenome: $scope.perfil.sobrenome}).then(function () {
+                enderecoRef.update({bairro: $scope.endereco.bairro, cidade: $scope.endereco.cidade}).then(function () {
+                    configuracaoRef.update({email: $scope.configuracao.email}).then(function () {
+                        IonicInteraction.hide();
+                        IonicInteraction.alert("Sucesso", "Seu perfil foi atualizado com sucesso!");
 
-            IonicInteraction.hide();
-            IonicInteraction.alert("Sucesso", "Seu perfil foi atualizado com sucesso!");
+                    }, function (error) {
+                        IonicInteraction.hide();
+                        IonicInteraction.alertError(error);
+                        console.error(error);
+                    });
+                }, function (error) {
+                    IonicInteraction.hide();
+                    IonicInteraction.alertError(error);
+                    console.error(error);
+                });
+            }, function (error) {
+                IonicInteraction.hide();
+                IonicInteraction.alertError(error);
+                console.error(error);
+            });
         }
     };
-
-    function onComplete(error) {
-        if (error) {
-            IonicInteraction.alertError(error);
-            console.error(error);
-        } else {
-            console.log('Sincronização concluída.');
-        }
-    }
 })
 
 .controller('menuCtrl', function(AuthFactory, $localStorage, $scope, $state) {
@@ -791,46 +825,34 @@ angular.module('citizenmap.controllers', [])
     };
 })
 
-.controller('servicoCtrl', function(FBURL, IonicInteraction, ServicoService, $firebaseArray, $scope, $state) {
+.controller('servicoCadastrarCtrl', function (FBURL, IonicInteraction, $firebaseArray, $scope, $state) {
     $scope.$on('$ionicView.enter', function () {
-        if (angular.isDefined(ServicoService.getServico())) {
-            $scope.servico = ServicoService.getServico();
-            $scope.inputs = [];
-            
-            ServicoService.setServico();
-            angular.forEach($scope.servico.detalhes, function(detalhe, chave) {
-                $scope.inputs.push({id: chave, value: detalhe});
-            });
-        } else {
-            $scope.servico = {
-                nome: '',
-                descricao: '',
-                imagem: '',
-                disponibilidade: true
-            };
-            $scope.inputs = [{value: null}];
-        }
+        $scope.servico = {
+            nome: '',
+            descricao: '',
+            imagem: '',
+            disponibilidade: true,
+            detalhes: {}
+        };
+        $scope.inputs = [{value: 'Sem crítica relevante.'}];
     });
     
     $scope.cadastrar = function (servicoForm) {
         var servicosRef = $firebaseArray(new Firebase(FBURL).child('servicos'));
-        
+
         if (servicoForm.$valid) {
             IonicInteraction.show();
 
+            angular.forEach($scope.inputs, function (detalhe, chave) {
+                $scope.servico.detalhes[chave] = detalhe.value;
+            });
+            
             servicosRef.$add($scope.servico).then(function (servico) {
                 console.log("Serviço Criado: " + servico.key());
-
-                putDetalhes($scope.inputs, servico).then(function () {
-                    IonicInteraction.hide();
-                    IonicInteraction.alert("Sucesso", "Serviço cadastrado com sucesso!");
-                    $state.go('menu.servico');
-
-                }, function (error) {
-                    IonicInteraction.hide();
-                    IonicInteraction.alertError(error);
-                    console.error(error);
-                });
+                IonicInteraction.hide();
+                IonicInteraction.alert("Sucesso", "Serviço cadastrado com sucesso!");
+                $state.go('menu.servico');
+                
             }, function (error) {
                 IonicInteraction.hide();
                 IonicInteraction.alertError(error);
@@ -839,29 +861,51 @@ angular.module('citizenmap.controllers', [])
         }
     };
     
+    $scope.addInput = function () {
+        $scope.inputs.push({value: null});
+    };
+
+    $scope.removeInput = function (index) {
+        $scope.inputs.splice(index, 1);
+    };
+})
+
+.controller('servicoEditarCtrl', function(FBURL, IonicInteraction, ServicoService, $firebaseArray, $scope, $state) {
+    $scope.$on('$ionicView.enter', function () {
+        if (angular.isDefined(ServicoService.getServico())) {
+            $scope.servico = ServicoService.getServico();
+            $scope.inputs = [];
+            
+            angular.forEach($scope.servico.detalhes, function(detalhe) {
+                $scope.inputs.push({value: detalhe});
+            });
+            
+            // Limpar serviço:
+            ServicoService.setServico();
+        } else {
+            $state.go('menu.servico');
+        }
+    });
+    
     $scope.salvar = function (servicoForm) {
-        var servicoRef = new Firebase(FBURL).child('servicos').child($scope.servico.$id);        
-        
+        var servicoRef = new Firebase(FBURL).child('servicos').child($scope.servico.$id);
+
         if (servicoForm.$valid) {
             IonicInteraction.show();
             
-            servicoRef.update({nome: $scope.servico.nome, descricao: $scope.servico.descricao, imagem: $scope.servico.imagem, disponibilidade: $scope.servico.disponibilidade}, onComplete);
-        
-            angular.forEach($scope.inputs, function (detalhe) {
-                if (angular.isUndefined(detalhe.id)) {
-                    var detalhesServicoRef = servicoRef.child('detalhes');
-                    var detalhesServicoArray = $firebaseArray(detalhesServicoRef);                    
-                    
-                    detalhesServicoArray.$add(detalhe.value);
-                } else {
-                    var detalheRef = servicoRef.child('detalhes').child(detalhe.id);
-                    
-                    detalheRef.set(detalhe.value, onComplete);
-                }
+            angular.forEach($scope.inputs, function (detalhe, chave) {
+                $scope.servico.detalhes[chave] = detalhe.value;
             });
-            
-            IonicInteraction.hide();
-            IonicInteraction.alert("Sucesso", "Serviço atualizado com sucesso!");
+
+            servicoRef.update({nome: $scope.servico.nome, descricao: $scope.servico.descricao, imagem: $scope.servico.imagem, disponibilidade: $scope.servico.disponibilidade, detalhes: $scope.servico.detalhes}).then(function () {
+                IonicInteraction.hide();
+                IonicInteraction.alert("Sucesso", "Serviço atualizado com sucesso!");
+
+            }, function (error) {
+                IonicInteraction.hide();
+                IonicInteraction.alertError(error);
+                console.error(error);
+            });
         }
     }
 
@@ -872,34 +916,6 @@ angular.module('citizenmap.controllers', [])
     $scope.removeInput = function (index) {
         $scope.inputs.splice(index, 1);
     };
-    
-    function putDetalhes(detalhes, servico) {
-        var detalhesServicoRef = servico.child('detalhes');
-        var detalhesServicoArray = $firebaseArray(detalhesServicoRef);
-        var last = Object.keys(detalhes)[Object.keys(detalhes).length - 1];
-
-        return new Promise(function (resolve, reject) {
-            detalhes.forEach(function (detalhe, i) {
-                detalhesServicoArray.$add(detalhe.value).then(function () {
-                    if (last == i) {
-                        detalhesServicoRef.update({ default: 'Sem crítica relevante.' });
-                        resolve(); 
-                    }
-                }, function (error) {
-                    reject(error);
-                });
-            });
-        });
-    }
-    
-   function onComplete(error) {
-        if (error) {
-            IonicInteraction.alertError(error);
-            console.error(error);
-        } else {
-            console.log('Sincronização concluída.');
-        }
-    }
 })
 
 .controller('firebaseCtrl', function(FBURL, $firebaseArray, $firebaseObject, $scope) {
