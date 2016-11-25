@@ -570,7 +570,7 @@ angular.module('citizenmap.controllers', [])
         } else if (media >= 3.00 && media <= 4.00) {
             return "#ADFF2F";
         } else if (media >= 4.00 && media <= 5.00) {
-            return "#90EE90";
+            return "#00FF00";
         }
     }
     
