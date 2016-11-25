@@ -1,7 +1,14 @@
 <ion-view title="Efetuar Cadastro" id="cadastro">
     <ion-content padding="true" class="has-header">
+        <div>
+            <img ng-src="img/singup.png" width="30%" height="auto" style="display: block; margin-left: auto; margin-right: auto;">
+        </div>
+        <h4 style="color:gray; text-align:center;">Efetuar Cadastro</h4>
+        <div style="color:#000000;text-align:center;">
+            <p>Informe os dados abaixo para prosseguir.</p>
+        </div>
         <form novalidate class="list" name="cadastroForm" ng-submit="cadastrar(cadastroForm)">
-            <h5 id="cadastro-heading4" style="color:#000000;text-align:center;"><i class="icon ion-android-person"></i> Perfil</h5>
+            <h5 id="cadastro-heading4" style="color:#000000;text-align:center;"><i class="icon ion-android-person"></i> Dados Pessoais</h5>
             <label class="item item-input" ng-class="{ 'has-errors' : cadastroForm.txtNome.$invalid && cadastroForm.$submitted }">
                 <input name="txtNome" type="text" ng-model="perfil.nome" placeholder="Nome" ng-maxlength="30" required>
             </label>
